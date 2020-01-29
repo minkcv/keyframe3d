@@ -1,0 +1,226 @@
+@font-face {
+    font-family: droid_sans_mono_regular;
+    src: url('DroidSansMono.ttf');
+}
+* {
+    box-sizing: content-box;
+}
+pre {
+    font-family: droid_sans_mono_regular;
+    font-size: 9pt;
+    color: #cccccc;
+}
+h1, h2, h3, p {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color: #cccccc;
+}
+h2 {
+    margin-top: 5px;
+    margin-left: 5px;
+}
+::-moz-selection {
+    color: #cccccc;
+    background: transparent;
+    background-color: transparent;
+}
+::selection {
+    color: #cccccc;
+    background: transparent;
+    background-color: transparent;
+}
+h1 {
+    font-size: 30pt;
+    margin: 0px;
+}
+#welcome {
+    margin: 15px;
+}
+.status-list > tbody > tr > td {
+    min-width: 160px;
+}
+.status-list > tbody > tr > th {
+    text-align: left;
+    min-width: 160px;
+}
+.status-list > tbody > tr > td > pre {
+    margin: 0px;
+}
+.status-list > tbody > tr > th > pre {
+    margin: 0px;
+}
+.tree-view {
+    margin: 15px;
+}
+.log {
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+    padding-right: 20px;
+    padding-bottom: 20px;
+}
+.log > pre {
+    margin: 0px;
+    overflow: hidden;
+}
+.log > .error {
+    color: #cc0000;
+}
+.log > .warning {
+    color: #cccc00;
+}
+.status, .analysis {
+    margin: 15px;
+}
+.status > pre {
+    display: inline;
+}
+.analysis > pre {
+    display: inline;
+}
+.console {
+    height: 100%;
+    width: 100%;
+}
+#console-out {
+    overflow: scroll;
+    height: 95%;
+    width: 100%;
+    padding-right: 20px;
+    padding-bottom: 20px;
+}
+#console-in-line {
+    background: #222222;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    margin: 0px;
+}
+#console-in {
+    width: 90%;
+    background: #222222;
+    border: none;
+    color: #cccccc;
+    font-family: droid_sans_mono_regular;
+    font-size: 9pt;
+}
+#console-in:focus {
+    outline-width: 0;
+}
+#console-in::selection {
+    color: #222222;
+    background: #cccccc;
+}
+#console-out > pre {
+    margin: 0px;
+}
+#three-substructure, #three-superstructure {
+    height: 70%;
+}
+#substructure-name, #superstructure-name {
+    font-family: droid_sans_mono_regular;
+    font-size: 9pt;
+    text-align: center;
+    margin-bottom: 0px;
+    overflow: hidden;
+}
+#pointer {
+    position: absolute;
+    display: none;
+    margin: 0px;
+}
+#data-component {
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+    padding-right: 20px;
+    padding-bottom: 20px;
+}
+.data-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+.data-table > thead > tr > th, .data-table > tbody > tr > td {
+    border: 1px solid #444444;
+    text-align: left;
+    padding: 0px;
+    color: #cccccc;
+}
+.data-table > thead > tr > th > pre, .data-table > tbody > tr > td > pre {
+    min-height: 18px;
+    padding: 2px;
+    margin: 0px;
+}
+.data-table > tbody {
+    overflow: auto;
+}
+.nullptr {
+    margin: 0px;
+    color: #ffffff;
+    background: #9e0000;
+}
+.green-lambda {
+    margin: 0px;
+    color: #ffffff;
+    background: #004d96;
+}
+#timeline {
+    height: 100%;
+    width: 95%;
+}
+#timeline > * {
+    font-family: droid_sans_mono_regular;
+    font-size: 9pt;
+}
+.vis-item.timeline-item {
+    background: #cccccc;
+}
+.vis-time-axis .vis-grid.vis-minor {
+    border-color: #555555 !important;
+}
+.vis-text, .vis-label {
+    color: #cccccc !important;
+}
+.timeline-range-red {
+    background: repeating-linear-gradient(45deg, #ff252581, #ff252581 10px, #a5151581 10px, #a5151581 20px);
+}
+.timeline-range-green {
+    background: repeating-linear-gradient(45deg, #f825ff81, #f825ff81 10px, #a5159981 10px, #a5159981 20px);
+}
+.timeline-range-blue {
+    background: repeating-linear-gradient(45deg, #2546ff81, #2546ff81 10px, #152fa581 10px, #152fa581 20px);
+}
+.timeline-range-red > .vis-item-overflow > .vis-item-content, 
+.timeline-range-green > .vis-item-overflow > .vis-item-content,
+.timeline-range-blue > .vis-item-overflow > .vis-item-content {
+    color: #ffffff !important;
+}
+.vis-selected {
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+}
+.progress {
+    font-family: droid_sans_mono_regular;
+    background-color: rgba(0, 0, 0, 0);
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.bars > pre {
+    margin: 0px 10px 0px 10px;
+}
+.bar-info {
+    background-color: #004d96 !important;
+}
+.bar-warning {
+    background-color: #96008e !important;
+}
+.bar-danger {
+    background-color: #9e0000 !important;
+}
+a:not([href]):not([tabindex]) {
+    color: #cccccc; /* undo bootstrap stuff to fix tree controls */
+}
+#graph {
+    width: 100%;
+    height: 100%;
+}
