@@ -67,9 +67,9 @@ var config = {
                 content:[{
                     type: 'component',
                     componentName: 'viewportComponent',
-                    componentState: { },
+                    componentState: { viewportId: 0 },
                     isClosable: false,
-                    title: 'Viewport'
+                    title: 'Viewport 0'
                 }]
             },{
                 type: 'stack',

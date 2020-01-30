@@ -1,3 +1,6 @@
+var viewports = [];
+var scene = new THREE.Scene();
+
 layout.init();
 
 var settings = {
@@ -5,9 +8,18 @@ var settings = {
     framerate: 60
 };
 
-var models = [
+var models = [];
 
-]
+function addViewport() {
+    var viewportConfig = {
+        type: 'component',
+        componentName: 'viewportComponent',
+        componentState: { viewportId: viewports.length },
+        title: 'Viewport ' + (viewports.length)
+    }
+    layout.root.contentItems[0].contentItems[1].contentItems[0].addChild(viewportConfig);
+
+}
 
 function loadSettings(newSettings) {
     settings = newSettings;
@@ -70,6 +82,26 @@ function unloadModel() {
     log('Unloaded model "' + name + '"');
 }
 
+function update() {
+    requestAnimationFrame(update);
+
+    viewports.forEach(function(viewport) {
+        if (viewport.camera != null)
+            viewport.renderer.render(scene, viewport.camera);
+    })
+}
+
 $(function() {
     loadSettings(settings);
+
+    // test geometry
+    var boxGeom = new THREE.TetrahedronGeometry(5, 2);
+    var wgeom = new THREE.WireframeGeometry(boxGeom);
+    var lines = new THREE.LineSegments(wgeom);
+    lines.material.color = {r: 1, g: 1, b: 1};
+    lines.material.depthTest = false;
+    lines.material.opacity = 0.5;
+    lines.material.transparent = true;
+    scene.add(lines);
+    update();
 });

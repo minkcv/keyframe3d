@@ -8,13 +8,21 @@
 .model-select {
     width: 100%;
 }
+.viewport {
+    margin: 10px;
+    width: 90%;
+    height: 90%;
+}
 select, select:focus {
     color: #cccccc;
     background-color: #2c2c2c;
     outline-color: #2c2c2c;
     border-color: #2c2c2c;
 }
-.settings, .models {
+button {
+    margin: 2px;
+}
+.settings, .models, .file-menu {
     margin: 5px;
 }
 .settings > label {
