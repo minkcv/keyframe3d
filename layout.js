@@ -27,13 +27,23 @@ var config = {
                         title: 'Settings'
                     }]
                 },{
-                    type: 'component',
+                    type: 'stack',
                     height: 70,
-                    componentName: 'treeComponent',
-                    componentState: {},
-                    isClosable: false,
-                    title: 'Scene Tree'
+                    content: [{
+                        type: 'component',
+                        componentName: 'treeComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Scene Tree'
+                    },{
+                        type: 'component',
+                        componentName: 'modelComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Models'
+                    }]
                 }]
+                
             },{
                 type: 'column',
                 content:[{
