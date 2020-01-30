@@ -11,24 +11,17 @@ var config = {
             width: 10,
             content:[{
                 type: 'component',
-                componentName: 'treeComponent',
-                componentState: { view: 'internal', id: '0' },
+                componentName: 'fileComponent',
+                componentState: {},
                 isClosable: false,
-                title: 'Internal System'
+                title: 'File'
             },{
                 type: 'component',
-                height: 20,
+                height: 70,
                 componentName: 'treeComponent',
-                componentState: { view: 'external', id: '1' },
+                componentState: {},
                 isClosable: false,
-                title: 'External System'
-            },{
-                type: 'component',
-                height: 20,
-                componentName: 'treeComponent',
-                componentState: { view: 'code', id: '2' },
-                isClosable: false,
-                title: 'Code System'
+                title: 'Scene Tree'
             }]
         },{
             type: 'column',
