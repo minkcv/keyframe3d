@@ -57,9 +57,7 @@ h1 {
     color: #cccc00;
 }
 #timeline {
-    height: 100%;
-    width: 95%;
-}
+    height: 100%;}
 #timeline > * {
     font-family: droid_sans_mono_regular;
     font-size: 9pt;
