@@ -5,6 +5,16 @@
 * {
     box-sizing: content-box;
 }
+.settings {
+    margin: 5px;
+}
+.settings, label {
+    font-family: droid_sans_mono_regular;
+    color: #cccccc;
+}
+.settings > input {
+    float: right;
+}
 pre {
     font-family: droid_sans_mono_regular;
     font-size: 9pt;
@@ -14,6 +24,13 @@ h1, h2, h3, p {
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
     color: #cccccc;
+}
+input {
+    color: #cccccc;
+    background-color: #2c2c2c;
+    width: 120px;
+    border-style: solid;
+    border-width: 1px;
 }
 h2 {
     margin-top: 5px;
@@ -28,6 +45,14 @@ h2 {
     color: #cccccc;
     background: transparent;
     background-color: transparent;
+}
+input::selection {
+    color: #2c2c2c;
+    background-color: #cccccc;
+}
+input:focus, .btn:focus, .btn:active {
+    outline-color: #670070;
+    box-shadow: none;
 }
 h1 {
     font-size: 30pt;
@@ -57,7 +82,8 @@ h1 {
     color: #cccc00;
 }
 #timeline {
-    height: 100%;}
+    height: 100%;
+}
 #timeline > * {
     font-family: droid_sans_mono_regular;
     font-size: 9pt;

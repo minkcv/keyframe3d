@@ -8,25 +8,25 @@ layout.registerComponent( 'timelineComponent', function(container, componentStat
         var formatOptions = {
             minorLabels: {
               millisecond:'x',
-              second:     'X',
-              minute:     'X',
-              hour:       'X',
-              weekday:    'X',
-              day:        'X',
-              week:       'X',
-              month:      'X',
-              year:       'X'
+              second:     'x',
+              minute:     'x',
+              hour:       'x',
+              weekday:    'x',
+              day:        'x',
+              week:       'x',
+              month:      'x',
+              year:       'x'
             },
             majorLabels: {
               millisecond:'x',
-              second:     '',
-              minute:     '',
-              hour:       '',
-              weekday:    '',
-              day:        '',
-              week:       '',
-              month:      '',
-              year:       ''
+              second:     'x',
+              minute:     'x',
+              hour:       'x',
+              weekday:    'x',
+              day:        'x',
+              week:       'x',
+              month:      'x',
+              year:       'x'
             }
           };
           var editableOptions = {
@@ -40,9 +40,9 @@ layout.registerComponent( 'timelineComponent', function(container, componentStat
         var options = {
             height: '100px',
             min: new Date(0),
-            max: new Date(2000),
+            max: new Date(settings.length),
             start: new Date(0),
-            end: new Date(1000),
+            end: new Date(settings.length),
             showCurrentTime: true,
             orientation: 'top',
             format: formatOptions,
@@ -65,8 +65,8 @@ layout.registerComponent( 'timelineComponent', function(container, componentStat
                 if (event.time < new Date(0)) {
                     timeline.setCustomTime(new Date(0), 'playhead');
                 }
-                if (event.time > new Date(2000)) {
-                    timeline.setCustomTime(new Date(1999), 'playhead');
+                if (event.time > new Date(settings.length)) {
+                    timeline.setCustomTime(new Date(settings.length - 1), 'playhead');
                 }
             }
         });

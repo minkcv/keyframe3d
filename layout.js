@@ -12,11 +12,20 @@ var config = {
             content:[{
                 type: 'column',
                 content:[{
-                    type: 'component',
-                    componentName: 'fileComponent',
-                    componentState: {},
-                    isClosable: false,
-                    title: 'File'
+                    type: 'stack',
+                    content:[{
+                        type: 'component',
+                        componentName: 'fileComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'File'
+                    },{
+                        type: 'component',
+                        componentName: 'settingsComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Settings'
+                    }]
                 },{
                     type: 'component',
                     height: 70,
