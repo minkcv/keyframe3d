@@ -1,5 +1,7 @@
 var viewports = [];
 var scene = new THREE.Scene();
+var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
+var pinkLineMat = new THREE.LineBasicMaterial({color: 0xda60f2});
 
 layout.init();
 
@@ -9,6 +11,14 @@ var settings = {
 };
 
 var models = [];
+var sceneTree = {
+    id: 0, 
+    name: 'root', 
+    children:[], 
+    model: null,
+    threeObject: new THREE.Object3D()
+};
+scene.add(sceneTree.threeObject);
 
 function addViewport() {
     for (var i = 0; i < viewports.length; i++) {
@@ -100,6 +110,176 @@ function unloadModel() {
     log('Unloaded model "' + name + '"');
 }
 
+function findNode(nodeId, startNode) {
+    if (!startNode)
+        startNode = sceneTree;
+    var found = null;
+    if (startNode.id == nodeId)
+        return startNode;
+    startNode.children.forEach(function(node) {
+        var foundSub = findNode(nodeId, node);
+        if (foundSub)
+            found = foundSub;
+    });
+    return found;
+}
+
+function findNodeByName(name, startNode) {
+    if (!startNode)
+        startNode = sceneTree;
+    if (startNode.name == name)
+        return startNode;
+    var found = null;
+    startNode.children.forEach(function(node) {
+        var subFound = findNodeByName(name, node);
+        if (subFound)
+            found = subFound;
+    });
+    return found;
+}
+
+function getNextNodeId() {
+    var nextId = 0;
+    while (findNode(nextId) != null) {
+        nextId++;
+    }
+    return nextId;
+}
+
+function createEmptyNode(name) {
+    var selectedNode = $('#scene-tree').tree('getSelectedNode');
+    var parent;
+    if (selectedNode == false)
+        parent = sceneTree;
+    else
+        parent = findNode(selectedNode.id);
+
+    if (!name)
+        name = $('#empty-node-name').val();
+    if (name.length < 1) {
+        alert('Name for node cannot be blank');
+        log('Attempt to create node with empty name', 'warning');
+        return null;
+    }
+    var existing = findNodeByName(name);
+    if (existing) {
+        alert('Node with that name already exists');
+        log('Attempt to create node with same name as existing node', 'warning');
+        return null;
+    }
+    var nodeId = getNextNodeId();
+    var newNode = {
+        id: nodeId,
+        name: name,
+        children: [],
+        model: null,
+        threeObject: null
+    };
+    parent.children.push(newNode);
+    updateTree();
+    var treeNode = $('#scene-tree').tree('getNodeById', nodeId);
+    $('#scene-tree').tree('selectNode', treeNode);
+    return newNode;
+}
+
+function renameNode() {
+    var selectedNode = $('#scene-tree').tree('getSelectedNode');
+    if (selectedNode == false) {
+        alert('Select a node to rename');
+        return;
+    }
+    var node = findNode(selectedNode.id);
+    var name = $('#rename-node-name').val();
+    if (name.length < 1) {
+        alert('Name for node cannot be blank');
+        log('Attempt to create node with empty name', 'warning');
+        return;
+    }
+    var existing = findNodeByName(name);
+    if (existing) {
+        alert('Node with that name already exists');
+        log('Attempt to rename node to with same name as existing node', 'warning');
+        return;
+    }
+    node.name = name;
+    updateTree();
+    var renamedNode = $('#scene-tree').tree('getNodeById', node.id);
+    $('#scene-tree').tree('selectNode', renamedNode);
+}
+
+function getModel(modelName) {
+    for (var i = 0; i < models.length; i++) {
+        if (models[i].name == modelName)
+            return models[i];
+    }
+    return null;
+}
+
+function addModelToScene(modelName) {
+    var selectedNode = $('#scene-tree').tree('getSelectedNode');
+    var parent;
+    if (selectedNode == false)
+        parent = sceneTree;
+    else
+        parent = findNode(selectedNode.id);
+    var model = getModel(modelName);
+    if (!model) {
+        alert('Select a model from the list of loaded models');
+        return;
+    }
+    var nodeName = $('#model-node-name').val();
+    var node = createEmptyNode(nodeName);
+    if (node == null)
+        return;
+    node.model = modelName;
+    
+    var geometries = [];
+    var lines = [];
+    model.data.forEach((point) => {
+        point.conn.forEach((otherId) => {
+            var other = null;
+            model.data.forEach((candidate) => {
+                if (candidate.id == otherId)
+                    other = candidate;
+            });
+            if (other != null) {
+                var pos1 = new THREE.Vector3(point.pos.x, point.pos.y, point.pos.z);
+                var pos2 = new THREE.Vector3(other.pos.x, other.pos.y, other.pos.z);
+                var pt1 = {pointId: point.id, position: pos1};
+                var pt2 = {pointId: other.id, position: pos2};
+                var scale = scale || 0.1;
+                pt1.position.multiplyScalar(scale);
+                pt2.position.multiplyScalar(scale);
+                var exists = false;
+                lines.forEach((existing) => {
+                    if ((existing.id1 == pt1.pointId && existing.id2 == pt2.pointId) ||
+                        (existing.id1 == pt2.pointId && existing.id2 == pt1.pointId)) {
+                            exists = true;
+                    }
+                });
+                if (!exists) {
+                    var geom = new THREE.BufferGeometry();
+                    var vertices = new Float32Array([
+                        pt1.position.x, pt1.position.y, pt1.position.z,
+                        pt2.position.x, pt2.position.y, pt2.position.z
+                    ]);
+                    geom.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+                    geometries.push(geom);
+                    var lineData = {
+                        id1: pt1.pointId,
+                        id2: pt2.pointId,
+                    };
+                    lines.push(lineData);
+                }
+            }
+        });
+    });
+    var mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(geometries);
+    var threeObject = new THREE.LineSegments(mergedGeometry, whiteLineMat);
+    node.threeObject = threeObject;
+    parent.threeObject.add(threeObject);
+}
+
 function update() {
     requestAnimationFrame(update);
 
@@ -169,16 +349,8 @@ function getUpVector(dir, xr, yr) {
 
 $(function() {
     loadSettings(settings);
+    updateTree();
 
-    // test geometry
-    var boxGeom = new THREE.TetrahedronGeometry(5, 2);
-    var wgeom = new THREE.WireframeGeometry(boxGeom);
-    var lines = new THREE.LineSegments(wgeom);
-    lines.material.color = {r: 1, g: 1, b: 1};
-    lines.material.depthTest = false;
-    lines.material.opacity = 0.5;
-    lines.material.transparent = true;
-    scene.add(lines);
     var gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
     scene.add(gridHelper);
     update();

@@ -1,5 +1,5 @@
 layout.registerComponent( 'viewportComponent', function(container, componentState){
-    var renderer = new THREE.WebGLRenderer({antialias: false});
+    var renderer = new THREE.WebGLRenderer({antialias: true});
     var name = 'viewport' + componentState.viewportId;
     var div = $('<div class="viewport" id="' + name + '" viewportId=' + componentState.viewportId + '></div>');
     container.on('tab', function() {

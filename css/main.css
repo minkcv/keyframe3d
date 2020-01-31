@@ -87,8 +87,8 @@ h1 {
 #welcome {
     margin: 15px;
 }
-.tree-view {
-    margin: 15px;
+.tree-view, #scene-tree {
+    margin: 5px;
 }
 .log {
     overflow: auto;
