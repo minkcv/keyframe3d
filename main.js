@@ -1,7 +1,8 @@
 var viewports = [];
 var scene = new THREE.Scene();
 var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
-var pinkLineMat = new THREE.LineBasicMaterial({color: 0xda60f2});
+var pinkLineMat = new THREE.LineBasicMaterial({color: 0xdf3eff});
+var darkPinkLineMat = new THREE.LineBasicMaterial({color: 0xa464b1});
 
 layout.init();
 
@@ -110,6 +111,20 @@ function unloadModel() {
     log('Unloaded model "' + name + '"');
 }
 
+function selectNode(id) {
+    traverseTree(function (node) {
+        if (node.threeObject.material)
+            node.threeObject.material = whiteLineMat;
+    });
+    var node = findNode(id);
+    traverseTree(function(node) {
+        if (node.threeObject.material)
+            node.threeObject.material = darkPinkLineMat;
+    }, node);
+    if (node.threeObject != null)
+        node.threeObject.material = pinkLineMat;
+}
+
 function findNode(nodeId, startNode) {
     if (!startNode)
         startNode = sceneTree;
@@ -136,6 +151,16 @@ function findNodeByName(name, startNode) {
             found = subFound;
     });
     return found;
+}
+
+function traverseTree(func, startNode) {
+    if (!startNode)
+        startNode = sceneTree;
+    func(startNode);
+    startNode.children.forEach(function(node) {
+        func(node);
+        traverseTree(func, node);
+    });
 }
 
 function getNextNodeId() {
@@ -173,7 +198,7 @@ function createEmptyNode(name) {
         name: name,
         children: [],
         model: null,
-        threeObject: null
+        threeObject: new THREE.Object3D()
     };
     parent.children.push(newNode);
     updateTree();
@@ -232,7 +257,6 @@ function addModelToScene(modelName) {
     if (node == null)
         return;
     node.model = modelName;
-    
     var geometries = [];
     var lines = [];
     model.data.forEach((point) => {
@@ -278,6 +302,7 @@ function addModelToScene(modelName) {
     var threeObject = new THREE.LineSegments(mergedGeometry, whiteLineMat);
     node.threeObject = threeObject;
     parent.threeObject.add(threeObject);
+    selectNode(node.id);
 }
 
 function update() {

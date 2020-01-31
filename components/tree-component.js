@@ -17,9 +17,29 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
             slide: false,
             closedIcon: '+',
             openedIcon: '-'
-        }).on('tree.click', function(event){
-            var node = findNode(event.node.id);
-            node.threeObject.material = pinkLineMat;
+        }).on('tree.click', function(event) {
+            selectNode(event.node.id);
+        }).on('tree.move', function(event) {
+            var movedNode = findNode(event.move_info.moved_node.id);
+            var newParent = findNode(event.move_info.target_node.id);
+            var oldParent = findNode(event.move_info.previous_parent.id);
+            if (newParent.id == 0 &&
+                (event.move_info.position == 'before' || event.move_info.position == 'after')) {
+                // Only root node can be top level
+                event.preventDefault();
+                return;
+            }
+            if (newParent.id == oldParent.id)
+                return; // Node was just reordered
+            for (var i = 0; i < oldParent.children.length; i++) {
+                if (oldParent.children[i].id == movedNode.id) {
+                    oldParent.children.splice(i, 1);
+                    oldParent.threeObject.remove(movedNode.threeObject);
+                    newParent.threeObject.add(movedNode.threeObject);
+                    break;
+                }
+            }
+            newParent.children.push(movedNode);
         });
     });
 });
