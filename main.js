@@ -32,6 +32,13 @@ function addViewport() {
 
 }
 
+function getViewport(id) {
+    for (var i = 0; i < viewports.length; i++) {
+        if (viewports[i].viewportId == id)
+            return viewports[i];
+    }
+}
+
 function loadSettings(newSettings) {
     settings = newSettings;
     var options = timeline.options;
@@ -96,10 +103,68 @@ function unloadModel() {
 function update() {
     requestAnimationFrame(update);
 
+    var rotateFactor = 50;
+    var zoomSpeed = 0.2;
     viewports.forEach(function(viewport) {
-        if (viewport.camera != null)
-            viewport.renderer.render(scene, viewport.camera);
+        if (viewport.camera != null) {
+            var cameraX = viewport.camera;
+            var cameraY = cameraX.children[0];
+            var metaCamera = cameraY.children[0];
+            var mouse = viewport.mouse;
+            if (mouse.button == 2) { // Right click
+                cameraX.rotation.y += mouse.dx / rotateFactor;
+                cameraY.rotation.x += mouse.dy / rotateFactor;
+                cameraX.children[1].rotation.y -= mouse.dx / rotateFactor;
+                if (cameraX.rotation.x > Math.PI / 2)
+                    cameraX.rotation.x = Math.PI / 2;
+                if (cameraX.rotation.x < -Math.PI / 2)
+                    cameraX.rotation.x = -Math.PI / 2;
+            }
+            else if (mouse.button == 1) { // Pan view - Middle click
+                var translate = getScreenTranslation(cameraX, cameraY, metaCamera, mouse);
+                cameraX.position.add(translate);
+            }
+            if (mouse.dz < 0) { // Scroll wheel
+                metaCamera.zoom *= 1 + zoomSpeed;
+                metaCamera.updateProjectionMatrix();
+            }
+            else if (mouse.dz > 0) {
+                metaCamera.zoom *= 1 - zoomSpeed;
+                metaCamera.updateProjectionMatrix();
+            }
+            viewport.renderer.render(scene, metaCamera);
+            
+            mouse.dx = 0;
+            mouse.dy = 0;
+            mouse.dz = 0;
+        }
     })
+}
+
+function getScreenTranslation(cameraX, cameraY, metaCamera, mouse) {
+    // Translate 2D screen movement into the appropriate 3D movement.
+    // Holy crap this was difficult to figure out.
+    var dir = new THREE.Vector3();
+    cameraY.getWorldDirection(dir);
+    dir.normalize();
+    var viewUp = getUpVector(dir, cameraY.rotation.x, cameraX.rotation.y);
+    var viewRight = new THREE.Vector3();
+    viewRight.crossVectors(dir, viewUp);
+    var translate = new THREE.Vector3(
+        viewRight.x * -mouse.dx + viewUp.x * -mouse.dy,
+        viewUp.y * -mouse.dy,
+        viewUp.z * -mouse.dy + viewRight.z * -mouse.dx);
+    translate.multiplyScalar(1 / metaCamera.zoom);
+    return translate;
+}
+
+function getUpVector(dir, xr, yr) {
+    var ob = new THREE.Object3D();
+    ob.rotateY(yr);
+    ob.rotateX(xr - Math.PI / 2);
+    var up = new THREE.Vector3();
+    ob.getWorldDirection(up);
+    return up;
 }
 
 $(function() {
@@ -114,5 +179,7 @@ $(function() {
     lines.material.opacity = 0.5;
     lines.material.transparent = true;
     scene.add(lines);
+    var gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
+    scene.add(gridHelper);
     update();
 });
