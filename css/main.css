@@ -9,9 +9,9 @@
     width: 100%;
 }
 .viewport {
-    margin: 10px;
-    width: 90%;
-    height: 90%;
+    width: 100%;
+    height: 100%;
+    border: 1px solid;
 }
 select, select:focus {
     color: #cccccc;
