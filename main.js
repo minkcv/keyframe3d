@@ -12,10 +12,12 @@ var models = [];
 
 function addViewport() {
     for (var i = 0; i < viewports.length; i++) {
-        var newViewportId = viewports[i].viewportId + 1;
+        var newViewportId = i + 1;
         for (var j = 0; j < viewports.length; j++) {
-            if (viewports[j].viewportId == newViewportId)
+            if (viewports[j].viewportId == newViewportId) {
                 newViewportId = -1;
+                break;
+            }
         }
         if (newViewportId != -1)
             break;

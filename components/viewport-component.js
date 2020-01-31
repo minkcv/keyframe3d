@@ -39,7 +39,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         renderer: renderer,
         viewportId: componentState.viewportId,
         camera: null,
-        div: div[0]
+        div: div
     });
 });
 
