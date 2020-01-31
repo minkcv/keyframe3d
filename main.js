@@ -11,11 +11,20 @@ var settings = {
 var models = [];
 
 function addViewport() {
+    for (var i = 0; i < viewports.length; i++) {
+        var newViewportId = viewports[i].viewportId + 1;
+        for (var j = 0; j < viewports.length; j++) {
+            if (viewports[j].viewportId == newViewportId)
+                newViewportId = -1;
+        }
+        if (newViewportId != -1)
+            break;
+    }
     var viewportConfig = {
         type: 'component',
         componentName: 'viewportComponent',
-        componentState: { viewportId: viewports.length },
-        title: 'Viewport ' + (viewports.length)
+        componentState: { viewportId: newViewportId },
+        title: 'Viewport ' + (newViewportId)
     }
     layout.root.contentItems[0].contentItems[1].contentItems[0].addChild(viewportConfig);
 
