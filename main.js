@@ -122,7 +122,7 @@ function selectNode(id) {
     traverseTree(function (node) {
         node.threeObject.children.forEach(function(child) {
             if (child.model)
-                node.threeObject.material = whiteLineMat;
+                child.material = whiteLineMat;
             if (child.xGrip || child.yGrip || child.zGrip)
                 child.visible = false;
         });
