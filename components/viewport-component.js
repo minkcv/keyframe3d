@@ -1,7 +1,20 @@
 layout.registerComponent( 'viewportComponent', function(container, componentState){
     var renderer = new THREE.WebGLRenderer({antialias: true});
     var name = 'viewport' + componentState.viewportId;
-    var div = $('<div class="viewport" id="' + name + '" viewportId=' + componentState.viewportId + '></div>');
+    var div = $('<div class="viewport" id="' + name + '" viewportId=' + componentState.viewportId + '>' + 
+    `
+        <div class='view-angle-controls'>
+            <button type='button' class='btn btn-dark btn-sm' onclick='viewTop(` + componentState.viewportId + `)'>Top</button><br>
+            <button type='button' class='btn btn-dark btn-sm' onclick='viewFront(` + componentState.viewportId + `)'>Front</button><br>
+            <button type='button' class='btn btn-dark btn-sm' onclick='viewSide(` + componentState.viewportId + `)'>Side</button><br>
+            <button type='button' class='btn btn-dark btn-sm' onclick='viewIso(` + componentState.viewportId + `)'>Iso</button><br>
+        </div>
+        <div class='view-position-controls'>
+            <button type='button' class='btn btn-dark btn-sm' onclick='viewRecenter(` + componentState.viewportId + `)'>Recenter World</button><br>
+            <button type='button' class='btn btn-dark btn-sm' onclick='viewRecenterSelected(` + componentState.viewportId + `)'>Recenter Selected</button><br>
+        </div>
+    ` + 
+    '</div>');
     container.on('tab', function() {
         updateViewport(div, renderer, componentState.viewportId);
     });
@@ -108,4 +121,49 @@ function updateViewport(div, renderer, id) {
     }
     metaCamera.updateProjectionMatrix();
     viewport.camera = cameraX;
+}
+
+function viewSide(viewportId) {
+    var viewport = getViewport(viewportId);
+    viewport.camera.rotation.y = Math.PI / 2;
+    viewport.camera.children[0].rotation.x = 0;
+    viewport.camera.children[1].rotation.y = -Math.PI / 2;
+}
+
+function viewTop(viewportId) {
+    var viewport = getViewport(viewportId);
+    viewport.camera.rotation.y = 0;
+    viewport.camera.children[0].rotation.x = -Math.PI / 2;
+    viewport.camera.children[1].rotation.y = 0;
+}
+
+function viewFront(viewportId) {
+    var viewport = getViewport(viewportId);
+    viewport.camera.rotation.y = 0;
+    viewport.camera.children[0].rotation.x = 0;
+    viewport.camera.children[1].rotation.y = 0;
+}
+
+function viewIso(viewportId) {
+    var viewport = getViewport(viewportId);
+    viewport.camera.rotation.y = Math.PI / 4;
+    viewport.camera.children[0].rotation.x = -Math.PI / 4;
+    viewport.camera.children[1].rotation.y = -Math.PI / 4;
+}
+
+function viewRecenter(viewportId) {
+    var viewport = getViewport(viewportId);
+    viewport.camera.position.set(0, 0, 0);
+}
+
+function viewRecenterSelected(viewportId) {
+    var viewport = getViewport(viewportId);
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    var node = findNode(treeNode.id);
+    viewport.camera.position.set(0, 0, 0);
+    traverseTree(function(other) {
+        var found = findNode(node.id, other);
+        if (found != null)
+            viewport.camera.position.add(other.threeObject.position);
+    });
 }

@@ -263,12 +263,12 @@ function createEmptyNode(name) {
 
 function renameNode() {
     var selectedNode = $('#scene-tree').tree('getSelectedNode');
-    if (selectedNode.name == 'root') {
-        alert('Cannot rename the root node');
-        return;
-    }
     if (selectedNode == false) {
         alert('Select a node to rename');
+        return;
+    }
+    if (selectedNode.id == 0) {
+        alert('Cannot rename the root node');
         return;
     }
     var node = findNode(selectedNode.id);
