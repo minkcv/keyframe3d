@@ -58,8 +58,6 @@ layout.registerComponent( 'timelineComponent', function(container, componentStat
         timeline.addCustomTime(new Date(0), 'playhead');
         // :( need this set 0 because creating it at the min just isn't good enough.
         timeline.setCustomTime(new Date(0), 'playhead');
-        timeline.setCustomTimeMarker('Playhead', 'playhead');
-        timeline.setCustomTimeTitle('Playhead', 'playhead');
         timeline.on('timechanged', function(event) {
             if (event.id == 'playhead') {
                 if (event.time < new Date(0)) {

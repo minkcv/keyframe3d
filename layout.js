@@ -13,6 +13,7 @@ var config = {
                 type: 'column',
                 content:[{
                     type: 'stack',
+                    height: 20,
                     content:[{
                         type: 'component',
                         componentName: 'fileComponent',
@@ -27,21 +28,17 @@ var config = {
                         title: 'Settings'
                     }]
                 },{
-                    type: 'stack',
-                    height: 70,
-                    content: [{
-                        type: 'component',
-                        componentName: 'treeComponent',
-                        componentState: {},
-                        isClosable: false,
-                        title: 'Scene Tree'
-                    },{
-                        type: 'component',
-                        componentName: 'modelComponent',
-                        componentState: {},
-                        isClosable: false,
-                        title: 'Models'
-                    }]
+                    type: 'component',
+                    componentName: 'treeComponent',
+                    componentState: {},
+                    isClosable: false,
+                    title: 'Scene Tree'
+                },{
+                    type: 'component',
+                    componentName: 'modelComponent',
+                    componentState: {},
+                    isClosable: false,
+                    title: 'Models'
                 }]
                 
             },{

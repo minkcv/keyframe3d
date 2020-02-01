@@ -7,6 +7,11 @@
 }
 .model-select {
     width: 100%;
+    height: 120px;
+}
+option:checked, option:active {
+    background: linear-gradient(#b049b9, #b049b9) !important;
+    color: #cccccc !important;
 }
 .viewport {
     width: 100%;
@@ -77,7 +82,7 @@ input::selection {
     background-color: #cccccc;
 }
 input:focus, .btn:focus, .btn:active {
-    outline-color: #670070;
+    outline-color: #b049b9;
     box-shadow: none;
 }
 h1 {
@@ -126,14 +131,8 @@ h1 {
 .vis-text, .vis-label {
     color: #cccccc !important;
 }
-.timeline-range-red {
-    background: repeating-linear-gradient(45deg, #ff252581, #ff252581 10px, #a5151581 10px, #a5151581 20px);
-}
-.timeline-range-green {
-    background: repeating-linear-gradient(45deg, #f825ff81, #f825ff81 10px, #a5159981 10px, #a5159981 20px);
-}
-.timeline-range-blue {
-    background: repeating-linear-gradient(45deg, #2546ff81, #2546ff81 10px, #152fa581 10px, #152fa581 20px);
+.vis-custom-time {
+    background-color: #b049b9;
 }
 .timeline-range-red > .vis-item-overflow > .vis-item-content, 
 .timeline-range-green > .vis-item-overflow > .vis-item-content,
