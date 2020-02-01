@@ -90,6 +90,9 @@ h1 {
 .tree-view, #scene-tree {
     margin: 5px;
 }
+.jqtree-toggler-left:hover {
+    color: #cccccc !important;
+}
 .log {
     overflow: auto;
     height: 100%;

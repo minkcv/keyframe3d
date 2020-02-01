@@ -112,6 +112,8 @@ function unloadModel() {
 }
 
 function selectNode(id) {
+    var treeNode = $('#scene-tree').tree('getNodeById', id);
+    $('#scene-tree').tree('selectNode', treeNode);
     traverseTree(function (node) {
         if (node.threeObject.material)
             node.threeObject.material = whiteLineMat;
@@ -137,6 +139,17 @@ function findNode(nodeId, startNode) {
             found = foundSub;
     });
     return found;
+}
+
+function getParentNode(find) {
+    var parent = null;
+    traverseTree(function(node) {
+        node.children.forEach(function(child) {
+            if (child.id == find.id)
+                parent = node;
+        })
+    });
+    return parent;
 }
 
 function findNodeByName(name, startNode) {
@@ -193,17 +206,18 @@ function createEmptyNode(name) {
         return null;
     }
     var nodeId = getNextNodeId();
+    var obj = new THREE.Object3D();
     var newNode = {
         id: nodeId,
         name: name,
         children: [],
         model: null,
-        threeObject: new THREE.Object3D()
+        threeObject: obj
     };
     parent.children.push(newNode);
+    parent.threeObject.add(obj);
     updateTree();
-    var treeNode = $('#scene-tree').tree('getNodeById', nodeId);
-    $('#scene-tree').tree('selectNode', treeNode);
+    selectNode(nodeId)
     return newNode;
 }
 
@@ -228,8 +242,30 @@ function renameNode() {
     }
     node.name = name;
     updateTree();
-    var renamedNode = $('#scene-tree').tree('getNodeById', node.id);
-    $('#scene-tree').tree('selectNode', renamedNode);
+    selectNode(node.id);
+}
+
+function deleteNode() {
+    var selectedNode = $('#scene-tree').tree('getSelectedNode');
+    if (selectedNode == false) {
+        alert('Select a node to delete');
+        return;
+    }
+    if (selectNode.id == 0) {
+        alert('Cannot delete the root node');
+        return;
+    }
+    var node = findNode(selectedNode.id);
+    var parent = getParentNode(node);
+    for (var i = 0; i < parent.children.length; i++) {
+        if (parent.children[i].id == node.id) {
+            parent.children.splice(i, 1);
+            parent.threeObject.remove(node.threeObject);
+            break;
+        }
+    }
+    updateTree();
+    selectNode(parent.id);
 }
 
 function getModel(modelName) {
@@ -308,7 +344,7 @@ function addModelToScene(modelName) {
 function update() {
     requestAnimationFrame(update);
 
-    var rotateFactor = 50;
+    var rotateFactor = 100;
     var zoomSpeed = 0.2;
     viewports.forEach(function(viewport) {
         if (viewport.camera != null) {

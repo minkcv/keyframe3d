@@ -3,9 +3,11 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
     `<div class="tree-view" id="scene-tree-container">
         <button type='button' class='btn btn-sm' onclick='createEmptyNode()'>Create Node</button>
         <input type='text' id='empty-node-name' placeholder='name'></input>
+        <br>
         <button type='button' class='btn btn-sm' onclick='renameNode()'>Rename Node</button>
         <input type='text' id='rename-node-name' placeholder='name'></input>
         <br>
+        <button type'button' class='btn btn-danger btn-sm' onclick='deleteNode()'>Delete Node</button>
         <div id='scene-tree'></div>
     </div>`);
     container.on('open', function() {
@@ -18,6 +20,7 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
             closedIcon: '+',
             openedIcon: '-'
         }).on('tree.click', function(event) {
+            event.preventDefault();
             selectNode(event.node.id);
         }).on('tree.move', function(event) {
             var movedNode = findNode(event.move_info.moved_node.id);
