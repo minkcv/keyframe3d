@@ -45,7 +45,7 @@ function addViewport() {
         title: 'Viewport ' + (newViewportId)
     }
     layout.root.contentItems[0].contentItems[1].contentItems[0].addChild(viewportConfig);
-
+    log('Opened new viewport with id "' + newViewportId + '"');
 }
 
 function getViewport(id) {
@@ -189,7 +189,6 @@ function traverseTree(func, startNode) {
         startNode = sceneTree;
     func(startNode);
     startNode.children.forEach(function(node) {
-        func(node);
         traverseTree(func, node);
     });
 }
@@ -258,11 +257,16 @@ function createEmptyNode(name) {
     parent.threeObject.add(obj);
     updateTree();
     selectNode(nodeId)
+    log('Created empty node with name "' + name + '"');
     return newNode;
 }
 
 function renameNode() {
     var selectedNode = $('#scene-tree').tree('getSelectedNode');
+    if (selectedNode.name == 'root') {
+        alert('Cannot rename the root node');
+        return;
+    }
     if (selectedNode == false) {
         alert('Select a node to rename');
         return;
@@ -280,6 +284,7 @@ function renameNode() {
         log('Attempt to rename node to with same name as existing node', 'warning');
         return;
     }
+    log('Renamed node "' + node.name + '" to "' + name + '"');
     node.name = name;
     updateTree();
     selectNode(node.id);
@@ -296,6 +301,14 @@ function deleteNode() {
         return;
     }
     var node = findNode(selectedNode.id);
+    var childNames = '';
+    traverseTree(function(child) {
+        if (child.name != node.name)
+            childNames += '"' + child.name + '", ';
+    }, node);
+    if (childNames) {
+        childNames = childNames.slice(0, childNames.length - 2);
+    }
     var parent = getParentNode(node);
     for (var i = 0; i < parent.children.length; i++) {
         if (parent.children[i].id == node.id) {
@@ -306,6 +319,7 @@ function deleteNode() {
     }
     updateTree();
     selectNode(parent.id);
+    log('Deleted node "' + node.name + '" with children ' + childNames);
 }
 
 function getModel(modelName) {
@@ -378,6 +392,7 @@ function addModelToScene(modelName) {
     var linesObject = new THREE.LineSegments(mergedGeometry, whiteLineMat);
     linesObject.model = modelName;
     node.threeObject.add(linesObject);
+    log('Added model "' + modelName + '" to node "' + node.name + '"');
     selectNode(node.id);
 }
 
