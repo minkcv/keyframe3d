@@ -3,6 +3,11 @@ var scene = new THREE.Scene();
 var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
 var pinkLineMat = new THREE.LineBasicMaterial({color: 0xdf3eff});
 var darkPinkLineMat = new THREE.LineBasicMaterial({color: 0xa464b1});
+var redLineMat = new THREE.LineBasicMaterial({color: 0xff0000});
+var greenLineMat = new THREE.LineBasicMaterial({color: 0x00ff00});
+var blueLineMat = new THREE.LineBasicMaterial({color: 0x0000ff});
+var AXIS = {x: 0, y: 1, z: 2, none: 3};
+var raycaster = new THREE.Raycaster();
 
 layout.init();
 
@@ -115,16 +120,29 @@ function selectNode(id) {
     var treeNode = $('#scene-tree').tree('getNodeById', id);
     $('#scene-tree').tree('selectNode', treeNode);
     traverseTree(function (node) {
-        if (node.threeObject.material)
-            node.threeObject.material = whiteLineMat;
+        node.threeObject.children.forEach(function(child) {
+            if (child.model)
+                node.threeObject.material = whiteLineMat;
+            if (child.xGrip || child.yGrip || child.zGrip)
+                child.visible = false;
+        });
     });
     var node = findNode(id);
+    node.threeObject.children.forEach(function(child) {
+        if (child.xGrip || child.yGrip || child.zGrip) {
+            child.visible = true;
+        }
+    });
     traverseTree(function(node) {
-        if (node.threeObject.material)
-            node.threeObject.material = darkPinkLineMat;
+        node.threeObject.children.forEach(function(child) {
+            if (child.model)
+                child.material = darkPinkLineMat;
+        });
     }, node);
-    if (node.threeObject != null)
-        node.threeObject.material = pinkLineMat;
+    node.threeObject.children.forEach(function(child) {
+        if (child.model)
+            child.material = pinkLineMat;
+    });
 }
 
 function findNode(nodeId, startNode) {
@@ -207,6 +225,27 @@ function createEmptyNode(name) {
     }
     var nodeId = getNextNodeId();
     var obj = new THREE.Object3D();
+    var xGripGeom = new THREE.Geometry();
+    xGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
+    xGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
+    var xGrip = new THREE.Line(xGripGeom, redLineMat);
+    xGrip.xGrip = true;
+    xGrip.visible = false;
+    var yGripGeom = new THREE.Geometry();
+    yGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
+    yGripGeom.vertices.push(new THREE.Vector3(0, 50, 0));
+    var yGrip = new THREE.Line(yGripGeom, greenLineMat);
+    yGrip.yGrip = true;
+    yGrip.visible = false;
+    var zGripGeom = new THREE.Geometry();
+    zGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
+    zGripGeom.vertices.push(new THREE.Vector3(0, 0, 50));
+    var zGrip = new THREE.Line(zGripGeom, blueLineMat);
+    zGrip.zGrip = true;
+    zGrip.visible = false;
+    obj.add(xGrip);
+    obj.add(yGrip);
+    obj.add(zGrip);
     var newNode = {
         id: nodeId,
         name: name,
@@ -214,6 +253,7 @@ function createEmptyNode(name) {
         model: null,
         threeObject: obj
     };
+    obj.sceneNode = newNode;
     parent.children.push(newNode);
     parent.threeObject.add(obj);
     updateTree();
@@ -335,9 +375,9 @@ function addModelToScene(modelName) {
         });
     });
     var mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(geometries);
-    var threeObject = new THREE.LineSegments(mergedGeometry, whiteLineMat);
-    node.threeObject = threeObject;
-    parent.threeObject.add(threeObject);
+    var linesObject = new THREE.LineSegments(mergedGeometry, whiteLineMat);
+    linesObject.model = modelName;
+    node.threeObject.add(linesObject);
     selectNode(node.id);
 }
 
@@ -365,6 +405,23 @@ function update() {
                 var translate = getScreenTranslation(cameraX, cameraY, metaCamera, mouse);
                 cameraX.position.add(translate);
             }
+            else if (mouse.button == 0) {
+                var treeNode = $('#scene-tree').tree('getSelectedNode');
+                if (treeNode) {
+                    var selectedNode = findNode(treeNode.id);
+                    var translate = getScreenTranslation(cameraX, cameraY, metaCamera, mouse);
+                    translate.negate();
+                    if (mouse.moveAxis == AXIS.x) {
+                        selectedNode.threeObject.translateX(translate.x);
+                    }
+                    if (mouse.moveAxis == AXIS.y) {
+                        selectedNode.threeObject.translateY(translate.y);
+                    }
+                    if (mouse.moveAxis == AXIS.z) {
+                        selectedNode.threeObject.translateZ(translate.z);
+                    }
+                }
+            }
             if (mouse.dz < 0) { // Scroll wheel
                 metaCamera.zoom *= 1 + zoomSpeed;
                 metaCamera.updateProjectionMatrix();
@@ -374,6 +431,34 @@ function update() {
                 metaCamera.updateProjectionMatrix();
             }
             viewport.renderer.render(scene, metaCamera);
+
+            if (mouse.down) {
+                var div = viewport.div[0];
+                var mouseVec = new THREE.Vector2();
+                mouseVec.x = ((mouse.x - div.parentElement.offsetLeft) / div.clientWidth) * 2 - 1;
+                mouseVec.y = -((mouse.y - div.parentElement.offsetTop) / div.clientHeight) * 2 + 1;
+                raycaster.setFromCamera(mouseVec, metaCamera);
+                var intersects = raycaster.intersectObjects(scene.children, true);
+                var pickedObject = null;
+                for (var i = 0; i < intersects.length; i++) {
+                    if (pickedObject == null && mouse.down &&
+                        intersects[i].object.parent.sceneNode) {
+                        pickedObject = intersects[i].object;
+                        if (mouse.moveAxis == AXIS.none) {
+                            if (pickedObject.xGrip) {
+                                mouse.moveAxis = AXIS.x;
+                            }
+                            if (pickedObject.yGrip) {
+                                mouse.moveAxis = AXIS.y;
+                            }
+                            if (pickedObject.zGrip) {
+                                mouse.moveAxis = AXIS.z;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
             
             mouse.dx = 0;
             mouse.dy = 0;

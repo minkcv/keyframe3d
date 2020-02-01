@@ -35,6 +35,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         viewport.mouse.wasDown = true;
         viewport.mouse.x = event.clientX;
         viewport.mouse.y = event.clientY;
+        viewport.mouse.moveAxis = AXIS.none;
     });
     div.mousemove(function(event) {
         event.preventDefault();
