@@ -159,6 +159,8 @@ function viewRecenter(viewportId) {
 function viewRecenterSelected(viewportId) {
     var viewport = getViewport(viewportId);
     var treeNode = $('#scene-tree').tree('getSelectedNode');
+    if (treeNode == false)
+        return;
     var node = findNode(treeNode.id);
     viewport.camera.position.set(0, 0, 0);
     traverseTree(function(other) {

@@ -29,16 +29,26 @@ var config = {
                     }]
                 },{
                     type: 'component',
-                    componentName: 'treeComponent',
+                    height: 20,
+                    componentName: 'treeControlsComponent',
                     componentState: {},
                     isClosable: false,
-                    title: 'Scene Tree'
+                    title: 'Scene Tree Controls'
                 },{
-                    type: 'component',
-                    componentName: 'modelComponent',
-                    componentState: {},
-                    isClosable: false,
-                    title: 'Models'
+                    type: 'stack',
+                    content: [{
+                        type: 'component',
+                        componentName: 'treeComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Scene Tree'
+                    },{
+                        type: 'component',
+                        componentName: 'modelComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Models'
+                    }]
                 }]
                 
             },{

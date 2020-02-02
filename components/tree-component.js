@@ -1,14 +1,6 @@
 layout.registerComponent( 'treeComponent', function(container, componentState){
     container.getElement().html(
-    `<div class="tree-view" id="scene-tree-container">
-        <button type='button' class='btn btn-sm' onclick='createEmptyNode()'>Create Node</button>
-        <input type='text' id='empty-node-name' placeholder='name'></input>
-        <br>
-        <button type='button' class='btn btn-sm' onclick='renameNode()'>Rename Node</button>
-        <input type='text' id='rename-node-name' placeholder='name'></input>
-        <br>
-        <button type'button' class='btn btn-sm' onclick='deleteNode()'>Delete Node</button>
-        <div id='scene-tree'></div>
+    `<div class="tree-view" id="scene-tree">
     </div>`);
     container.on('open', function() {
         $('#scene-tree').tree({

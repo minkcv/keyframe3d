@@ -30,16 +30,37 @@ option:checked, option:active {
     bottom: 0px;
     margin: 5px;
 }
+.custom-file-label {
+    box-sizing: border-box;
+}
+.custom-file-input, .custom-file, .custom-file-label {
+    height: calc(2rem + 2px) !important;
+}
+.custom-file-label::after {
+    height: 2rem !important;
+}
+.custom-file {
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+}
+.input-group {
+    margin: 2px !important;
+}
 select, select:focus {
     color: #cccccc;
     background-color: #2c2c2c;
     outline-color: #2c2c2c;
     border-color: #2c2c2c;
 }
+#scene-tree {
+    border: 1px solid #b049b9;
+    height: 93%;
+    overflow: auto;
+}
 button {
     margin: 2px;
 }
-.settings, .models, .file-menu {
+.settings, .models, .file-menu, .tree-view, .tree-controls {
     margin: 5px;
 }
 .settings > label {
@@ -65,9 +86,6 @@ input {
     width: 120px;
     border-style: solid;
     border-width: 1px;
-}
-input[type='file'] {
-    display: none;
 }
 button > label {
     color: #2c2c2c;
@@ -103,9 +121,6 @@ h1 {
 }
 #welcome {
     margin: 15px;
-}
-.tree-view, #scene-tree {
-    margin: 5px;
 }
 .jqtree-toggler-left:hover {
     color: #cccccc !important;
