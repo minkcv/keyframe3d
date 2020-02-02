@@ -13,8 +13,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
             <button type='button' class='btn btn-dark btn-sm' onclick='viewRecenter(` + componentState.viewportId + `)'>Recenter World</button><br>
             <button type='button' class='btn btn-dark btn-sm' onclick='viewRecenterSelected(` + componentState.viewportId + `)'>Recenter Selected</button><br>
         </div>
-    ` + 
-    '</div>');
+    </div>`);
     container.on('tab', function() {
         updateViewport(div, renderer, componentState.viewportId);
     });
@@ -76,7 +75,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         viewportId: componentState.viewportId,
         camera: null,
         div: div,
-        mouse: {}
+        mouse: {moveAxis: AXIS.none}
     });
 });
 

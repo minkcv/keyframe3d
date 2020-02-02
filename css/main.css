@@ -60,14 +60,14 @@ select, select:focus {
 button {
     margin: 2px;
 }
-.settings, .models, .file-menu, .tree-view, .tree-controls {
+.settings, .models, .file-menu, .tree-view, .tree-controls, .properties {
     margin: 5px;
 }
-.settings > label {
+.settings > label, .properties > label {
     font-family: droid_sans_mono_regular;
     color: #cccccc;
 }
-.settings > input {
+.settings > input, .tree-controls > input {
     float: right;
 }
 pre {
@@ -79,6 +79,7 @@ h1, h2, h3, p {
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
     color: #cccccc;
+    margin: 1px;
 }
 input {
     color: #cccccc;

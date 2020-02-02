@@ -8,12 +8,12 @@ var config = {
         type: 'row',
         content:[{
             type: 'row',
-            width: 35,
+            width: 28,
             content:[{
                 type: 'column',
                 content:[{
                     type: 'stack',
-                    height: 20,
+                    height: 24,
                     content:[{
                         type: 'component',
                         componentName: 'fileComponent',
@@ -53,6 +53,7 @@ var config = {
                 
             },{
                 type: 'column',
+                width: 40,
                 content:[{
                     type: 'component',
                     componentName: 'propertiesComponent',
@@ -80,7 +81,7 @@ var config = {
                 }]
             },{
                 type: 'stack',
-                height: 18,
+                height: 12,
                 content:[{
                     type: 'component',
                     componentName: 'timelineComponent',

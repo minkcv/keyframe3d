@@ -5,6 +5,8 @@ layout.registerComponent( 'settingsComponent', function(container, componentStat
         <input type='number' name='length' id='length'><br>
         <label for='framerate'>Framerate: </label>
         <input type='number' name='framerate' id='framerate'><br>
+        <label for='aspect-ratio'>Aspect Ratio: </label>
+        <input type='text' name='aspect-ratio' id='aspect-ratio'><br>
         <button type='button' class='btn btn-sm' onclick='applySettings()'>Apply</button>
     </div>`);
 });

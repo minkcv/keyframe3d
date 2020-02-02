@@ -6,6 +6,9 @@ var darkPinkLineMat = new THREE.LineBasicMaterial({color: 0xa464b1});
 var redLineMat = new THREE.LineBasicMaterial({color: 0xff0000});
 var greenLineMat = new THREE.LineBasicMaterial({color: 0x00ff00});
 var blueLineMat = new THREE.LineBasicMaterial({color: 0x0000ff});
+var redMat = new THREE.MeshBasicMaterial({color: 0xff0000});
+var greenMat = new THREE.MeshBasicMaterial({color: 0x00ff00});
+var blueMat = new THREE.MeshBasicMaterial({color: 0x0000ff});
 var AXIS = {x: 0, y: 1, z: 2, none: 3};
 var raycaster = new THREE.Raycaster();
 
@@ -13,7 +16,8 @@ layout.init();
 
 var settings = {
     length: 36000,
-    framerate: 60
+    framerate: 60,
+    aspectRatio: '16:9'
 };
 
 var models = [];
@@ -62,6 +66,7 @@ function loadSettings(newSettings) {
     timeline.setOptions(options);
     $('#length').val(settings.length);
     $('#framerate').val(settings.framerate);
+    $('#aspect-ratio').val(settings.aspectRatio);
 }
 
 function loadModel(files) {
@@ -143,6 +148,7 @@ function selectNode(id) {
         if (child.model)
             child.material = pinkLineMat;
     });
+    updateProperties();
 }
 
 function findNode(nodeId, startNode) {
@@ -229,22 +235,36 @@ function createEmptyNode(name) {
     xGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
     var xGrip = new THREE.Line(xGripGeom, redLineMat);
     xGrip.xGrip = true;
-    xGrip.visible = false;
     var yGripGeom = new THREE.Geometry();
     yGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
     yGripGeom.vertices.push(new THREE.Vector3(0, 50, 0));
     var yGrip = new THREE.Line(yGripGeom, greenLineMat);
     yGrip.yGrip = true;
-    yGrip.visible = false;
     var zGripGeom = new THREE.Geometry();
     zGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
     zGripGeom.vertices.push(new THREE.Vector3(0, 0, 50));
     var zGrip = new THREE.Line(zGripGeom, blueLineMat);
     zGrip.zGrip = true;
-    zGrip.visible = false;
     obj.add(xGrip);
     obj.add(yGrip);
     obj.add(zGrip);
+    var xGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
+    var xGripCone = new THREE.Mesh(xGripConeGeom, redMat);
+    xGripCone.rotation.z = -Math.PI / 2;
+    xGripCone.position.x = 50;
+    xGripCone.xGrip = true;
+    var yGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
+    var yGripCone = new THREE.Mesh(yGripConeGeom, greenMat);
+    yGripCone.position.y = 50;
+    yGripCone.yGrip = true;
+    var zGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
+    var zGripCone = new THREE.Mesh(zGripConeGeom, blueMat);
+    zGripCone.rotation.x = Math.PI / 2;
+    zGripCone.position.z = 50;
+    zGripCone.zGrip = true;
+    obj.add(xGripCone);
+    obj.add(yGripCone);
+    obj.add(zGripCone);
     var newNode = {
         id: nodeId,
         name: name,
@@ -478,6 +498,7 @@ function update() {
                         break;
                     }
                 }
+                updateProperties();
             }
             
             mouse.dx = 0;

@@ -7,11 +7,12 @@ layout.registerComponent( 'modelComponent', function(container, componentState){
             <label class="custom-file-label" for="load-model">Load Model</label>
         </div>
     </div>
-    <button type='button' class='btn btn-sm' onclick='unloadModel()' id='unload-model'>Unload Model</button><br>
+    
     <select class='model-select' id='model-select' size='10'>
     </select><br>
     <button type='button' class='btn btn-sm' onclick='addModelToScene($("#model-select option:selected").text())'>Add To Scene</button>
     <input type='text' id='model-node-name' placeholder='name'></input>
+    <button type='button' class='btn btn-sm' onclick='unloadModel()' id='unload-model'>Unload Model</button><br>
     </div>`);
 });
 

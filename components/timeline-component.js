@@ -56,6 +56,7 @@ layout.registerComponent( 'timelineComponent', function(container, componentStat
         timeline = new vis.Timeline(div, items, options);
         timeline.options.height = $('#timeline').height();
         timeline.addCustomTime(new Date(0), 'playhead');
+        timeline.setCustomTimeTitle('Playhead', 'playhead');
         // :( need this set 0 because creating it at the min just isn't good enough.
         timeline.setCustomTime(new Date(0), 'playhead');
         timeline.on('timechanged', function(event) {
