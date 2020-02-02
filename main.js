@@ -402,12 +402,17 @@ function update() {
     var rotateFactor = 100;
     var zoomSpeed = 0.2;
     viewports.forEach(function(viewport) {
+        for (var v = 0; v < viewports.length; v++) {
+            if (viewports[v].camera != null)
+                viewports[v].camera.children[1].visible = false;
+        }
         if (viewport.camera != null) {
             var cameraX = viewport.camera;
             var cameraY = cameraX.children[0];
             var metaCamera = cameraY.children[0];
+            viewport.camera.children[1].visible = true;
             var mouse = viewport.mouse;
-            if (mouse.button == 2) { // Right click
+            if (mouse.button == 2) { // Rotate view - Right click
                 cameraX.rotation.y += mouse.dx / rotateFactor;
                 cameraY.rotation.x += mouse.dy / rotateFactor;
                 cameraX.children[1].rotation.y -= mouse.dx / rotateFactor;
