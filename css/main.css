@@ -60,7 +60,7 @@ select, select:focus {
 button {
     margin: 2px;
 }
-.settings, .models, .file-menu, .tree-view, .tree-controls, .properties {
+.settings, .models, .file-menu, .tree-view, .tree-controls, .properties, .controls {
     margin: 5px;
 }
 .settings > label, .properties > label {

@@ -6,10 +6,17 @@ var darkPinkLineMat = new THREE.LineBasicMaterial({color: 0xa464b1});
 var redLineMat = new THREE.LineBasicMaterial({color: 0xff0000});
 var greenLineMat = new THREE.LineBasicMaterial({color: 0x00ff00});
 var blueLineMat = new THREE.LineBasicMaterial({color: 0x0000ff});
-var redMat = new THREE.MeshBasicMaterial({color: 0xff0000});
-var greenMat = new THREE.MeshBasicMaterial({color: 0x00ff00});
-var blueMat = new THREE.MeshBasicMaterial({color: 0x0000ff});
+var redMat = new THREE.MeshBasicMaterial({color: 0xff0000, side: THREE.DoubleSide});
+var greenMat = new THREE.MeshBasicMaterial({color: 0x00ff00, side: THREE.DoubleSide});
+var blueMat = new THREE.MeshBasicMaterial({color: 0x0000ff, side: THREE.DoubleSide});
+var planeMat = new THREE.MeshBasicMaterial({visible: true, color: 0xcccccc, side: THREE.DoubleSide});
+var gripPlaneGeom = new THREE.PlaneGeometry(1000, 1000, 1, 1);
+var gripPlane = new THREE.Mesh(gripPlaneGeom, planeMat);
+gripPlane.gripPlane = true;
+scene.add(gripPlane);
 var AXIS = {x: 0, y: 1, z: 2, none: 3};
+var CONTROLMODE = {move: 0, rotate: 1}
+var controlMode = CONTROLMODE.move;
 var raycaster = new THREE.Raycaster();
 
 layout.init();
@@ -128,15 +135,18 @@ function selectNode(id) {
         node.threeObject.children.forEach(function(child) {
             if (child.model)
                 child.material = whiteLineMat;
-            if (child.xGrip || child.yGrip || child.zGrip)
+            if (child.axesGrips)
+                child.visible = false;
+            if (child.rotGrips)
                 child.visible = false;
         });
     });
     var node = findNode(id);
     node.threeObject.children.forEach(function(child) {
-        if (child.xGrip || child.yGrip || child.zGrip) {
-            child.visible = true;
-        }
+        if (child.axesGrips)
+            child.visible = controlMode == CONTROLMODE.move;
+        if (child.rotGrips)
+            child.visible = controlMode == CONTROLMODE.rotate;
     });
     traverseTree(function(node) {
         node.threeObject.children.forEach(function(child) {
@@ -230,24 +240,32 @@ function createEmptyNode(name) {
     }
     var nodeId = getNextNodeId();
     var obj = new THREE.Object3D();
+    var axesGrips = new THREE.Object3D();
+    axesGrips.visible = controlMode == CONTROLMODE.move;
+    axesGrips.axesGrips = true;
     var xGripGeom = new THREE.Geometry();
     xGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
     xGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
     var xGrip = new THREE.Line(xGripGeom, redLineMat);
     xGrip.xGrip = true;
+    xGrip.visible = controlMode == CONTROLMODE.move;
     var yGripGeom = new THREE.Geometry();
     yGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
     yGripGeom.vertices.push(new THREE.Vector3(0, 50, 0));
     var yGrip = new THREE.Line(yGripGeom, greenLineMat);
     yGrip.yGrip = true;
     var zGripGeom = new THREE.Geometry();
+    // Don't make the line in the +Z direction because then
+    // the object doesn't really point in a direction.
+    // This comes up when calling getWorldDirection
     zGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
-    zGripGeom.vertices.push(new THREE.Vector3(0, 0, 50));
+    zGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
     var zGrip = new THREE.Line(zGripGeom, blueLineMat);
+    zGrip.rotateY(-Math.PI / 2);
     zGrip.zGrip = true;
-    obj.add(xGrip);
-    obj.add(yGrip);
-    obj.add(zGrip);
+    axesGrips.add(xGrip);
+    axesGrips.add(yGrip);
+    axesGrips.add(zGrip);
     var xGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
     var xGripCone = new THREE.Mesh(xGripConeGeom, redMat);
     xGripCone.rotation.z = -Math.PI / 2;
@@ -262,9 +280,28 @@ function createEmptyNode(name) {
     zGripCone.rotation.x = Math.PI / 2;
     zGripCone.position.z = 50;
     zGripCone.zGrip = true;
-    obj.add(xGripCone);
-    obj.add(yGripCone);
-    obj.add(zGripCone);
+    axesGrips.add(xGripCone);
+    axesGrips.add(yGripCone);
+    axesGrips.add(zGripCone);
+    obj.add(axesGrips);
+    var rotationGrips = new THREE.Object3D();
+    rotationGrips.visible = controlMode == CONTROLMODE.rotate;
+    rotationGrips.rotGrips = true;
+    var xRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
+    var xRotate = new THREE.Mesh(xRotateGeom, redMat);
+    xRotate.rotation.z = Math.PI / 2;
+    xRotate.xRotGrip = true;
+    var yRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
+    var yRotate = new THREE.Mesh(yRotateGeom, greenMat);
+    yRotate.yRotGrip = true;
+    var zRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
+    var zRotate = new THREE.Mesh(zRotateGeom, blueMat);
+    zRotate.rotation.x = Math.PI / 2;
+    zRotate.zRotGrip = true;
+    rotationGrips.add(xRotate);
+    rotationGrips.add(yRotate);
+    rotationGrips.add(zRotate);
+    obj.add(rotationGrips)
     var newNode = {
         id: nodeId,
         name: name,
@@ -442,15 +479,16 @@ function update() {
                     cameraX.rotation.x = -Math.PI / 2;
             }
             else if (mouse.button == 1) { // Pan view - Middle click
-                var translate = getScreenTranslation(cameraX, cameraY, metaCamera, mouse);
+                var translate = getScreenPan(mouse, cameraX, cameraY, metaCamera);
+                //translate.negate();
                 cameraX.position.add(translate);
             }
             else if (mouse.button == 0) {
                 var treeNode = $('#scene-tree').tree('getSelectedNode');
                 if (treeNode) {
                     var selectedNode = findNode(treeNode.id);
-                    var translate = getScreenTranslation(cameraX, cameraY, metaCamera, mouse);
-                    translate.negate();
+                    var translate = getScreenTranslation(mouse);
+                    translate.applyQuaternion(selectedNode.threeObject.quaternion);
                     if (mouse.moveAxis == AXIS.x) {
                         selectedNode.threeObject.translateX(translate.x);
                     }
@@ -459,6 +497,18 @@ function update() {
                     }
                     if (mouse.moveAxis == AXIS.z) {
                         selectedNode.threeObject.translateZ(translate.z);
+                    }
+                    if (mouse.rotateAxis == AXIS.x) {
+                        var rotation = getScreenRotation(selectedNode, cameraX, cameraY, metaCamera, mouse, viewport.div[0]);
+                        selectedNode.threeObject.rotateX(rotation);
+                    }
+                    if (mouse.rotateAxis == AXIS.y) {
+                        var rotation = getScreenRotation(selectedNode, cameraX, cameraY, metaCamera, mouse, viewport.div[0]);
+                        selectedNode.threeObject.rotateY(rotation);
+                    }
+                    if (mouse.rotateAxis == AXIS.z) {
+                        var rotation = getScreenRotation(selectedNode, cameraX, cameraY, metaCamera, mouse, viewport.div[0]);
+                        selectedNode.threeObject.rotateZ(rotation);
                     }
                 }
             }
@@ -470,7 +520,7 @@ function update() {
                 metaCamera.zoom *= 1 - zoomSpeed;
                 metaCamera.updateProjectionMatrix();
             }
-            viewport.renderer.render(scene, metaCamera);
+            
 
             if (mouse.down) {
                 var div = viewport.div[0];
@@ -479,27 +529,55 @@ function update() {
                 mouseVec.y = -((mouse.y - div.parentElement.offsetTop) / div.clientHeight) * 2 + 1;
                 raycaster.setFromCamera(mouseVec, metaCamera);
                 var intersects = raycaster.intersectObjects(scene.children, true);
-                var pickedObject = null;
                 for (var i = 0; i < intersects.length; i++) {
-                    if (pickedObject == null && mouse.down &&
-                        intersects[i].object.parent.sceneNode) {
-                        pickedObject = intersects[i].object;
+                    if (mouse.pickedObject == null && mouse.down) {
                         if (mouse.moveAxis == AXIS.none) {
-                            if (pickedObject.xGrip) {
+                            if (intersects[i].object.xGrip) {
                                 mouse.moveAxis = AXIS.x;
+                                mouse.pickedObject = intersects[i].object;
                             }
-                            if (pickedObject.yGrip) {
+                            if (intersects[i].object.yGrip) {
                                 mouse.moveAxis = AXIS.y;
+                                mouse.pickedObject = intersects[i].object;
                             }
-                            if (pickedObject.zGrip) {
+                            if (intersects[i].object.zGrip) {
                                 mouse.moveAxis = AXIS.z;
+                                mouse.pickedObject = intersects[i].object;
                             }
                         }
-                        break;
+                        if (mouse.rotateAxis == AXIS.none) {
+                            if (intersects[i].object.xRotGrip) {
+                                mouse.rotateAxis = AXIS.x;
+                                mouse.pickedObject = intersects[i].object;
+                            }
+                            if (intersects[i].object.yRotGrip) {
+                                mouse.rotateAxis = AXIS.y;
+                                mouse.pickedObject = intersects[i].object;
+                            }
+                            if (intersects[i].object.zRotGrip) {
+                                mouse.rotateAxis = AXIS.z;
+                                mouse.pickedObject = intersects[i].object;
+                            }
+                        }
                     }
+                }
+                if (mouse.moveAxis != AXIS.none || mouse.rotateAxis != AXIS.none) {
+                    var worldPos = new THREE.Vector3();
+                    mouse.pickedObject.getWorldPosition(worldPos);
+                    var worldDir = new THREE.Quaternion();
+                    mouse.pickedObject.getWorldQuaternion(worldDir);
+                    gripPlane.position.copy(worldPos);
+                    gripPlane.setRotationFromQuaternion(worldDir);
+                    viewport.renderer.render(scene, metaCamera);
+                }
+                mouse.startPoint = mouse.currentPoint;
+                var planeIntersects = raycaster.intersectObjects([gripPlane], false);
+                for (var i = 0; i < planeIntersects.length; i++) {
+                    mouse.currentPoint = planeIntersects[i].point;
                 }
                 updateProperties();
             }
+            viewport.renderer.render(scene, metaCamera);
             
             mouse.dx = 0;
             mouse.dy = 0;
@@ -508,9 +586,31 @@ function update() {
     })
 }
 
-function getScreenTranslation(cameraX, cameraY, metaCamera, mouse) {
+function getScreenTranslation(mouse) {
+    var translate = new THREE.Vector3();
+    if (!mouse.currentPoint || !mouse.startPoint)
+        return translate;
+    translate.subVectors(mouse.currentPoint, mouse.startPoint);
+    return translate;
+}
+
+function getScreenRotation(node, cameraX, cameraY, metaCamera, mouse, div) {
+    if (mouse.startTheta == null) {
+        var x = (mouse.startX - div.parentElement.offsetLeft);
+        var y = (mouse.startY - div.parentElement.offsetTop);
+        var theta = Math.atan(y / x);
+        mouse.startTheta = theta;
+    }
+    var dx = (mouse.x - div.parentElement.offsetLeft);
+    var dy = (mouse.y - div.parentElement.offsetTop);
+    if (dx == 0)
+        return 0;
+    var dTheta = Math.atan(dy / dx);
+    return (dTheta - mouse.startTheta) / 10;
+}
+
+function getScreenPan(mouse, cameraX, cameraY, metaCamera) {
     // Translate 2D screen movement into the appropriate 3D movement.
-    // Holy crap this was difficult to figure out.
     var dir = new THREE.Vector3();
     cameraY.getWorldDirection(dir);
     dir.normalize();
