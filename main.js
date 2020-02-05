@@ -9,7 +9,7 @@ var blueLineMat = new THREE.LineBasicMaterial({color: 0x0000ff});
 var redMat = new THREE.MeshBasicMaterial({color: 0xff0000, side: THREE.DoubleSide});
 var greenMat = new THREE.MeshBasicMaterial({color: 0x00ff00, side: THREE.DoubleSide});
 var blueMat = new THREE.MeshBasicMaterial({color: 0x0000ff, side: THREE.DoubleSide});
-var planeMat = new THREE.MeshBasicMaterial({visible: true, color: 0xcccccc, side: THREE.DoubleSide});
+var planeMat = new THREE.MeshBasicMaterial({visible: true, color: 0xcccccc, side: THREE.DoubleSide, opacity: 0.5, transparent: true});
 var gripPlaneGeom = new THREE.PlaneGeometry(1000, 1000, 1, 1);
 var gripPlane = new THREE.Mesh(gripPlaneGeom, planeMat);
 gripPlane.gripPlane = true;
@@ -480,7 +480,6 @@ function update() {
             }
             else if (mouse.button == 1) { // Pan view - Middle click
                 var translate = getScreenPan(mouse, cameraX, cameraY, metaCamera);
-                //translate.negate();
                 cameraX.position.add(translate);
             }
             else if (mouse.button == 0) {
@@ -488,15 +487,23 @@ function update() {
                 if (treeNode) {
                     var selectedNode = findNode(treeNode.id);
                     var translate = getScreenTranslation(mouse);
-                    translate.applyQuaternion(selectedNode.threeObject.quaternion);
+                    var dir = new THREE.Vector3();
+                    selectedNode.threeObject.getWorldDirection(dir);
+                    var up = new THREE.Vector3(0, 1, 0);
+                    up.applyQuaternion(selectedNode.threeObject.quaternion);
                     if (mouse.moveAxis == AXIS.x) {
-                        selectedNode.threeObject.translateX(translate.x);
+                        var xDir = new THREE.Vector3();
+                        xDir.crossVectors(dir, up);
+                        translate.projectOnVector(xDir);
+                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, translate);
                     }
                     if (mouse.moveAxis == AXIS.y) {
-                        selectedNode.threeObject.translateY(translate.y);
+                        translate.projectOnVector(up);
+                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, translate);
                     }
                     if (mouse.moveAxis == AXIS.z) {
-                        selectedNode.threeObject.translateZ(translate.z);
+                        translate.projectOnVector(dir);
+                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, translate);
                     }
                     if (mouse.rotateAxis == AXIS.x) {
                         var rotation = getScreenRotation(selectedNode, cameraX, cameraY, metaCamera, mouse, viewport.div[0]);
@@ -520,7 +527,6 @@ function update() {
                 metaCamera.zoom *= 1 - zoomSpeed;
                 metaCamera.updateProjectionMatrix();
             }
-            
 
             if (mouse.down) {
                 var div = viewport.div[0];
