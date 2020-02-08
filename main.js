@@ -248,7 +248,6 @@ function createEmptyNode(name) {
     xGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
     var xGrip = new THREE.Line(xGripGeom, redLineMat);
     xGrip.xGrip = true;
-    xGrip.visible = controlMode == CONTROLMODE.move;
     var yGripGeom = new THREE.Geometry();
     yGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
     yGripGeom.vertices.push(new THREE.Vector3(0, 50, 0));
@@ -262,6 +261,7 @@ function createEmptyNode(name) {
     zGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
     var zGrip = new THREE.Line(zGripGeom, blueLineMat);
     zGrip.rotateY(-Math.PI / 2);
+    zGrip.rotateX(Math.PI / 2);
     zGrip.zGrip = true;
     axesGrips.add(xGrip);
     axesGrips.add(yGrip);
@@ -487,23 +487,43 @@ function update() {
                 if (treeNode) {
                     var selectedNode = findNode(treeNode.id);
                     var translate = getScreenTranslation(mouse);
-                    var dir = new THREE.Vector3();
-                    selectedNode.threeObject.getWorldDirection(dir);
-                    var up = new THREE.Vector3(0, 1, 0);
-                    up.applyQuaternion(selectedNode.threeObject.quaternion);
+                    var worldQ = new THREE.Quaternion();
+                    selectedNode.threeObject.getWorldQuaternion(worldQ);
                     if (mouse.moveAxis == AXIS.x) {
-                        var xDir = new THREE.Vector3();
-                        xDir.crossVectors(dir, up);
-                        translate.projectOnVector(xDir);
-                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, translate);
+                        var xDir = new THREE.Vector3(1, 0, 0);
+                        var worldX = new THREE.Vector3(1, 0, 0);
+                        worldX.applyQuaternion(worldQ);
+                        xDir.applyQuaternion(selectedNode.threeObject.quaternion);
+                        var angle = translate.angleTo(worldX);
+                        if (Math.abs(angle) > Math.PI / 2)
+                            xDir.negate();
+                        translate.projectOnVector(worldX);
+                        xDir.multiplyScalar(translate.length());
+                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, xDir);
                     }
                     if (mouse.moveAxis == AXIS.y) {
-                        translate.projectOnVector(up);
-                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, translate);
+                        var yDir = new THREE.Vector3(0, 1, 0);
+                        var worldY = new THREE.Vector3(0, 1, 0);
+                        worldY.applyQuaternion(worldQ);
+                        yDir.applyQuaternion(selectedNode.threeObject.quaternion);
+                        var angle = translate.angleTo(worldY);
+                        if (Math.abs(angle) > Math.PI / 2)
+                            yDir.negate();
+                        translate.projectOnVector(worldY);
+                        yDir.multiplyScalar(translate.length());
+                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, yDir);
                     }
                     if (mouse.moveAxis == AXIS.z) {
-                        translate.projectOnVector(dir);
-                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, translate);
+                        var zDir = new THREE.Vector3(0, 0, 1);
+                        var worldZ = new THREE.Vector3(0, 0, 1);
+                        worldZ.applyQuaternion(worldQ);
+                        zDir.applyQuaternion(selectedNode.threeObject.quaternion);
+                        var angle = translate.angleTo(worldZ);
+                        if (Math.abs(angle) > Math.PI / 2)
+                            zDir.negate();
+                        translate.projectOnVector(worldZ);
+                        zDir.multiplyScalar(translate.length());
+                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, zDir);
                     }
                     if (mouse.rotateAxis == AXIS.x) {
                         var rotation = getScreenRotation(selectedNode, cameraX, cameraY, metaCamera, mouse, viewport.div[0]);
@@ -579,7 +599,9 @@ function update() {
                 mouse.startPoint = mouse.currentPoint;
                 var planeIntersects = raycaster.intersectObjects([gripPlane], false);
                 for (var i = 0; i < planeIntersects.length; i++) {
-                    mouse.currentPoint = planeIntersects[i].point;
+                    if (mouse.moveAxis != AXIS.none || mouse.rotateAxis != AXIS.none) {
+                        mouse.currentPoint = planeIntersects[i].point;
+                    }
                 }
                 updateProperties();
             }
