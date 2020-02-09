@@ -9,8 +9,8 @@ var blueLineMat = new THREE.LineBasicMaterial({color: 0x0000ff});
 var redMat = new THREE.MeshBasicMaterial({color: 0xff0000, side: THREE.DoubleSide});
 var greenMat = new THREE.MeshBasicMaterial({color: 0x00ff00, side: THREE.DoubleSide});
 var blueMat = new THREE.MeshBasicMaterial({color: 0x0000ff, side: THREE.DoubleSide});
-var planeMat = new THREE.MeshBasicMaterial({visible: true, color: 0xcccccc, side: THREE.DoubleSide, opacity: 0.5, transparent: true});
-var gripPlaneGeom = new THREE.PlaneGeometry(1000, 1000, 1, 1);
+var planeMat = new THREE.MeshBasicMaterial({visible: false, color: 0xcccccc, side: THREE.DoubleSide, opacity: 0.5, transparent: true});
+var gripPlaneGeom = new THREE.PlaneGeometry(10000, 10000, 1, 1);
 var gripPlane = new THREE.Mesh(gripPlaneGeom, planeMat);
 gripPlane.gripPlane = true;
 scene.add(gripPlane);
@@ -548,7 +548,7 @@ function update() {
                 metaCamera.updateProjectionMatrix();
             }
 
-            if (mouse.down) {
+            if (mouse.down && mouse.button == 0) {
                 var div = viewport.div[0];
                 var mouseVec = new THREE.Vector2();
                 mouseVec.x = ((mouse.x - div.parentElement.offsetLeft) / div.clientWidth) * 2 - 1;
@@ -587,13 +587,44 @@ function update() {
                         }
                     }
                 }
-                if (mouse.moveAxis != AXIS.none || mouse.rotateAxis != AXIS.none) {
+                if (mouse.moveAxis != AXIS.none) {
                     var worldPos = new THREE.Vector3();
                     mouse.pickedObject.getWorldPosition(worldPos);
                     var worldDir = new THREE.Quaternion();
-                    mouse.pickedObject.getWorldQuaternion(worldDir);
+                    mouse.pickedObject.parent.parent.getWorldQuaternion(worldDir);
+                    var pickedAxis;
+                    var a, b;
+                    if (mouse.moveAxis == AXIS.x) {
+                        pickedAxis = new THREE.Vector3(1, 0, 0);
+                        a = new THREE.Vector3(0, 1, 0);
+                        b = new THREE.Vector3(0, 0, 1);
+                    }
+                    else if (mouse.moveAxis == AXIS.y) {
+                        pickedAxis = new THREE.Vector3(0, 1, 0);
+                        a = new THREE.Vector3(0, 0, 1);
+                        b = new THREE.Vector3(1, 0, 0);
+                    }
+                    else {
+                        pickedAxis = new THREE.Vector3(0, 0, 1);
+                        a = new THREE.Vector3(1, 0, 0);
+                        b = new THREE.Vector3(0, 1, 0);
+                    }
+                    pickedAxis.applyQuaternion(worldDir);
+                    a.applyQuaternion(worldDir);
+                    b.applyQuaternion(worldDir);
+                    var normal = new THREE.Vector3();
+                    normal.crossVectors(a, pickedAxis);
+                    normal.normalize();
+                    var cameraDir = new THREE.Vector3();
+                    metaCamera.getWorldDirection(cameraDir);
+                    var angle = normal.angleTo(cameraDir);
+                    // Make plane more perpendicular to camera
+                    if (angle > Math.PI / 4 && angle < 3 * Math.PI / 4)
+                        normal.crossVectors(b, pickedAxis);
+                    var planeQ = new THREE.Quaternion();
+                    planeQ.setFromUnitVectors(normal, new THREE.Vector3(0, 0, 1));
                     gripPlane.position.copy(worldPos);
-                    gripPlane.setRotationFromQuaternion(worldDir);
+                    gripPlane.setRotationFromQuaternion(planeQ);
                     viewport.renderer.render(scene, metaCamera);
                 }
                 mouse.startPoint = mouse.currentPoint;
