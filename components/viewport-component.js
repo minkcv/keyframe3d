@@ -52,7 +52,6 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         viewport.mouse.y = event.clientY;
         viewport.mouse.moveAxis = AXIS.none;
         viewport.mouse.rotateAxis = AXIS.none;
-        viewport.mouse.startTheta = null;
         viewport.mouse.startPoint = null;
         viewport.mouse.currentPoint = null;
         viewport.mouse.pickedObject = null;

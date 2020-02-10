@@ -1,7 +1,7 @@
 layout.registerComponent( 'controlsComponent', function(container, componentState){
     container.getElement().html(
         `<div class="controls" id="controls">
-            <button type='button' class='btn btn-sm' onclick='setControlMode(CONTROLMODE.move)'>Move</button><br>
+            <button type='button' class='btn btn-sm' onclick='setControlMode(CONTROLMODE.move)'>Move</button>
             <button type='button' class='btn btn-sm' onclick='setControlMode(CONTROLMODE.rotate)'>Rotate</button><br>
         </div>`);
 });
