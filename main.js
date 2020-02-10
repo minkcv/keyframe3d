@@ -525,16 +525,14 @@ function update() {
                         zDir.multiplyScalar(translate.length());
                         selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, zDir);
                     }
+                    var rotation = getScreenRotation(selectedNode, mouse, worldQ, mouse.rotateAxis);
                     if (mouse.rotateAxis == AXIS.x) {
-                        var rotation = getScreenRotation(selectedNode, cameraX, cameraY, metaCamera, mouse, viewport.div[0]);
                         selectedNode.threeObject.rotateX(rotation);
                     }
                     if (mouse.rotateAxis == AXIS.y) {
-                        var rotation = getScreenRotation(selectedNode, cameraX, cameraY, metaCamera, mouse, viewport.div[0]);
                         selectedNode.threeObject.rotateY(rotation);
                     }
                     if (mouse.rotateAxis == AXIS.z) {
-                        var rotation = getScreenRotation(selectedNode, cameraX, cameraY, metaCamera, mouse, viewport.div[0]);
                         selectedNode.threeObject.rotateZ(rotation);
                     }
                 }
@@ -612,17 +610,14 @@ function update() {
                     if (mouse.rotateAxis == AXIS.x) {
                         normal = new THREE.Vector3(1, 0, 0);
                         normal.applyQuaternion(worldDir);
-                        console.log(normal);
                     }
                     else if (mouse.rotateAxis == AXIS.y) {
                         normal = new THREE.Vector3(0, 1, 0);
                         normal.applyQuaternion(worldDir);
-                        console.log(normal);
                     }
                     else if (mouse.rotateAxis == AXIS.z) {
                         normal = new THREE.Vector3(0, 0, 1);
                         normal.applyQuaternion(worldDir);
-                        console.log(normal);
                     }
                     if (mouse.rotateAxis == AXIS.none) {
                         pickedAxis.applyQuaternion(worldDir);
@@ -670,19 +665,33 @@ function getScreenTranslation(mouse) {
     return translate;
 }
 
-function getScreenRotation(node, cameraX, cameraY, metaCamera, mouse, div) {
-    if (mouse.startTheta == null) {
-        var x = (mouse.startX - div.parentElement.offsetLeft);
-        var y = (mouse.startY - div.parentElement.offsetTop);
-        var theta = Math.atan(y / x);
-        mouse.startTheta = theta;
-    }
-    var dx = (mouse.x - div.parentElement.offsetLeft);
-    var dy = (mouse.y - div.parentElement.offsetTop);
-    if (dx == 0)
+function getScreenRotation(node, mouse, worldQ, axis) {
+    if (!mouse.startPoint || !mouse.currentPoint || axis == AXIS.none)
         return 0;
-    var dTheta = Math.atan(dy / dx);
-    return (dTheta - mouse.startTheta) / 10;
+    var startVec = new THREE.Vector3();
+    var worldPos = new THREE.Vector3();
+    node.threeObject.getWorldPosition(worldPos);
+    startVec.subVectors(mouse.startPoint, worldPos);
+    var newVec = new THREE.Vector3();
+    var normal;
+    if (axis == AXIS.x)
+        normal = new THREE.Vector3(1, 0, 0);
+    else if (axis == AXIS.y)
+        normal = new THREE.Vector3(0, 1, 0);
+    else if (axis == AXIS.z)
+        normal = new THREE.Vector3(0, 0, 1);
+    normal.applyQuaternion(worldQ);
+    newVec.subVectors(mouse.currentPoint, worldPos);
+    var rotCross = new THREE.Vector3();
+    rotCross.crossVectors(newVec, startVec);
+    var angle = -newVec.angleTo(startVec);
+    if (axis == AXIS.x && sign(normal.x) != sign(rotCross.x))
+        angle = -angle;
+    else if (axis == AXIS.y && sign(normal.y) != sign(rotCross.y))
+        angle = -angle;
+    else if (axis == AXIS.z && sign(normal.z) != sign(rotCross.z))
+        angle = -angle;
+    return angle;
 }
 
 function getScreenPan(mouse, cameraX, cameraY, metaCamera) {
@@ -708,6 +717,12 @@ function getUpVector(dir, xr, yr) {
     var up = new THREE.Vector3();
     ob.getWorldDirection(up);
     return up;
+}
+
+function sign(n) {
+    if (n < 0)
+        return -1;
+    return 1;
 }
 
 $(function() {
