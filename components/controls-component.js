@@ -190,3 +190,27 @@ function seekTimeInput() {
     }
     seekTime(time);
 }
+
+function play() {
+    if (playState == PLAY.play)
+        return;
+    playState = PLAY.play;
+    timerId = setInterval(function() {
+        var time = timeline.getCustomTime('playhead').getTime();
+        if (time + 1 > settings.length - 1) {
+            playState = PLAY.stop;
+            clearInterval(timerId);
+            timerId = -1;
+            return;
+        }
+        seekTime(time + 1);
+    }, 1000 / settings.framerate);
+}
+
+function stop() {
+    playState = PLAY.stop;
+    if (timerId != -1) {
+        clearInterval(timerId);
+        timerId = -1;
+    }
+}

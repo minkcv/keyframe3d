@@ -15,9 +15,12 @@ var gripPlane = new THREE.Mesh(gripPlaneGeom, planeMat);
 gripPlane.gripPlane = true;
 scene.add(gripPlane);
 var AXIS = {x: 0, y: 1, z: 2, none: 3};
+var PLAY = {play: 0, stop: 1};
+var playState = PLAY.stop;
 var CONTROLMODE = {move: 0, rotate: 1}
 var controlMode = CONTROLMODE.move;
 var raycaster = new THREE.Raycaster();
+var timerId;
 
 layout.init();
 
@@ -717,7 +720,7 @@ function update() {
             mouse.dy = 0;
             mouse.dz = 0;
         }
-    })
+    });
 }
 
 function getScreenTranslation(mouse) {

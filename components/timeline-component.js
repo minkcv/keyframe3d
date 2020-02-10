@@ -115,8 +115,9 @@ function timeChanged(dateTime) {
         seekTime(time);
 }
 
-function seekTime(time) {
-    log('Seek to ' + time);
+function seekTime(time, noLog) {
+    if (!noLog)
+        log('Seek to ' + time);
     timeline.setCustomTime(new Date(time), 'playhead');
     $('#current-time').text(time);
     var exact = getKeyframe(time);

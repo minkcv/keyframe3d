@@ -14,9 +14,11 @@ layout.registerComponent( 'settingsComponent', function(container, componentStat
 function applySettings() {
     var length = parseInt($('#length').val());
     var framerate = parseInt($('#framerate').val());
+    var aspectRatio = $('#aspect-ratio').val();
     var newSettings = {
         length: length,
-        framerate: framerate
+        framerate: framerate,
+        aspectRatio: aspectRatio
     };
     loadSettings(newSettings);
 }
