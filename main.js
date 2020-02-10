@@ -587,7 +587,7 @@ function update() {
                         }
                     }
                 }
-                if (mouse.moveAxis != AXIS.none) {
+                if (mouse.moveAxis != AXIS.none || mouse.rotateAxis != AXIS.none) {
                     var worldPos = new THREE.Vector3();
                     mouse.pickedObject.getWorldPosition(worldPos);
                     var worldDir = new THREE.Quaternion();
@@ -604,27 +604,44 @@ function update() {
                         a = new THREE.Vector3(0, 0, 1);
                         b = new THREE.Vector3(1, 0, 0);
                     }
-                    else {
+                    else if (mouse.moveAxis == AXIS.z) {
                         pickedAxis = new THREE.Vector3(0, 0, 1);
                         a = new THREE.Vector3(1, 0, 0);
                         b = new THREE.Vector3(0, 1, 0);
                     }
-                    pickedAxis.applyQuaternion(worldDir);
-                    a.applyQuaternion(worldDir);
-                    b.applyQuaternion(worldDir);
-                    var normal = new THREE.Vector3();
-                    normal.crossVectors(a, pickedAxis);
-                    normal.normalize();
-                    var cameraDir = new THREE.Vector3();
-                    metaCamera.getWorldDirection(cameraDir);
-                    var angle = normal.angleTo(cameraDir);
-                    // Make plane more perpendicular to camera
-                    if (angle > Math.PI / 4 && angle < 3 * Math.PI / 4)
-                        normal.crossVectors(b, pickedAxis);
-                    var planeQ = new THREE.Quaternion();
-                    planeQ.setFromUnitVectors(normal, new THREE.Vector3(0, 0, 1));
+                    if (mouse.rotateAxis == AXIS.x) {
+                        normal = new THREE.Vector3(1, 0, 0);
+                        normal.applyQuaternion(worldDir);
+                        console.log(normal);
+                    }
+                    else if (mouse.rotateAxis == AXIS.y) {
+                        normal = new THREE.Vector3(0, 1, 0);
+                        normal.applyQuaternion(worldDir);
+                        console.log(normal);
+                    }
+                    else if (mouse.rotateAxis == AXIS.z) {
+                        normal = new THREE.Vector3(0, 0, 1);
+                        normal.applyQuaternion(worldDir);
+                        console.log(normal);
+                    }
+                    if (mouse.rotateAxis == AXIS.none) {
+                        pickedAxis.applyQuaternion(worldDir);
+                        a.applyQuaternion(worldDir);
+                        b.applyQuaternion(worldDir);
+                        var normal = new THREE.Vector3();
+                        normal.crossVectors(a, pickedAxis);
+                        normal.normalize();
+                        var cameraDir = new THREE.Vector3();
+                        metaCamera.getWorldDirection(cameraDir);
+                        var angle = normal.angleTo(cameraDir);
+                        // Make plane more perpendicular to camera
+                        if (angle > Math.PI / 4 && angle < 3 * Math.PI / 4)
+                            normal.crossVectors(b, pickedAxis);
+                    }
                     gripPlane.position.copy(worldPos);
-                    gripPlane.setRotationFromQuaternion(planeQ);
+                    var lookPt = new THREE.Vector3();
+                    lookPt.addVectors(worldPos, normal);
+                    gripPlane.lookAt(lookPt);
                     viewport.renderer.render(scene, metaCamera);
                 }
                 mouse.startPoint = mouse.currentPoint;
