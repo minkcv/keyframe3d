@@ -22,7 +22,7 @@ var raycaster = new THREE.Raycaster();
 layout.init();
 
 var settings = {
-    length: 36000,
+    length: 1000,
     framerate: 60,
     aspectRatio: '16:9'
 };
@@ -35,6 +35,7 @@ var sceneTree = {
     model: null,
     threeObject: new THREE.Object3D()
 };
+var keyframes = [];
 scene.add(sceneTree.threeObject);
 
 function addViewport() {
@@ -451,6 +452,68 @@ function addModelToScene(modelName) {
     node.threeObject.add(linesObject);
     log('Added model "' + modelName + '" to node "' + node.name + '"');
     selectNode(node.id);
+}
+
+function getKeyframe(time) {
+    var found = null;
+    keyframes.forEach(function(keyframe) {
+        if (keyframe.time == time)
+            found = keyframe
+    });
+    return found;
+}
+
+function getKeyframeBefore(time, nodeId) {
+    var found = null;
+    var foundData = null;
+    keyframes.forEach(function(keyframe) {
+        var data = getKeyframeData(keyframe, nodeId);
+        if (data != null) {
+            if (keyframe.time < time) {
+                if (found == null) {
+                    found = keyframe;
+                    foundData = data;
+                }
+                else if (found.time < keyframe.time) {
+                    found = keyframe;
+                    foundData = data;
+                }
+            }
+        }
+    });
+    return {kf: found, data: foundData};
+}
+
+function getKeyframeAfter(time, nodeId) {
+    var found = null;
+    var foundData = null;
+    keyframes.forEach(function(keyframe) {
+        var data = getKeyframeData(keyframe, nodeId);
+        if (data != null) {
+            if (keyframe.time > time) {
+                if (found == null) {
+                    found = keyframe;
+                    foundData = data;
+                }
+                else if (found.time > keyframe.time) {
+                    found = keyframe;
+                    foundData = data;
+                }
+            }
+        }
+    });
+    return {kf: found, data: foundData};
+}
+
+function getKeyframeData(kf, nodeId) {
+    var found = null;
+    if (kf == null)
+        return null;
+    kf.nodes.forEach(function(nodeData) {
+        if (nodeData.id == nodeId)
+            found = nodeData;
+    });
+    return found;
 }
 
 function update() {

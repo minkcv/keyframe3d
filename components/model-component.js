@@ -11,7 +11,7 @@ layout.registerComponent( 'modelComponent', function(container, componentState){
     <select class='model-select' id='model-select' size='10'>
     </select><br>
     <button type='button' class='btn btn-sm' onclick='addModelToScene($("#model-select option:selected").text())'>Add To Scene</button>
-    <input type='text' id='model-node-name' placeholder='name'></input>
+    <input type='text' id='model-node-name' placeholder='name'></input><br>
     <button type='button' class='btn btn-sm' onclick='unloadModel()' id='unload-model'>Unload Model</button><br>
     </div>`);
 });

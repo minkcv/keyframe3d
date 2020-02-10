@@ -5,9 +5,14 @@
 * {
     box-sizing: content-box;
 }
+hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-color: #cccccc;
+}
 .model-select {
     width: 100%;
-    height: 120px;
+    height: 220px;
 }
 option:checked, option:active {
     background: linear-gradient(#b049b9, #b049b9) !important;
@@ -70,9 +75,9 @@ button {
 .settings > input, .tree-controls > input {
     float: right;
 }
-pre {
+pre, .controls > div, .controls > div > span {
     font-family: droid_sans_mono_regular;
-    font-size: 9pt;
+    font-size: 12pt;
     color: #cccccc;
 }
 h1, h2, h3, p {
@@ -130,7 +135,6 @@ h1 {
     overflow: auto;
     height: 100%;
     width: 100%;
-    padding-right: 20px;
     padding-bottom: 20px;
 }
 .log > pre {
@@ -144,11 +148,16 @@ h1 {
     color: #cccc00;
 }
 #timeline {
-    height: 100%;
+    height: 95%;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 #timeline > * {
     font-family: droid_sans_mono_regular;
     font-size: 9pt;
+}
+.timeline-keyframe {
+    border-color: #b049b9
 }
 .vis-item.timeline-item {
     background: #cccccc;
@@ -161,11 +170,6 @@ h1 {
 }
 .vis-custom-time {
     background-color: #b049b9;
-}
-.timeline-range-red > .vis-item-overflow > .vis-item-content, 
-.timeline-range-green > .vis-item-overflow > .vis-item-content,
-.timeline-range-blue > .vis-item-overflow > .vis-item-content {
-    color: #ffffff !important;
 }
 .vis-selected {
     background: #ffffff !important;
