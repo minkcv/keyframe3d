@@ -38,16 +38,23 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         viewport.mouse.button = event.button;
         viewport.mouse.x = event.clientX;
         viewport.mouse.y = event.clientY;
+        viewport.mouse.startX = event.clientX;
+        viewport.mouse.startY = event.clientY;
     });
     div.mouseup(function(event) {
         event.preventDefault();
         var id = parseInt(event.currentTarget.getAttribute('viewportId'));
         var viewport = getViewport(id);
         viewport.mouse.down = false;
+        viewport.mouse.button = -1;
         viewport.mouse.wasDown = true;
         viewport.mouse.x = event.clientX;
         viewport.mouse.y = event.clientY;
         viewport.mouse.moveAxis = AXIS.none;
+        viewport.mouse.rotateAxis = AXIS.none;
+        viewport.mouse.startPoint = null;
+        viewport.mouse.currentPoint = null;
+        viewport.mouse.pickedObject = null;
     });
     div.mousemove(function(event) {
         event.preventDefault();
@@ -75,7 +82,15 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         viewportId: componentState.viewportId,
         camera: null,
         div: div,
-        mouse: {moveAxis: AXIS.none}
+        mouse: {
+            moveAxis: AXIS.none, 
+            rotateAxis: AXIS.none,
+            startX: 0,
+            startY: 0,
+            startTheta: null,
+            startPoint: null,
+            pickedObject: null
+        }
     });
 });
 
