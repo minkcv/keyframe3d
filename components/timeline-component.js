@@ -129,9 +129,7 @@ function seekTime(time, noLog) {
             node.threeObject.position.x = data.pos.x;
             node.threeObject.position.y = data.pos.y;
             node.threeObject.position.z = data.pos.z;
-            node.threeObject.rotation.x = data.rot.x;
-            node.threeObject.rotation.y = data.rot.y;
-            node.threeObject.rotation.z = data.rot.z;
+            node.threeObject.quaternion.set(data.rot.x, data.rot.y, data.rot.z, data.rot.w);
         })
     }
     else {
@@ -142,30 +140,28 @@ function seekTime(time, noLog) {
                 node.threeObject.position.x = after.data.pos.x;
                 node.threeObject.position.y = after.data.pos.y;
                 node.threeObject.position.z = after.data.pos.z;
-                node.threeObject.rotation.x = after.data.rot.x;
-                node.threeObject.rotation.y = after.data.rot.y;
-                node.threeObject.rotation.z = after.data.rot.z;
+                node.threeObject.quaternion.set(after.data.rot.x, after.data.rot.y, after.data.rot.z, after.data.rot.w);
             }
             else if (before.kf != null && after.kf == null) {
                 node.threeObject.position.x = before.data.pos.x;
                 node.threeObject.position.y = before.data.pos.y;
                 node.threeObject.position.z = before.data.pos.z;
-                node.threeObject.rotation.x = before.data.rot.x;
-                node.threeObject.rotation.y = before.data.rot.y;
-                node.threeObject.rotation.z = before.data.rot.z;
+                node.threeObject.quaternion.set(before.data.rot.x, before.data.rot.y, before.data.rot.z, before.data.rot.w);
             }
             else if (before.kf != null && after.kf != null) {
                 var alpha = (time - before.kf.time) / (after.kf.time - before.kf.time);
                 var posBefore = new THREE.Vector3(before.data.pos.x, before.data.pos.y, before.data.pos.z);
                 var posAfter = new THREE.Vector3(after.data.pos.x, after.data.pos.y, after.data.pos.z);
-                var rotBefore = new THREE.Vector3(before.data.rot.x, before.data.rot.y, before.data.rot.z);
-                var rotAfter = new THREE.Vector3(after.data.rot.x, after.data.rot.y, after.data.rot.z);
+                var rotBefore = new THREE.Quaternion(before.data.rot.x, before.data.rot.y, before.data.rot.z, before.data.rot.w);
+                var rotAfter = new THREE.Quaternion(after.data.rot.x, after.data.rot.y, after.data.rot.z, after.data.rot.w);
                 var pos = new THREE.Vector3();
-                var rot = new THREE.Vector3();
+                var rot = new THREE.Quaternion();
                 pos.lerpVectors(posBefore, posAfter, alpha);
-                rot.lerpVectors(rotBefore, rotAfter, alpha);
+                rotBefore.normalize();
+                rotAfter.normalize();
+                THREE.Quaternion.slerp(rotBefore, rotAfter, rot, alpha);
                 node.threeObject.position.set(pos.x, pos.y, pos.z);
-                node.threeObject.rotation.set(rot.x, rot.y, rot.z);
+                node.threeObject.setRotationFromQuaternion(rot);
             }
         })
     }

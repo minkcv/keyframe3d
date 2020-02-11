@@ -47,7 +47,7 @@ function setKeyframeNode() {
     var nodeKF = {
         id: node.id,
         pos: {x: node.threeObject.position.x, y: node.threeObject.position.y, z: node.threeObject.position.z},
-        rot: {x: node.threeObject.rotation.x, y: node.threeObject.rotation.y, z: node.threeObject.rotation.z}
+        rot: {x: node.threeObject.quaternion.x, y: node.threeObject.quaternion.y, z: node.threeObject.quaternion.z, w: node.threeObject.quaternion.w}
     };
     if (existing == null) {
         var kf = {
@@ -65,9 +65,10 @@ function setKeyframeNode() {
             existingData.pos.x = node.threeObject.position.x;
             existingData.pos.y = node.threeObject.position.y;
             existingData.pos.z = node.threeObject.position.z;
-            existingData.rot.x = node.threeObject.rotation.x;
-            existingData.rot.y = node.threeObject.rotation.y;
-            existingData.rot.z = node.threeObject.rotation.z;
+            existingData.rot.x = node.threeObject.quaternion.x;
+            existingData.rot.y = node.threeObject.quaternion.y;
+            existingData.rot.z = node.threeObject.quaternion.z;
+            existingData.rot.w = node.threeObject.quaternion.w;
             log('Updated data for node "' + node.name + '" (' + node.id + ') to keyframe at ' + time);
         }
         else {
