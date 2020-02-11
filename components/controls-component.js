@@ -27,19 +27,6 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
         </div>`);
 });
 
-function updateControls() {
-    var cameras = [];
-    traverseTree(function(node) {
-        if (node.cameraId !== undefined)
-            cameras.push(node);
-    });
-    var opts = '';
-    for (var i = 0; i < cameras.length; i++) {
-        opts += '<option value="' + cameras[i].name + '">' + cameras[i].name + '</option>';
-    }
-    $('#keyframe-camera').html(opts);
-}
-
 function setControlMode(mode) {
     controlMode = mode;
     var treeNode = $('#scene-tree').tree('getSelectedNode');

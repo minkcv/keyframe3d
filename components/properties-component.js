@@ -54,6 +54,9 @@ function changeProperties() {
     node.threeObject.rotation.x = parseFloat($('#x-rot').val() * Math.PI / 180);
     node.threeObject.rotation.y = parseFloat($('#y-rot').val() * Math.PI / 180);
     node.threeObject.rotation.z = parseFloat($('#z-rot').val() * Math.PI / 180);
-    if (node.cameraId !== undefined)
+    if (node.cameraId !== undefined) {
         node.cameraFov = parseFloat($('#fov').val());
+        node.cameraObject.fov = node.cameraFov;
+        node.cameraObject.updateProjectionMatrix();
+    }
 }

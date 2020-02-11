@@ -170,7 +170,8 @@ function seekTime(time, noLog) {
         cameraNode = findCamera(exact.cameraId);
     else {
         var before = getKeyframeBefore(time, null, true)
-        cameraNode = findCamera(before.kf.cameraId);
+        if (before.kf != null)
+            cameraNode = findCamera(before.kf.cameraId);
     }
     if (cameraNode)
         $('#current-camera').text(cameraNode.name);

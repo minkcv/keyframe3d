@@ -35,6 +35,11 @@ option:checked, option:active {
     bottom: 0px;
     margin: 5px;
 }
+.view-camera {
+    position: absolute;
+    right: 0px;
+    margin: 5px;
+}
 .custom-file-label {
     box-sizing: border-box;
 }

@@ -1,5 +1,6 @@
 var viewports = [];
 var scene = new THREE.Scene();
+var gridHelper;
 var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
 var pinkLineMat = new THREE.LineBasicMaterial({color: 0xdf3eff});
 var darkPinkLineMat = new THREE.LineBasicMaterial({color: 0xa464b1});
@@ -78,6 +79,13 @@ function loadSettings(newSettings) {
     $('#length').val(settings.length);
     $('#framerate').val(settings.framerate);
     $('#aspect-ratio').val(settings.aspectRatio);
+    var ar = getAspectRatio(settings.aspectRatio);
+    traverseTree(function(node) {
+        if (node.cameraId !== undefined) {
+            node.cameraObject.aspec = ar;
+            node.cameraObject.updateProjectionMatrix();
+        }
+    });
 }
 
 function loadModel(files) {
@@ -89,7 +97,6 @@ function loadModel(files) {
         });
         if (duplicate) {
             alert('Model with that name already exists');
-            log('Attempt to load model with same name as existing model', 'warning');
             continue;
         }
         (function(file){
@@ -259,13 +266,15 @@ function createEmptyNode(name) {
         name = $('#empty-node-name').val();
     if (name.length < 1) {
         alert('Name for node cannot be blank');
-        log('Attempt to create node with empty name', 'warning');
         return null;
     }
     var existing = findNodeByName(name);
     if (existing) {
         alert('Node with that name already exists');
-        log('Attempt to create node with same name as existing node', 'warning');
+        return null;
+    }
+    if (name == 'free camera') {
+        alert('Node cannot be named "free camera"');
         return null;
     }
     var nodeId = getNextNodeId();
@@ -362,13 +371,11 @@ function renameNode() {
     var name = $('#rename-node-name').val();
     if (name.length < 1) {
         alert('Name for node cannot be blank');
-        log('Attempt to create node with empty name', 'warning');
         return;
     }
     var existing = findNodeByName(name);
     if (existing) {
         alert('Node with that name already exists');
-        log('Attempt to rename node to with same name as existing node', 'warning');
         return;
     }
     log('Renamed node "' + node.name + '" to "' + name + '"');
@@ -388,6 +395,10 @@ function deleteNode() {
         return;
     }
     var node = findNode(selectedNode.id);
+    if (node.cameraId == 0) {
+        alert('Cannot delete the default camera');
+        return;
+    }
     var childNames = '';
     traverseTree(function(child) {
         if (child.name != node.name)
@@ -405,8 +416,31 @@ function deleteNode() {
         }
     }
     updateTree();
+    updateCameraLists();
     selectNode(parent.id);
     log('Deleted node "' + node.name + '" with children ' + childNames);
+}
+
+function updateCameraLists() {
+    var cameras = [];
+    traverseTree(function(node) {
+        if (node.cameraId !== undefined)
+            cameras.push(node);
+    });
+    var opts = '';
+    for (var i = 0; i < cameras.length; i++) {
+        opts += '<option value="' + cameras[i].name + '">' + cameras[i].name + '</option>';
+    }
+    $('#keyframe-camera').html(opts);
+    opts = '<option value="free camera">free camera</option>' + opts;
+    for (var i = 0; i < viewports.length; i++) {
+        var current = $('#view-camera-select-' + i).val();
+        if (current == null) {
+            current = 'free camera';
+        }
+        $('#view-camera-select-' + i).html(opts);
+        $('#view-camera-select-' + i).val(current);
+    }
 }
 
 function getModel(modelName) {
@@ -503,10 +537,13 @@ function addCameraToScene(name) {
         return;
     node.cameraId = getNextCameraId();
     node.cameraFov = 45;
-    var cameraObject = createModelGeometry(cameraModel);
-    node.threeObject.add(cameraObject);
+    var cameraGeometry = createModelGeometry(cameraModel);
+    node.threeObject.add(cameraGeometry);
+    var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(settings.aspectRatio), 0.1, 1000);
+    node.threeObject.add(camera);
+    node.cameraObject = camera;
     log('Created camera with name "' + nodeName + '" and camera id ' + node.cameraId);
-    updateControls();
+    updateCameraLists();
     selectNode(node.id);
     return node;
 }
@@ -585,7 +622,27 @@ function update() {
             if (viewports[v].camera != null)
                 viewports[v].camera.children[1].visible = false;
         }
-        if (viewport.camera != null) {
+        if (viewport.cameraId != -1) {
+            gridHelper.visible = false;
+            traverseTree(function(node) {
+                if (node.cameraObject)
+                    node.cameraObject.visible = false;
+                node.threeObject.children.forEach(function(child) {
+                    if (child.rotGrips || child.axesGrips)
+                        child.visible = false;
+                });
+            });
+
+            var camera = findCamera(viewport.cameraId);
+            viewport.renderer.render(scene, camera.cameraObject);
+        }
+        else if (viewport.camera != null) {
+            gridHelper.visible = true;
+            traverseTree(function(node) {
+                node.threeObject.visible = true;
+                if (node.cameraObject)
+                    node.cameraObject.visible = true;
+            });
             var cameraX = viewport.camera;
             var cameraY = cameraX.children[0];
             var metaCamera = cameraY.children[0];
@@ -847,11 +904,16 @@ function sign(n) {
     return 1;
 }
 
+function getAspectRatio(str) {
+    var colonIndex = str.search(':');
+    return parseFloat(str.substring(0, colonIndex)) / parseFloat(str.substring(colonIndex + 1, str.length));
+}
+
 $(function() {
     loadSettings(settings);
     updateTree();
     var defaultCamera = addCameraToScene('default camera');
-    defaultCamera.threeObject.position.z = -500;
+    defaultCamera.threeObject.position.z = 500;
     var model = {
         name: 'default-cube',
         data: cubeModel
@@ -862,7 +924,7 @@ $(function() {
     selectNode(0);
     addModelToScene('default-cube', 'default cube');
 
-    var gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
+    gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
     scene.add(gridHelper);
     update();
 });

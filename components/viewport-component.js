@@ -13,9 +13,13 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
             <button type='button' class='btn btn-dark btn-sm' onclick='viewRecenter(` + componentState.viewportId + `)'>Recenter World</button><br>
             <button type='button' class='btn btn-dark btn-sm' onclick='viewRecenterSelected(` + componentState.viewportId + `)'>Recenter Selected</button><br>
         </div>
+        <div class='view-camera'>
+            <select id='view-camera-select-` + componentState.viewportId + `' onchange='changeCamera(` + componentState.viewportId + `)'></select>
+        </div>
     </div>`);
     container.on('tab', function() {
         updateViewport(div, renderer, componentState.viewportId);
+        updateCameraLists();
     });
     container.on('resize', function() {
         updateViewport(div, renderer, componentState.viewportId);
@@ -31,7 +35,8 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         }
     })
     div.mousedown(function(event) {
-        event.preventDefault();
+        if (event.target.type != 'select-one')
+            event.preventDefault();
         var id = parseInt(event.currentTarget.getAttribute('viewportId'));
         var viewport = getViewport(id);
         viewport.mouse.down = true;
@@ -81,6 +86,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         renderer: renderer,
         viewportId: componentState.viewportId,
         camera: null,
+        cameraId: -1,
         div: div,
         mouse: {
             moveAxis: AXIS.none, 
@@ -135,6 +141,17 @@ function updateViewport(div, renderer, id) {
     }
     metaCamera.updateProjectionMatrix();
     viewport.camera = cameraX;
+}
+
+function changeCamera(viewportId) {
+    var viewport = getViewport(viewportId);
+    var selectedCamera = $('#view-camera-select-' + viewportId).val();
+    if (selectedCamera == 'free camera')
+        viewport.cameraId = -1;
+    else {
+        var cameraNode = findNodeByName(selectedCamera);
+        viewport.cameraId = cameraNode.cameraId;
+    }
 }
 
 function viewSide(viewportId) {
