@@ -163,8 +163,19 @@ function seekTime(time, noLog) {
                 node.threeObject.position.set(pos.x, pos.y, pos.z);
                 node.threeObject.setRotationFromQuaternion(rot);
             }
-        })
+        });
     }
+    var cameraNode = null;
+    if (exact != null && exact.cameraId !== undefined)
+        cameraNode = findCamera(exact.cameraId);
+    else {
+        var before = getKeyframeBefore(time, null, true)
+        cameraNode = findCamera(before.kf.cameraId);
+    }
+    if (cameraNode)
+        $('#current-camera').text(cameraNode.name);
+    else 
+        $('#current-camera').text('');
     previousTime = time;
 }
 

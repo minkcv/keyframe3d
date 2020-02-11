@@ -68,7 +68,7 @@ button {
 .settings, .models, .file-menu, .tree-view, .tree-controls, .properties, .controls {
     margin: 5px;
 }
-.settings > label, .properties > label {
+.settings > label, .properties > label, #camera-properties > label {
     font-family: droid_sans_mono_regular;
     color: #cccccc;
 }

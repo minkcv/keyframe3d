@@ -8,7 +8,7 @@ var config = {
         type: 'row',
         content:[{
             type: 'row',
-            width: 28,
+            width: 30,
             content:[{
                 type: 'column',
                 content:[{
@@ -53,9 +53,10 @@ var config = {
                 
             },{
                 type: 'column',
-                width: 40,
+                width: 45,
                 content:[{
                     type: 'component',
+                    height: 35,
                     componentName: 'propertiesComponent',
                     componentState: {},
                     isClosable: false,

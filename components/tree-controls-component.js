@@ -8,5 +8,8 @@ layout.registerComponent( 'treeControlsComponent', function(container, component
         <input type='text' id='rename-node-name' placeholder='name'></input>
         <br>
         <button type'button' class='btn btn-sm' onclick='deleteNode()'>Delete Node</button>
+        <br>
+        <button type='button' class='btn btn-sm' onclick='addCameraToScene()'>Create Camera</button>
+        <input type='text' id='camera-node-name' placeholder='name'></input>
     </div>`);
 });

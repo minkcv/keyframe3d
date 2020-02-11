@@ -162,6 +162,10 @@ function selectNode(id) {
         if (child.model)
             child.material = pinkLineMat;
     });
+    if (node.cameraId === undefined)
+        $('#camera-properties').hide();
+    else
+        $('#camera-properties').show();
     updateProperties();
 }
 
@@ -173,6 +177,20 @@ function findNode(nodeId, startNode) {
         return startNode;
     startNode.children.forEach(function(node) {
         var foundSub = findNode(nodeId, node);
+        if (foundSub)
+            found = foundSub;
+    });
+    return found;
+}
+
+function findCamera(cameraId, startNode) {
+    if (!startNode)
+        startNode = sceneTree;
+    var found = null;
+    if (startNode.cameraId == cameraId)
+        return startNode;
+    startNode.children.forEach(function(node) {
+        var foundSub = findCamera(cameraId, node);
         if (foundSub)
             found = foundSub;
     });
@@ -216,6 +234,14 @@ function traverseTree(func, startNode) {
 function getNextNodeId() {
     var nextId = 0;
     while (findNode(nextId) != null) {
+        nextId++;
+    }
+    return nextId;
+}
+
+function getNextCameraId() {
+    var nextId = 0;
+    while (findCamera(nextId) != null) {
         nextId++;
     }
     return nextId;
@@ -391,7 +417,7 @@ function getModel(modelName) {
     return null;
 }
 
-function addModelToScene(modelName) {
+function addModelToScene(modelName, name) {
     var selectedNode = $('#scene-tree').tree('getSelectedNode');
     var parent;
     if (selectedNode == false)
@@ -403,17 +429,25 @@ function addModelToScene(modelName) {
         alert('Select a model from the list of loaded models');
         return;
     }
-    var nodeName = $('#model-node-name').val();
+    var nodeName = name || $('#model-node-name').val();
     var node = createEmptyNode(nodeName);
     if (node == null)
         return;
     node.model = modelName;
+    var linesObject = createModelGeometry(model.data, modelName);
+    node.threeObject.add(linesObject);
+    log('Added model "' + modelName + '" to node "' + node.name + '"');
+    selectNode(node.id);
+    return node;
+}
+
+function createModelGeometry(data, modelName) {
     var geometries = [];
     var lines = [];
-    model.data.forEach((point) => {
+    data.forEach((point) => {
         point.conn.forEach((otherId) => {
             var other = null;
-            model.data.forEach((candidate) => {
+            data.forEach((candidate) => {
                 if (candidate.id == otherId)
                     other = candidate;
             });
@@ -422,7 +456,7 @@ function addModelToScene(modelName) {
                 var pos2 = new THREE.Vector3(other.pos.x, other.pos.y, other.pos.z);
                 var pt1 = {pointId: point.id, position: pos1};
                 var pt2 = {pointId: other.id, position: pos2};
-                var scale = scale || 0.1;
+                var scale = 1;
                 pt1.position.multiplyScalar(scale);
                 pt2.position.multiplyScalar(scale);
                 var exists = false;
@@ -451,10 +485,30 @@ function addModelToScene(modelName) {
     });
     var mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(geometries);
     var linesObject = new THREE.LineSegments(mergedGeometry, whiteLineMat);
-    linesObject.model = modelName;
-    node.threeObject.add(linesObject);
-    log('Added model "' + modelName + '" to node "' + node.name + '"');
+    if (modelName)
+        linesObject.model = modelName;
+    return linesObject;
+}
+
+function addCameraToScene(name) {
+    var selectedNode = $('#scene-tree').tree('getSelectedNode');
+    var parent;
+    if (selectedNode == false)
+        parent = sceneTree;
+    else
+        parent = findNode(selectedNode.id);
+    var nodeName = name || $('#camera-node-name').val();
+    var node = createEmptyNode(nodeName);
+    if (node == null)
+        return;
+    node.cameraId = getNextCameraId();
+    node.cameraFov = 45;
+    var cameraObject = createModelGeometry(cameraModel);
+    node.threeObject.add(cameraObject);
+    log('Created camera with name "' + nodeName + '" and camera id ' + node.cameraId);
+    updateControls();
     selectNode(node.id);
+    return node;
 }
 
 function getKeyframe(time) {
@@ -466,20 +520,22 @@ function getKeyframe(time) {
     return found;
 }
 
-function getKeyframeBefore(time, nodeId) {
+function getKeyframeBefore(time, nodeId, hasCamera) {
     var found = null;
     var foundData = null;
     keyframes.forEach(function(keyframe) {
         var data = getKeyframeData(keyframe, nodeId);
-        if (data != null) {
-            if (keyframe.time < time) {
-                if (found == null) {
-                    found = keyframe;
-                    foundData = data;
-                }
-                else if (found.time < keyframe.time) {
-                    found = keyframe;
-                    foundData = data;
+        if (data != null || hasCamera) {
+            if (!hasCamera || keyframe.cameraId !== undefined) {
+                if (keyframe.time < time) {
+                    if (found == null) {
+                        found = keyframe;
+                        foundData = data;
+                    }
+                    else if (found.time < keyframe.time) {
+                        found = keyframe;
+                        foundData = data;
+                    }
                 }
             }
         }
@@ -794,6 +850,17 @@ function sign(n) {
 $(function() {
     loadSettings(settings);
     updateTree();
+    var defaultCamera = addCameraToScene('default camera');
+    defaultCamera.threeObject.position.z = -500;
+    var model = {
+        name: 'default-cube',
+        data: cubeModel
+    }
+    models.push(model);
+    log('Loaded model "' + model.name + '"');
+    $('#model-select').append($('<option id=' + model.name + '></option>').text(model.name));
+    selectNode(0);
+    addModelToScene('default-cube', 'default cube');
 
     var gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
     scene.add(gridHelper);

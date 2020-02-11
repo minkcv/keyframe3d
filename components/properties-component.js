@@ -3,18 +3,23 @@ layout.registerComponent( 'propertiesComponent', function(container, componentSt
     `<div class="properties" id="properties">
         <p>Position</p>
         <label for='x-pos'>X:</label>
-        <input type='number' name='x-pos' id='x-pos' onchange='changeProperties()'><br>
+        <input type='number' name='x-pos' id='x-pos' oninput='changeProperties()'><br>
         <label for='y-pos'>Y:</label>
-        <input type='number' name='y-pos' id='y-pos' onchange='changeProperties()'><br>
+        <input type='number' name='y-pos' id='y-pos' oninput='changeProperties()'><br>
         <label for='z-pos'>Z:</label>
-        <input type='number' name='z-pos' id='z-pos' onchange='changeProperties()'><br>
+        <input type='number' name='z-pos' id='z-pos' oninput='changeProperties()'><br>
         <p>Rotation (degrees)</p>
         <label for='x-rot'>X:</label>
-        <input type='number' name='x-rot' id='x-rot' onchange='changeProperties()'><br>
+        <input type='number' name='x-rot' id='x-rot' oninput='changeProperties()'><br>
         <label for='y-rot'>Y:</label>
-        <input type='number' name='y-rot' id='y-rot' onchange='changeProperties()'><br>
+        <input type='number' name='y-rot' id='y-rot' oninput='changeProperties()'><br>
         <label for='z-rot'>Z:</label>
-        <input type='number' name='z-rot' id='z-rot' onchange='changeProperties()'><br>
+        <input type='number' name='z-rot' id='z-rot' oninput='changeProperties()'><br>
+        <div id='camera-properties'>
+            <hr>
+            <label for='fov'>FOV:</label>
+            <input type='number' name='fov' id='fov' oninput='changeProperties()'><br>
+        </div>
     </div>`);
 });
 
@@ -29,6 +34,8 @@ function updateProperties() {
     $('#x-rot').val((node.threeObject.rotation.x * 180 / Math.PI).toFixed(4));
     $('#y-rot').val((node.threeObject.rotation.y * 180 / Math.PI).toFixed(4));
     $('#z-rot').val((node.threeObject.rotation.z * 180 / Math.PI).toFixed(4));
+    if (node.cameraId !== undefined)
+        $('#fov').val(node.cameraFov);
 }
 
 function changeProperties() {
@@ -47,4 +54,6 @@ function changeProperties() {
     node.threeObject.rotation.x = parseFloat($('#x-rot').val() * Math.PI / 180);
     node.threeObject.rotation.y = parseFloat($('#y-rot').val() * Math.PI / 180);
     node.threeObject.rotation.z = parseFloat($('#z-rot').val() * Math.PI / 180);
+    if (node.cameraId !== undefined)
+        node.cameraFov = parseFloat($('#fov').val());
 }

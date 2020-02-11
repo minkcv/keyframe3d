@@ -8,18 +8,37 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
             <button type='button' class='btn btn-sm' onclick='play()'>Play</button>
             <button type='button' class='btn btn-sm' onclick='stop()'>Stop</button><br>
             <hr>
-
-            <button type='button' class='btn btn-sm' onclick='setKeyframeNode()'>Set Keyframe for Node</button><br>
-            <button type='button' class='btn btn-sm' onclick='removeKeyframeNode()'>Remove Keyframe for Node</button><br>
+            <div>For All Nodes</div>
             <button type='button' class='btn btn-sm' onclick='removeKeyframe()'>Remove Keyframe</button><br>
             <button type='button' class='btn btn-sm' onclick='seekNext(null)'>Seek Next Keyframe</button><br>
             <button type='button' class='btn btn-sm' onclick='seekPrevious(null)'>Seek Previous Keyframe</button><br>
-            <button type='button' class='btn btn-sm' onclick='seekNextNode()'>Seek Next Keyframe for Node</button><br>
-            <button type='button' class='btn btn-sm' onclick='seekPreviousNode()'>Seek Previous Keyframe for Node</button><br>
+            <div>For Selected Node<div>
+            <button type='button' class='btn btn-sm' onclick='setKeyframeNode()'>Set Keyframe</button><br>
+            <button type='button' class='btn btn-sm' onclick='removeKeyframeNode()'>Remove Keyframe</button><br>
+            <button type='button' class='btn btn-sm' onclick='seekNextNode()'>Seek Next Keyframe</button><br>
+            <button type='button' class='btn btn-sm' onclick='seekPreviousNode()'>Seek Previous Keyframe</button><br>
+            <hr>
             <button type='button' class='btn btn-sm' onclick='seekTimeInput()'>Seek to Time:</button>
             <input type='number' name='seek-to-time' id='seek-to-time' value='0'><br>
+            <hr>
+            <div>Current Camera: <span id='current-camera'></span></div>
+            <button type='button' class='btn btn-sm' onclick='setKeyframeCamera()'>Set Camera</button>
+            <select id='keyframe-camera'></select>
         </div>`);
 });
+
+function updateControls() {
+    var cameras = [];
+    traverseTree(function(node) {
+        if (node.cameraId !== undefined)
+            cameras.push(node);
+    });
+    var opts = '';
+    for (var i = 0; i < cameras.length; i++) {
+        opts += '<option value="' + cameras[i].name + '">' + cameras[i].name + '</option>';
+    }
+    $('#keyframe-camera').html(opts);
+}
 
 function setControlMode(mode) {
     controlMode = mode;
@@ -55,7 +74,7 @@ function setKeyframeNode() {
             nodes: [
                 nodeKF
             ]
-        }
+        };
         keyframes.push(kf);
         log('Created new keyframe at ' + time + ' with data for node "' + node.name + '" (' + node.id + ')');
     }
@@ -106,6 +125,7 @@ function removeKeyframeNode() {
             break;
         }
     }
+    seekTime(time);
     updateTimeline();
 }
 
@@ -118,6 +138,7 @@ function removeKeyframe() {
             break;
         }
     }
+    seekTime(time);
     updateTimeline();
 }
 
@@ -214,4 +235,26 @@ function stop() {
         clearInterval(timerId);
         timerId = -1;
     }
+}
+
+function setKeyframeCamera() {
+    var time = timeline.getCustomTime('playhead').getTime();
+    var cameraName = $('#keyframe-camera').val();
+    var cameraNode = findNodeByName(cameraName);
+    var kf = getKeyframe(time);
+    if (kf == null) {
+        var newKF = {
+            time: time,
+            nodes: [],
+            cameraId: cameraNode.cameraId
+        }
+        keyframes.push(newKF);
+        log('Created new keyframe with camera ' + cameraName + ' at time ' + time);
+    }
+    else {
+        kf.cameraId = cameraNode.cameraId;
+        log('Updated camera to "' + cameraName + '" at time ' + time);
+    }
+    $('#current-camera').text(cameraName);
+    updateTimeline();
 }
