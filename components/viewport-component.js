@@ -67,10 +67,10 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         viewport.mouse.x = event.clientX;
         viewport.mouse.y = event.clientY;
     });
-    div.bind('mousewheel', function(event) {
+    div.on('wheel', function(event) {
         var id = parseInt(event.currentTarget.getAttribute('viewportId'));
         var viewport = getViewport(id);
-        viewport.mouse.dz = -event.originalEvent.wheelDelta;
+        viewport.mouse.dz = event.originalEvent.deltaY || -event.originalEvent.wheelDelta;
     });
     div.append(renderer.domElement);
     // Disable right click context menu

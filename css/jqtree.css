@@ -87,8 +87,6 @@ ul.jqtree-tree {
   ul.jqtree-tree li.jqtree-selected > .jqtree-element:hover {
     background-color: #b049b9;
     background: #b049b9;
-    background: -moz-linear-gradient(top, #BEE0F5, #89AFCA);
-    background: -ms-linear-gradient(top, #BEE0F5, #89AFCA);
     }
   ul.jqtree-tree .jqtree-moving > .jqtree-element .jqtree-title {
     outline: dashed 1px #b049b9; }
