@@ -1,6 +1,7 @@
 var viewports = [];
 var scene = new THREE.Scene();
 var gridHelper;
+var precision = 3;
 var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
 var pinkLineMat = new THREE.LineBasicMaterial({color: 0xdf3eff});
 var darkPinkLineMat = new THREE.LineBasicMaterial({color: 0xa464b1});
@@ -37,7 +38,6 @@ var sceneTree = {
     id: 0, 
     name: 'root', 
     children:[], 
-    model: null,
     threeObject: new THREE.Object3D()
 };
 var keyframes = [];
@@ -91,6 +91,8 @@ function selectNode(id) {
 function findNode(nodeId, startNode) {
     if (!startNode)
         startNode = sceneTree;
+    if (!startNode)
+        return null;
     var found = null;
     if (startNode.id == nodeId)
         return startNode;
@@ -116,20 +118,22 @@ function findCamera(cameraId, startNode) {
     return found;
 }
 
-function getParentNode(find) {
+function getParentNode(find, tree) {
     var parent = null;
     traverseTree(function(node) {
         node.children.forEach(function(child) {
             if (child.id == find.id)
                 parent = node;
         })
-    });
+    }, tree);
     return parent;
 }
 
 function findNodeByName(name, startNode) {
     if (!startNode)
         startNode = sceneTree;
+    if (!startNode)
+        return null;
     if (startNode.name == name)
         return startNode;
     var found = null;
@@ -166,7 +170,7 @@ function getNextCameraId() {
     return nextId;
 }
 
-function createEmptyNode(name, parent) {
+function createEmptyNode(name, parent, id) {
     if (name.length < 1) {
         alert('Name for node cannot be blank');
         return null;
@@ -184,7 +188,7 @@ function createEmptyNode(name, parent) {
         alert('Node with that name already exists');
         return null;
     }
-    var nodeId = getNextNodeId();
+    var nodeId = id || getNextNodeId();
     var obj = new THREE.Object3D();
     var axesGrips = new THREE.Object3D();
     axesGrips.visible = controlMode == CONTROLMODE.move;
@@ -252,12 +256,13 @@ function createEmptyNode(name, parent) {
         id: nodeId,
         name: name,
         children: [],
-        model: null,
         threeObject: obj
     };
     obj.sceneNode = newNode;
-    parent.children.push(newNode);
-    parent.threeObject.add(obj);
+    if (parent != null) {
+        parent.children.push(newNode);
+        parent.threeObject.add(obj);
+    }
     updateTree();
     selectNode(nodeId)
     log('Created empty node with name "' + name + '"');
@@ -369,13 +374,13 @@ function getModel(modelName) {
     return null;
 }
 
-function createModel(modelName, nodeName, parent) {
+function createModel(modelName, nodeName, parent, id) {
     var model = getModel(modelName);
     if (!model) {
         alert('Select a model from the list of loaded models');
         return;
     };
-    var node = createEmptyNode(nodeName, parent);
+    var node = createEmptyNode(nodeName, parent, id);
     if (node == null)
         return;
     node.model = modelName;
@@ -435,16 +440,16 @@ function createModelGeometry(data, modelName) {
     return linesObject;
 }
 
-function createCamera(name, parent) {
-    var node = createEmptyNode(name, parent);
+function createCamera(name, parent, id, cameraId) {
+    var node = createEmptyNode(name, parent, id);
     if (node == null)
         return;
-    node.cameraId = getNextCameraId();
+    node.cameraId = cameraId || getNextCameraId();
     node.cameraFov = 45;
     var cameraGeometry = createModelGeometry(cameraModel);
     cameraGeometry.cameraModel = true;
     node.threeObject.add(cameraGeometry);
-    var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(settings.aspectRatio), 0.1, 1000);
+    var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(settings.aspectRatio), 0.1, 16000);
     node.threeObject.add(camera);
     node.cameraObject = camera;
     log('Created camera with name "' + name + '" and camera id ' + node.cameraId);

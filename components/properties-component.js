@@ -28,12 +28,14 @@ function updateProperties() {
     if (treeNode == false)
         return;
     var node = findNode(treeNode.id);
-    $('#x-pos').val(node.threeObject.position.x.toFixed(4));
-    $('#y-pos').val(node.threeObject.position.y.toFixed(4));
-    $('#z-pos').val(node.threeObject.position.z.toFixed(4));
-    $('#x-rot').val((node.threeObject.rotation.x * 180 / Math.PI).toFixed(4));
-    $('#y-rot').val((node.threeObject.rotation.y * 180 / Math.PI).toFixed(4));
-    $('#z-rot').val((node.threeObject.rotation.z * 180 / Math.PI).toFixed(4));
+    if (node == null)
+        return;
+    $('#x-pos').val(node.threeObject.position.x.toFixed(precision));
+    $('#y-pos').val(node.threeObject.position.y.toFixed(precision));
+    $('#z-pos').val(node.threeObject.position.z.toFixed(precision));
+    $('#x-rot').val((node.threeObject.rotation.x * 180 / Math.PI).toFixed(precision));
+    $('#y-rot').val((node.threeObject.rotation.y * 180 / Math.PI).toFixed(precision));
+    $('#z-rot').val((node.threeObject.rotation.z * 180 / Math.PI).toFixed(precision));
     if (node.cameraId !== undefined) {
         $('#fov').val(node.cameraFov);
         $('#camera-properties').show();

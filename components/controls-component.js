@@ -52,8 +52,17 @@ function setKeyframeNode() {
     var existing = getKeyframe(time);
     var nodeKF = {
         id: node.id,
-        pos: {x: node.threeObject.position.x, y: node.threeObject.position.y, z: node.threeObject.position.z},
-        rot: {x: node.threeObject.quaternion.x, y: node.threeObject.quaternion.y, z: node.threeObject.quaternion.z, w: node.threeObject.quaternion.w}
+        pos: {
+            x: parseFloat(node.threeObject.position.x.toFixed(precision)), 
+            y: parseFloat(node.threeObject.position.y.toFixed(precision)), 
+            z: parseFloat(node.threeObject.position.z.toFixed(precision))
+        },
+        rot: {
+            x: parseFloat(node.threeObject.quaternion.x.toFixed(precision)), 
+            y: parseFloat(node.threeObject.quaternion.y.toFixed(precision)), 
+            z: parseFloat(node.threeObject.quaternion.z.toFixed(precision)), 
+            w: parseFloat(node.threeObject.quaternion.w.toFixed(precision))
+        }
     };
     if (existing == null) {
         var kf = {
@@ -68,13 +77,13 @@ function setKeyframeNode() {
     else {
         var existingData = getKeyframeData(existing, node.id);
         if (existingData) {
-            existingData.pos.x = node.threeObject.position.x;
-            existingData.pos.y = node.threeObject.position.y;
-            existingData.pos.z = node.threeObject.position.z;
-            existingData.rot.x = node.threeObject.quaternion.x;
-            existingData.rot.y = node.threeObject.quaternion.y;
-            existingData.rot.z = node.threeObject.quaternion.z;
-            existingData.rot.w = node.threeObject.quaternion.w;
+            existingData.pos.x = parseFloat(node.threeObject.position.x.toFixed(precision));
+            existingData.pos.y = parseFloat(node.threeObject.position.y.toFixed(precision));
+            existingData.pos.z = parseFloat(node.threeObject.position.z.toFixed(precision));
+            existingData.rot.x = parseFloat(node.threeObject.quaternion.x.toFixed(precision));
+            existingData.rot.y = parseFloat(node.threeObject.quaternion.y.toFixed(precision));
+            existingData.rot.z = parseFloat(node.threeObject.quaternion.z.toFixed(precision));
+            existingData.rot.w = parseFloat(node.threeObject.quaternion.w.toFixed(precision));
             log('Updated data for node "' + node.name + '" (' + node.id + ') to keyframe at ' + time);
         }
         else {

@@ -40,5 +40,6 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
 });
 
 function updateTree() {
-    $('#scene-tree').tree('loadData', [sceneTree]);
+    if (sceneTree)
+        $('#scene-tree').tree('loadData', [sceneTree]);
 }

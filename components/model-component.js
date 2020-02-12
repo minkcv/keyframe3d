@@ -57,6 +57,15 @@ function loadModelFromFiles(files) {
 }
 
 function loadModel(data, name) {
+    var duplicate = false;
+    models.forEach(function(existing) {
+        if (existing.name == name)
+            duplicate = true;
+    });
+    if (duplicate) {
+        log('Skipped loading model "' + name + '" because a model already exists with that name', 'warning');
+        return;
+    }
     var model = {
         name: name,
         data: data
