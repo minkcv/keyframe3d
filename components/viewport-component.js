@@ -3,15 +3,17 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
     var name = 'viewport' + componentState.viewportId;
     var div = $('<div class="viewport" id="' + name + '" viewportId=' + componentState.viewportId + '>' + 
     `
-        <div class='view-angle-controls'>
-            <button type='button' class='btn btn-dark btn-sm' onclick='viewTop(` + componentState.viewportId + `)'>Top</button><br>
-            <button type='button' class='btn btn-dark btn-sm' onclick='viewFront(` + componentState.viewportId + `)'>Front</button><br>
-            <button type='button' class='btn btn-dark btn-sm' onclick='viewSide(` + componentState.viewportId + `)'>Side</button><br>
-            <button type='button' class='btn btn-dark btn-sm' onclick='viewIso(` + componentState.viewportId + `)'>Iso</button><br>
-        </div>
-        <div class='view-position-controls'>
-            <button type='button' class='btn btn-dark btn-sm' onclick='viewRecenter(` + componentState.viewportId + `)'>Recenter World</button><br>
-            <button type='button' class='btn btn-dark btn-sm' onclick='viewRecenterSelected(` + componentState.viewportId + `)'>Recenter Selected</button><br>
+        <div class='view-controls'>
+            <div class='view-angle-controls'>
+                <button type='button' class='btn btn-dark btn-sm' onclick='viewTop(` + componentState.viewportId + `)'>Top</button><br>
+                <button type='button' class='btn btn-dark btn-sm' onclick='viewFront(` + componentState.viewportId + `)'>Front</button><br>
+                <button type='button' class='btn btn-dark btn-sm' onclick='viewSide(` + componentState.viewportId + `)'>Side</button><br>
+                <button type='button' class='btn btn-dark btn-sm' onclick='viewIso(` + componentState.viewportId + `)'>Iso</button><br>
+            </div>
+            <div class='view-position-controls'>
+                <button type='button' class='btn btn-dark btn-sm' onclick='viewRecenter(` + componentState.viewportId + `)'>Recenter World</button><br>
+                <button type='button' class='btn btn-dark btn-sm' onclick='viewRecenterSelected(` + componentState.viewportId + `)'>Recenter Selected</button><br>
+            </div>
         </div>
         <div class='view-camera'>
             <select id='view-camera-select-` + componentState.viewportId + `' onchange='changeCamera(` + componentState.viewportId + `)'></select>
@@ -23,6 +25,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
     });
     container.on('resize', function() {
         updateViewport(div, renderer, componentState.viewportId);
+        updateCameraLists();
     });
     container.on('destroy', function() {
         for (var i = 0; i < viewports.length; i++) {
@@ -146,11 +149,14 @@ function updateViewport(div, renderer, id) {
 function changeCamera(viewportId) {
     var viewport = getViewport(viewportId);
     var selectedCamera = $('#view-camera-select-' + viewportId).val();
-    if (selectedCamera == 'free camera')
+    if (selectedCamera == 'free camera') {
         viewport.cameraId = -1;
+        $('#viewport' + viewportId + ' > .view-controls').show();
+    }
     else {
         var cameraNode = findNodeByName(selectedCamera);
         viewport.cameraId = cameraNode.cameraId;
+        $('#viewport' + viewportId + ' > .view-controls').hide();
     }
 }
 

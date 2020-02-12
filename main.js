@@ -142,33 +142,7 @@ function unloadModel() {
 function selectNode(id) {
     var treeNode = $('#scene-tree').tree('getNodeById', id);
     $('#scene-tree').tree('selectNode', treeNode);
-    traverseTree(function (node) {
-        node.threeObject.children.forEach(function(child) {
-            if (child.model)
-                child.material = whiteLineMat;
-            if (child.axesGrips)
-                child.visible = false;
-            if (child.rotGrips)
-                child.visible = false;
-        });
-    });
     var node = findNode(id);
-    node.threeObject.children.forEach(function(child) {
-        if (child.axesGrips)
-            child.visible = controlMode == CONTROLMODE.move;
-        if (child.rotGrips)
-            child.visible = controlMode == CONTROLMODE.rotate;
-    });
-    traverseTree(function(node) {
-        node.threeObject.children.forEach(function(child) {
-            if (child.model)
-                child.material = darkPinkLineMat;
-        });
-    }, node);
-    node.threeObject.children.forEach(function(child) {
-        if (child.model)
-            child.material = pinkLineMat;
-    });
     if (node.cameraId === undefined)
         $('#camera-properties').hide();
     else
@@ -538,6 +512,7 @@ function addCameraToScene(name) {
     node.cameraId = getNextCameraId();
     node.cameraFov = 45;
     var cameraGeometry = createModelGeometry(cameraModel);
+    cameraGeometry.cameraModel = true;
     node.threeObject.add(cameraGeometry);
     var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(settings.aspectRatio), 0.1, 1000);
     node.threeObject.add(camera);
@@ -619,17 +594,19 @@ function update() {
     var zoomSpeed = 0.2;
     viewports.forEach(function(viewport) {
         for (var v = 0; v < viewports.length; v++) {
+            // Hide camera center axes
             if (viewports[v].camera != null)
                 viewports[v].camera.children[1].visible = false;
         }
         if (viewport.cameraId != -1) {
+            // Render camera
             gridHelper.visible = false;
             traverseTree(function(node) {
-                if (node.cameraObject)
-                    node.cameraObject.visible = false;
                 node.threeObject.children.forEach(function(child) {
-                    if (child.rotGrips || child.axesGrips)
+                    if (child.rotGrips || child.axesGrips || child.cameraModel)
                         child.visible = false;
+                    if (child.model)
+                        child.material = whiteLineMat;
                 });
             });
 
@@ -637,15 +614,45 @@ function update() {
             viewport.renderer.render(scene, camera.cameraObject);
         }
         else if (viewport.camera != null) {
+            // Meta camera
             gridHelper.visible = true;
-            traverseTree(function(node) {
+            traverseTree(function (node) {
                 node.threeObject.visible = true;
-                if (node.cameraObject)
-                    node.cameraObject.visible = true;
+                node.threeObject.children.forEach(function(child) {
+                    if (child.model)
+                        child.material = whiteLineMat;
+                    if (child.axesGrips)
+                        child.visible = false;
+                    if (child.rotGrips)
+                        child.visible = false;
+                    if (child.cameraModel)
+                        child.visible = true;
+                });
             });
+            var treeNode = $('#scene-tree').tree('getSelectedNode');
+            if (treeNode != false) {
+                var node = findNode(treeNode.id);
+                node.threeObject.children.forEach(function(child) {
+                    if (child.axesGrips)
+                        child.visible = controlMode == CONTROLMODE.move;
+                    if (child.rotGrips)
+                        child.visible = controlMode == CONTROLMODE.rotate;
+                });
+                traverseTree(function(node) {
+                    node.threeObject.children.forEach(function(child) {
+                        if (child.model)
+                            child.material = darkPinkLineMat;
+                    });
+                }, node);
+                node.threeObject.children.forEach(function(child) {
+                    if (child.model)
+                        child.material = pinkLineMat;
+                });
+            }
             var cameraX = viewport.camera;
             var cameraY = cameraX.children[0];
             var metaCamera = cameraY.children[0];
+            // Show this camera center axes
             viewport.camera.children[1].visible = true;
             var mouse = viewport.mouse;
             if (mouse.button == 2) { // Rotate view - Right click
