@@ -150,8 +150,12 @@ function changeCamera(viewportId) {
     var viewport = getViewport(viewportId);
     var selectedCamera = $('#view-camera-select-' + viewportId).val();
     if (selectedCamera == 'free camera') {
-        viewport.cameraId = -1;
+        viewport.cameraId = CAMERA.free;
         $('#viewport' + viewportId + ' > .view-controls').show();
+    }
+    else if (selectedCamera == 'key camera') {
+        viewport.cameraId = CAMERA.key;
+        $('#viewport' + viewportId + ' > .view-controls').hide();
     }
     else {
         var cameraNode = findNodeByName(selectedCamera);

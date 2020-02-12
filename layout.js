@@ -8,7 +8,7 @@ var config = {
         type: 'row',
         content:[{
             type: 'row',
-            width: 30,
+            width: 32,
             content:[{
                 type: 'column',
                 content:[{

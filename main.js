@@ -18,8 +18,9 @@ scene.add(gripPlane);
 var AXIS = {x: 0, y: 1, z: 2, none: 3};
 var PLAY = {play: 0, stop: 1};
 var playState = PLAY.stop;
-var CONTROLMODE = {move: 0, rotate: 1}
+var CONTROLMODE = {move: 0, rotate: 1};
 var controlMode = CONTROLMODE.move;
+var CAMERA = {free: -1, key: -2};
 var raycaster = new THREE.Raycaster();
 var timerId;
 
@@ -179,6 +180,10 @@ function createEmptyNode(name, parent) {
     }
     if (name == 'free camera') {
         alert('Node cannot be named "free camera"');
+        return null;
+    }
+    if (name == 'key camera') {
+        alert('Node cannot be named "key camera"');
         return null;
     }
     var existing = findNodeByName(name);
@@ -341,7 +346,7 @@ function updateCameraLists() {
         opts += '<option value="' + cameras[i].name + '">' + cameras[i].name + '</option>';
     }
     $('#keyframe-camera').html(opts);
-    opts = '<option value="free camera">free camera</option>' + opts;
+    opts = '<option value="free camera">free camera</option><option value="key camera">key camera</option>' + opts;
     for (var i = 0; i < viewports.length; i++) {
         var current = $('#view-camera-select-' + i).val();
         if (current == null) {
@@ -511,7 +516,7 @@ function getKeyframeData(kf, nodeId) {
 function update() {
     requestAnimationFrame(update);
 
-    var rotateFactor = 100;
+    var rotateFactor = 200;
     var zoomSpeed = 0.2;
     viewports.forEach(function(viewport) {
         for (var v = 0; v < viewports.length; v++) {
@@ -519,7 +524,7 @@ function update() {
             if (viewports[v].camera != null)
                 viewports[v].camera.children[1].visible = false;
         }
-        if (viewport.cameraId != -1) {
+        if (viewport.cameraId != CAMERA.free) {
             // Render camera
             gridHelper.visible = false;
             traverseTree(function(node) {
@@ -530,8 +535,24 @@ function update() {
                         child.material = whiteLineMat;
                 });
             });
-
-            var camera = findCamera(viewport.cameraId);
+            var camera;
+            if (viewport.cameraId != CAMERA.key) {
+                camera = findCamera(viewport.cameraId);
+            }
+            else {
+                var time = timeline.getCustomTime('playhead').getTime();
+                var exact = getKeyframe(time);
+                if (exact && exact.cameraId !== undefined) {
+                    camera = findCamera(exact.cameraId);
+                }
+                else {
+                    var before = getKeyframeBefore(time, null, true);
+                    if (before.kf != null)
+                        camera = findCamera(before.kf.cameraId);
+                    else
+                        camera = findCamera(0);
+                }
+            }
             viewport.renderer.render(scene, camera.cameraObject);
         }
         else if (viewport.camera != null) {
