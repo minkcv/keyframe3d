@@ -53,7 +53,7 @@ var config = {
                 
             },{
                 type: 'column',
-                width: 45,
+                width: 50,
                 content:[{
                     type: 'component',
                     height: 35,

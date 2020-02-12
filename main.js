@@ -272,16 +272,20 @@ function createEmptyNode(name, parent) {
 }
 
 function renameNode() {
-    var selectedNode = $('#scene-tree').tree('getSelectedNode');
-    if (selectedNode == false) {
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    if (treeNode == false) {
         alert('Select a node to rename');
         return;
     }
-    if (selectedNode.id == 0) {
+    if (treeNode.id == 0) {
         alert('Cannot rename the root node');
         return;
     }
-    var node = findNode(selectedNode.id);
+    var node = findNode(treeNode.id);
+    if (node.cameraId == 0) {
+        alert('Cannot rename the default camera');
+        return;
+    }
     var name = $('#rename-node-name').val();
     if (name.length < 1) {
         alert('Name for node cannot be blank');
@@ -299,8 +303,8 @@ function renameNode() {
 }
 
 function deleteNode() {
-    var selectedNode = $('#scene-tree').tree('getSelectedNode');
-    if (selectedNode == false) {
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    if (treeNode == false) {
         alert('Select a node to delete');
         return;
     }
@@ -308,16 +312,23 @@ function deleteNode() {
         alert('Cannot delete the root node');
         return;
     }
-    var node = findNode(selectedNode.id);
+    var node = findNode(treeNode.id);
     if (node.cameraId == 0) {
         alert('Cannot delete the default camera');
         return;
     }
     var childNames = '';
+    var containsDefaultCamera = false;
     traverseTree(function(child) {
+        if (child.cameraId == 0)
+            containsDefaultCamera = true;
         if (child.name != node.name)
             childNames += '"' + child.name + '", ';
     }, node);
+    if (containsDefaultCamera) {
+        alert('Cannot delete a node that has the default camera as a child');
+        return;
+    }
     if (childNames) {
         childNames = childNames.slice(0, childNames.length - 2);
     }
