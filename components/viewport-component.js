@@ -20,11 +20,11 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         </div>
     </div>`);
     container.on('tab', function() {
-        updateViewport(div, renderer, componentState.viewportId);
+        updateViewport(componentState.viewportId);
         updateCameraLists();
     });
     container.on('resize', function() {
-        updateViewport(div, renderer, componentState.viewportId);
+        updateViewport(componentState.viewportId);
         updateCameraLists();
     });
     container.on('destroy', function() {
@@ -41,7 +41,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         if (event.target.type != 'select-one')
             event.preventDefault();
         var id = parseInt(event.currentTarget.getAttribute('viewportId'));
-        var viewport = getViewport(id);
+        var viewport = viewports[id];
         viewport.mouse.down = true;
         viewport.mouse.button = event.button;
         viewport.mouse.x = event.clientX;
@@ -52,7 +52,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
     div.mouseup(function(event) {
         event.preventDefault();
         var id = parseInt(event.currentTarget.getAttribute('viewportId'));
-        var viewport = getViewport(id);
+        var viewport = viewports[id];
         viewport.mouse.down = false;
         viewport.mouse.button = -1;
         viewport.mouse.wasDown = true;
@@ -67,7 +67,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
     div.mousemove(function(event) {
         event.preventDefault();
         var id = parseInt(event.currentTarget.getAttribute('viewportId'));
-        var viewport = getViewport(id);
+        var viewport = viewports[id];
         if (viewport.mouse.down) {
             viewport.mouse.dx = viewport.mouse.x - event.clientX;
             viewport.mouse.dy = viewport.mouse.y - event.clientY;
@@ -77,7 +77,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
     });
     div.on('wheel', function(event) {
         var id = parseInt(event.currentTarget.getAttribute('viewportId'));
-        var viewport = getViewport(id);
+        var viewport = viewports[id];
         viewport.mouse.dz = event.originalEvent.deltaY || -event.originalEvent.wheelDelta;
     });
     div.append(renderer.domElement);
@@ -103,8 +103,9 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
     });
 });
 
-function updateViewport(div, renderer, id) {
-    var viewport = getViewport(id);
+function updateViewport(id) {
+    var viewport = viewports[id];
+    var div = $('#viewport' + id);
     scene.remove(viewport.camera);
     var scale = 2;
     var renderDistance = 16000;
@@ -112,7 +113,7 @@ function updateViewport(div, renderer, id) {
     var height = div.innerHeight() - 2;
     if (width < 0 || height < 0)
         return;
-    renderer.setSize(width, height);
+    viewport.renderer.setSize(width, height);
     var metaCamera = new THREE.OrthographicCamera(
         -width / scale, width / scale,
         height / scale, -height / scale,
@@ -135,7 +136,25 @@ function updateViewport(div, renderer, id) {
     cameraY.rotation.x = -Math.PI / 4;
     camAxes.rotation.y = -Math.PI / 4;
     scene.add(cameraX);
-    if (viewport.camera != null) {
+    if (viewport.cameraId != CAMERA.free) {
+        var ar = getAspectRatio(settings.aspectRatio);
+        var aspectWidth = width;
+        var aspectHeight = height;
+        if (width > height)
+            aspectHeight = width / ar;
+        else if (height > width)
+            aspectWidth = height * ar;
+        if (aspectHeight > height) {
+            aspectHeight = height;
+            aspectWidth = height * ar;
+        }
+        if (aspectWidth > width) {
+            aspectWidth = width;
+            aspectHeight = width / ar;
+        }
+        viewport.renderer.setSize(aspectWidth, aspectHeight);
+    }
+    else if (viewport.camera != null) {
         cameraX.rotation.copy(viewport.camera.rotation);
         cameraX.position.copy(viewport.camera.position);
         cameraY.rotation.copy(viewport.camera.children[0].rotation);
@@ -147,7 +166,7 @@ function updateViewport(div, renderer, id) {
 }
 
 function changeCamera(viewportId) {
-    var viewport = getViewport(viewportId);
+    var viewport = viewports[viewportId];
     var selectedCamera = $('#view-camera-select-' + viewportId).val();
     if (selectedCamera == 'free camera') {
         viewport.cameraId = CAMERA.free;
@@ -162,43 +181,44 @@ function changeCamera(viewportId) {
         viewport.cameraId = cameraNode.cameraId;
         $('#viewport' + viewportId + ' > .view-controls').hide();
     }
+    updateViewport(viewportId);
 }
 
 function viewSide(viewportId) {
-    var viewport = getViewport(viewportId);
+    var viewport = viewports[viewportId];
     viewport.camera.rotation.y = Math.PI / 2;
     viewport.camera.children[0].rotation.x = 0;
     viewport.camera.children[1].rotation.y = -Math.PI / 2;
 }
 
 function viewTop(viewportId) {
-    var viewport = getViewport(viewportId);
+    var viewport = viewports[viewportId];
     viewport.camera.rotation.y = 0;
     viewport.camera.children[0].rotation.x = -Math.PI / 2;
     viewport.camera.children[1].rotation.y = 0;
 }
 
 function viewFront(viewportId) {
-    var viewport = getViewport(viewportId);
+    var viewport = viewports[viewportId];
     viewport.camera.rotation.y = 0;
     viewport.camera.children[0].rotation.x = 0;
     viewport.camera.children[1].rotation.y = 0;
 }
 
 function viewIso(viewportId) {
-    var viewport = getViewport(viewportId);
+    var viewport = viewports[viewportId];
     viewport.camera.rotation.y = Math.PI / 4;
     viewport.camera.children[0].rotation.x = -Math.PI / 4;
     viewport.camera.children[1].rotation.y = -Math.PI / 4;
 }
 
 function viewRecenter(viewportId) {
-    var viewport = getViewport(viewportId);
+    var viewport = viewports[viewportId];
     viewport.camera.position.set(0, 0, 0);
 }
 
 function viewRecenterSelected(viewportId) {
-    var viewport = getViewport(viewportId);
+    var viewport = viewports[viewportId];
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     if (treeNode == false)
         return;

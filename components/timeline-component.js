@@ -178,6 +178,7 @@ function seekTime(time, noLog) {
     else 
         $('#current-camera').text('');
     previousTime = time;
+    updateProperties();
 }
 
 function updateTimeline() {

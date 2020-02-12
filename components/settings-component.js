@@ -21,4 +21,7 @@ function applySettings() {
         aspectRatio: aspectRatio
     };
     loadSettings(newSettings);
+    for (var i = 0; i < viewports.length; i++) {
+        updateViewport(i);
+    }
 }

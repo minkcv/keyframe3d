@@ -65,13 +65,6 @@ function addViewport() {
     log('Opened new viewport with id "' + newViewportId + '"');
 }
 
-function getViewport(id) {
-    for (var i = 0; i < viewports.length; i++) {
-        if (viewports[i].viewportId == id)
-            return viewports[i];
-    }
-}
-
 function loadSettings(newSettings) {
     settings = newSettings;
     var options = timeline.options;
@@ -563,6 +556,13 @@ function update() {
                     else
                         camera = findCamera(0);
                 }
+            }
+            var ar  = getAspectRatio(settings.aspectRatio);
+            if (camera.cameraObject.fov != camera.cameraFov || 
+                camera.cameraObject.aspect != ar) {
+                camera.cameraObject.fov = camera.cameraFov;
+                camera.cameraObject.aspect = ar;
+                camera.cameraObject.updateProjectionMatrix();
             }
             viewport.renderer.render(scene, camera.cameraObject);
         }
