@@ -80,6 +80,20 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         var viewport = viewports[id];
         viewport.mouse.dz = event.originalEvent.deltaY || -event.originalEvent.wheelDelta;
     });
+    var cameraX = new THREE.Object3D(); // Parent for camera
+    var cameraY = new THREE.Object3D(); // Parent for realCamera
+    cameraX.add(cameraY);
+    var camAxes = new THREE.AxesHelper(10);
+    var colors = camAxes.geometry.attributes.color;
+    for (var i = 0; i < 6; i++) {
+        colors.setXYZ( i, 0.5, 0.5, 0.5 ); // index, R, G, B
+    }
+    cameraX.add(camAxes);
+    // Start in iso view.
+    cameraX.rotation.y = Math.PI / 4;
+    cameraY.rotation.x = -Math.PI / 4;
+    camAxes.rotation.y = -Math.PI / 4;
+    scene.add(cameraX);
     div.append(renderer.domElement);
     // Disable right click context menu
     renderer.domElement.addEventListener('contextmenu', event => event.preventDefault());
@@ -88,9 +102,10 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
     viewports.push({
         renderer: renderer,
         viewportId: componentState.viewportId,
-        camera: null,
+        camera: cameraX,
         cameraId: -1,
         div: div,
+        zoom: 0.8,
         mouse: {
             moveAxis: AXIS.none, 
             rotateAxis: AXIS.none,
@@ -106,36 +121,15 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
 function updateViewport(id) {
     var viewport = viewports[id];
     var div = $('#viewport' + id);
-    scene.remove(viewport.camera);
-    var scale = 2;
-    var renderDistance = 16000;
+    if (viewport.camera.children[0].children.length > 0) {
+        viewport.zoom = viewport.camera.children[0].children[0].zoom;
+        viewport.camera.children[0].remove(viewport.camera.children[0].children[0]);
+    }
     var width = div.innerWidth() - 2; // -2 from 1px border
     var height = div.innerHeight() - 2;
     if (width < 0 || height < 0)
         return;
-    viewport.renderer.setSize(width, height);
-    var metaCamera = new THREE.OrthographicCamera(
-        -width / scale, width / scale,
-        height / scale, -height / scale,
-        0, renderDistance
-    );
-    var cameraX = new THREE.Object3D(); // Parent for camera
-    var cameraY = new THREE.Object3D(); // Parent for realCamera
-    cameraY.add(metaCamera);
-    metaCamera.translateZ(renderDistance / 2);
-    metaCamera.zoom = 0.8;
-    cameraX.add(cameraY);
-    var camAxes = new THREE.AxesHelper(10);
-    var colors = camAxes.geometry.attributes.color;
-    for (var i = 0; i < 6; i++) {
-        colors.setXYZ( i, 0.5, 0.5, 0.5 ); // index, R, G, B
-    }
-    cameraX.add(camAxes);
-    // Start in iso view.
-    cameraX.rotation.y = Math.PI / 4;
-    cameraY.rotation.x = -Math.PI / 4;
-    camAxes.rotation.y = -Math.PI / 4;
-    scene.add(cameraX);
+    
     if (viewport.cameraId != CAMERA.free) {
         var ar = getAspectRatio(settings.aspectRatio);
         var aspectWidth = width;
@@ -154,15 +148,20 @@ function updateViewport(id) {
         }
         viewport.renderer.setSize(aspectWidth, aspectHeight);
     }
-    else if (viewport.camera != null) {
-        cameraX.rotation.copy(viewport.camera.rotation);
-        cameraX.position.copy(viewport.camera.position);
-        cameraY.rotation.copy(viewport.camera.children[0].rotation);
-        camAxes.rotation.copy(viewport.camera.children[1].rotation);
-        metaCamera.zoom = viewport.camera.children[0].children[0].zoom;
+    else {
+        var scale = 2;
+        var renderDistance = 16000;
+        var metaCamera = new THREE.OrthographicCamera(
+            -width / scale, width / scale,
+            height / scale, -height / scale,
+            0, renderDistance
+        );
+        viewport.camera.children[0].add(metaCamera);
+        metaCamera.translateZ(renderDistance / 2);
+        metaCamera.zoom = viewport.zoom;
+        metaCamera.updateProjectionMatrix();
+        viewport.renderer.setSize(width, height);
     }
-    metaCamera.updateProjectionMatrix();
-    viewport.camera = cameraX;
 }
 
 function changeCamera(viewportId) {
