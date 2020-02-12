@@ -79,7 +79,7 @@ function loadProject(files) {
             else if (loadNode.cameraId !== undefined) {
                 var parentProject = getParentNode(loadNode, project.sceneTree);
                 var parent = findNode(parentProject.id);
-                createCamera(loadNode.name, parent, loadNode.id, loadNode.cameraId);
+                createCamera(loadNode.name, parent, loadNode.id, loadNode.cameraId, loadNode.cameraFov);
             }
             else {
                 var parentProject = getParentNode(loadNode, project.sceneTree);

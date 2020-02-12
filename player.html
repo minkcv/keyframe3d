@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Keyframe3D Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="js/three.js"></script>
+    <script src="js/BufferGeometryUtils.js"></script>
+    <script src="player.js"></script>
+    <style>
+        html, body, #player {
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id='player'>
+        <div id='controls'>
+
+        </div>
+    </div>
+    <script type='text/javascript'>
+        var settings, models, keyframes, renderer;
+        var scene = new THREE.Scene();
+        var sceneTree = {
+            id: 0, 
+            name: 'root', 
+            children:[], 
+            threeObject: new THREE.Object3D()
+        };
+        function loadJSON(path, success, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        if (success)
+                            success(JSON.parse(xhr.responseText));
+                    }
+                    else {
+                        if (error)
+                            error(xhr);
+                    }
+                }
+            };
+            xhr.open("GET", path, true);
+            xhr.send();
+        }
+        // 'http://minkcv.github.io/keyframe3d/demos/demo-1.json'
+        // python -m SimpleHTTPServer 8000
+        loadJSON('http://localhost:8000/demos/demo-1.json', function(project) {
+            settings = project.settings;
+            models = project.models;
+            keyframes = project.keyframes;
+            traverseTree(function (loadNode) {
+                if (loadNode.id == 0) {
+                    return;
+                }
+                else if (loadNode.model !== undefined) {
+                    var parentProject = getParentNode(loadNode, project.sceneTree);
+                    var parent = findNode(parentProject.id);
+                    createModelPlayer(loadNode.model, loadNode.name, parent, loadNode.id);
+                }
+                else if (loadNode.cameraId !== undefined) {
+                    var parentProject = getParentNode(loadNode, project.sceneTree);
+                    var parent = findNode(parentProject.id);
+                    createCameraPlayer(loadNode.name, parent, loadNode.id, loadNode.cameraId, loadNode.cameraFov);
+                }
+                else {
+                    var parentProject = getParentNode(loadNode, project.sceneTree);
+                    var parent = findNode(parentProject.id);
+                    createEmptyNodePlayer(loadNode.name, parent, loadNode.id);
+                }
+            }, project.sceneTree);
+            renderer = new THREE.WebGLRenderer({antialias: true});
+            var div = document.getElementById('player');
+            div.appendChild(renderer.domElement);
+            var width = div.clientWidth;
+            var height = div.clientHeight;
+            var ar = getAspectRatio(settings.aspectRatio);
+            var aspectWidth = width;
+            var aspectHeight = height;
+            if (width > height)
+                aspectHeight = width / ar;
+            else if (height > width)
+                aspectWidth = height * ar;
+            if (aspectHeight > height) {
+                aspectHeight = height;
+                aspectWidth = height * ar;
+            }
+            if (aspectWidth > width) {
+                aspectWidth = width;
+                aspectHeight = width / ar;
+            }
+            renderer.setSize(aspectWidth, aspectHeight);
+        }, function(xhr) {
+            // Error
+            console.log(xhr);
+            alert(xhr.statusText);
+        });
+    </script>
+</body>
+</html>

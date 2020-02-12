@@ -2,7 +2,6 @@ var viewports = [];
 var scene = new THREE.Scene();
 var gridHelper;
 var precision = 3;
-var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
 var pinkLineMat = new THREE.LineBasicMaterial({color: 0xdf3eff});
 var darkPinkLineMat = new THREE.LineBasicMaterial({color: 0xa464b1});
 var redLineMat = new THREE.LineBasicMaterial({color: 0xff0000});
@@ -88,47 +87,6 @@ function selectNode(id) {
     updateProperties();
 }
 
-function findNode(nodeId, startNode) {
-    if (!startNode)
-        startNode = sceneTree;
-    if (!startNode)
-        return null;
-    var found = null;
-    if (startNode.id == nodeId)
-        return startNode;
-    startNode.children.forEach(function(node) {
-        var foundSub = findNode(nodeId, node);
-        if (foundSub)
-            found = foundSub;
-    });
-    return found;
-}
-
-function findCamera(cameraId, startNode) {
-    if (!startNode)
-        startNode = sceneTree;
-    var found = null;
-    if (startNode.cameraId == cameraId)
-        return startNode;
-    startNode.children.forEach(function(node) {
-        var foundSub = findCamera(cameraId, node);
-        if (foundSub)
-            found = foundSub;
-    });
-    return found;
-}
-
-function getParentNode(find, tree) {
-    var parent = null;
-    traverseTree(function(node) {
-        node.children.forEach(function(child) {
-            if (child.id == find.id)
-                parent = node;
-        })
-    }, tree);
-    return parent;
-}
-
 function findNodeByName(name, startNode) {
     if (!startNode)
         startNode = sceneTree;
@@ -143,15 +101,6 @@ function findNodeByName(name, startNode) {
             found = subFound;
     });
     return found;
-}
-
-function traverseTree(func, startNode) {
-    if (!startNode)
-        startNode = sceneTree;
-    func(startNode);
-    startNode.children.forEach(function(node) {
-        traverseTree(func, node);
-    });
 }
 
 function getNextNodeId() {
@@ -258,7 +207,6 @@ function createEmptyNode(name, parent, id) {
         children: [],
         threeObject: obj
     };
-    obj.sceneNode = newNode;
     if (parent != null) {
         parent.children.push(newNode);
         parent.threeObject.add(obj);
@@ -366,14 +314,6 @@ function updateCameraLists() {
     }
 }
 
-function getModel(modelName) {
-    for (var i = 0; i < models.length; i++) {
-        if (models[i].name == modelName)
-            return models[i];
-    }
-    return null;
-}
-
 function createModel(modelName, nodeName, parent, id) {
     var model = getModel(modelName);
     if (!model) {
@@ -391,61 +331,12 @@ function createModel(modelName, nodeName, parent, id) {
     return node;
 }
 
-function createModelGeometry(data, modelName) {
-    var geometries = [];
-    var lines = [];
-    data.forEach((point) => {
-        point.conn.forEach((otherId) => {
-            var other = null;
-            data.forEach((candidate) => {
-                if (candidate.id == otherId)
-                    other = candidate;
-            });
-            if (other != null) {
-                var pos1 = new THREE.Vector3(point.pos.x, point.pos.y, point.pos.z);
-                var pos2 = new THREE.Vector3(other.pos.x, other.pos.y, other.pos.z);
-                var pt1 = {pointId: point.id, position: pos1};
-                var pt2 = {pointId: other.id, position: pos2};
-                var scale = 1;
-                pt1.position.multiplyScalar(scale);
-                pt2.position.multiplyScalar(scale);
-                var exists = false;
-                lines.forEach((existing) => {
-                    if ((existing.id1 == pt1.pointId && existing.id2 == pt2.pointId) ||
-                        (existing.id1 == pt2.pointId && existing.id2 == pt1.pointId)) {
-                            exists = true;
-                    }
-                });
-                if (!exists) {
-                    var geom = new THREE.BufferGeometry();
-                    var vertices = new Float32Array([
-                        pt1.position.x, pt1.position.y, pt1.position.z,
-                        pt2.position.x, pt2.position.y, pt2.position.z
-                    ]);
-                    geom.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-                    geometries.push(geom);
-                    var lineData = {
-                        id1: pt1.pointId,
-                        id2: pt2.pointId,
-                    };
-                    lines.push(lineData);
-                }
-            }
-        });
-    });
-    var mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(geometries);
-    var linesObject = new THREE.LineSegments(mergedGeometry, whiteLineMat);
-    if (modelName)
-        linesObject.model = modelName;
-    return linesObject;
-}
-
-function createCamera(name, parent, id, cameraId) {
+function createCamera(name, parent, id, cameraId, fov) {
     var node = createEmptyNode(name, parent, id);
     if (node == null)
         return;
     node.cameraId = cameraId || getNextCameraId();
-    node.cameraFov = 45;
+    node.cameraFov = 45 || fov;
     var cameraGeometry = createModelGeometry(cameraModel);
     cameraGeometry.cameraModel = true;
     node.threeObject.add(cameraGeometry);
@@ -456,70 +347,6 @@ function createCamera(name, parent, id, cameraId) {
     updateCameraLists();
     selectNode(node.id);
     return node;
-}
-
-function getKeyframe(time) {
-    var found = null;
-    keyframes.forEach(function(keyframe) {
-        if (keyframe.time == time)
-            found = keyframe
-    });
-    return found;
-}
-
-function getKeyframeBefore(time, nodeId, hasCamera) {
-    var found = null;
-    var foundData = null;
-    keyframes.forEach(function(keyframe) {
-        var data = getKeyframeData(keyframe, nodeId);
-        if (data != null || hasCamera) {
-            if (!hasCamera || keyframe.cameraId !== undefined) {
-                if (keyframe.time < time) {
-                    if (found == null) {
-                        found = keyframe;
-                        foundData = data;
-                    }
-                    else if (found.time < keyframe.time) {
-                        found = keyframe;
-                        foundData = data;
-                    }
-                }
-            }
-        }
-    });
-    return {kf: found, data: foundData};
-}
-
-function getKeyframeAfter(time, nodeId) {
-    var found = null;
-    var foundData = null;
-    keyframes.forEach(function(keyframe) {
-        var data = getKeyframeData(keyframe, nodeId);
-        if (data != null) {
-            if (keyframe.time > time) {
-                if (found == null) {
-                    found = keyframe;
-                    foundData = data;
-                }
-                else if (found.time > keyframe.time) {
-                    found = keyframe;
-                    foundData = data;
-                }
-            }
-        }
-    });
-    return {kf: found, data: foundData};
-}
-
-function getKeyframeData(kf, nodeId) {
-    var found = null;
-    if (kf == null)
-        return null;
-    kf.nodes.forEach(function(nodeData) {
-        if (nodeData.id == nodeId)
-            found = nodeData;
-    });
-    return found;
 }
 
 function update() {
@@ -867,11 +694,6 @@ function sign(n) {
     if (n < 0)
         return -1;
     return 1;
-}
-
-function getAspectRatio(str) {
-    var colonIndex = str.search(':');
-    return parseFloat(str.substring(0, colonIndex)) / parseFloat(str.substring(colonIndex + 1, str.length));
 }
 
 $(function() {
