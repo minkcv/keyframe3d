@@ -34,8 +34,12 @@ function updateProperties() {
     $('#x-rot').val((node.threeObject.rotation.x * 180 / Math.PI).toFixed(4));
     $('#y-rot').val((node.threeObject.rotation.y * 180 / Math.PI).toFixed(4));
     $('#z-rot').val((node.threeObject.rotation.z * 180 / Math.PI).toFixed(4));
-    if (node.cameraId !== undefined)
+    if (node.cameraId !== undefined) {
         $('#fov').val(node.cameraFov);
+        $('#camera-properties').show();
+    }
+    else
+        $('#camera-properties').hide();
 }
 
 function changeProperties() {

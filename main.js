@@ -88,65 +88,9 @@ function loadSettings(newSettings) {
     });
 }
 
-function loadModel(files) {
-    for (var i = 0; i < files.length; i++) {
-        var duplicate = false;
-        models.forEach(function(model) {
-            if (model.name == files[i].name)
-                duplicate = true;
-        });
-        if (duplicate) {
-            alert('Model with that name already exists');
-            continue;
-        }
-        (function(file){
-            var reader = new FileReader();
-            reader.onloadend = function () {
-                var data = JSON.parse(reader.result);
-                var model = {
-                    name: file.name,
-                    data: data
-                }
-                models.push(model);
-                log('Loaded model "' + model.name + '"');
-                $('#model-select').append($('<option id=' + file.name + '></option>').text(file.name));
-                if ($('#model-select').attr('size') < models.length)
-                    $('#model-select').attr('size', models.length);
-            }
-            if (files[i])
-                reader.readAsText(files[i]);
-        })(files[i]);
-    }
-    // Clear the value on the file input so it can still fire onchange again
-    // even if loading the same file
-    if (files.length > 0)
-        document.getElementById('load-model').value = '';
-}
-
-function unloadModel() {
-    var name = $('#model-select option:selected').text();
-    if (!name) {
-        alert('Select a model to unload');
-        return;
-    }
-    for (var i = 0; i < models.length; i++) {
-        if (models[i].name == name) {
-            models.splice(i, 1);
-            break;
-        }
-    }
-    $('#model-select option[id="' + name + '"]').remove();
-    log('Unloaded model "' + name + '"');
-}
-
 function selectNode(id) {
     var treeNode = $('#scene-tree').tree('getNodeById', id);
     $('#scene-tree').tree('selectNode', treeNode);
-    var node = findNode(id);
-    if (node.cameraId === undefined)
-        $('#camera-properties').hide();
-    else
-        $('#camera-properties').show();
     updateProperties();
 }
 
@@ -228,27 +172,18 @@ function getNextCameraId() {
     return nextId;
 }
 
-function createEmptyNode(name) {
-    var selectedNode = $('#scene-tree').tree('getSelectedNode');
-    var parent;
-    if (selectedNode == false)
-        parent = sceneTree;
-    else
-        parent = findNode(selectedNode.id);
-
-    if (!name)
-        name = $('#empty-node-name').val();
+function createEmptyNode(name, parent) {
     if (name.length < 1) {
         alert('Name for node cannot be blank');
+        return null;
+    }
+    if (name == 'free camera') {
+        alert('Node cannot be named "free camera"');
         return null;
     }
     var existing = findNodeByName(name);
     if (existing) {
         alert('Node with that name already exists');
-        return null;
-    }
-    if (name == 'free camera') {
-        alert('Node cannot be named "free camera"');
         return null;
     }
     var nodeId = getNextNodeId();
@@ -425,20 +360,13 @@ function getModel(modelName) {
     return null;
 }
 
-function addModelToScene(modelName, name) {
-    var selectedNode = $('#scene-tree').tree('getSelectedNode');
-    var parent;
-    if (selectedNode == false)
-        parent = sceneTree;
-    else
-        parent = findNode(selectedNode.id);
+function createModel(modelName, nodeName, parent) {
     var model = getModel(modelName);
     if (!model) {
         alert('Select a model from the list of loaded models');
         return;
-    }
-    var nodeName = name || $('#model-node-name').val();
-    var node = createEmptyNode(nodeName);
+    };
+    var node = createEmptyNode(nodeName, parent);
     if (node == null)
         return;
     node.model = modelName;
@@ -498,15 +426,8 @@ function createModelGeometry(data, modelName) {
     return linesObject;
 }
 
-function addCameraToScene(name) {
-    var selectedNode = $('#scene-tree').tree('getSelectedNode');
-    var parent;
-    if (selectedNode == false)
-        parent = sceneTree;
-    else
-        parent = findNode(selectedNode.id);
-    var nodeName = name || $('#camera-node-name').val();
-    var node = createEmptyNode(nodeName);
+function createCamera(name, parent) {
+    var node = createEmptyNode(name, parent);
     if (node == null)
         return;
     node.cameraId = getNextCameraId();
@@ -517,7 +438,7 @@ function addCameraToScene(name) {
     var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(settings.aspectRatio), 0.1, 1000);
     node.threeObject.add(camera);
     node.cameraObject = camera;
-    log('Created camera with name "' + nodeName + '" and camera id ' + node.cameraId);
+    log('Created camera with name "' + name + '" and camera id ' + node.cameraId);
     updateCameraLists();
     selectNode(node.id);
     return node;
@@ -919,17 +840,10 @@ function getAspectRatio(str) {
 $(function() {
     loadSettings(settings);
     updateTree();
-    var defaultCamera = addCameraToScene('default camera');
+    var defaultCamera = createCamera('default camera', sceneTree);
     defaultCamera.threeObject.position.z = 500;
-    var model = {
-        name: 'default-cube',
-        data: cubeModel
-    }
-    models.push(model);
-    log('Loaded model "' + model.name + '"');
-    $('#model-select').append($('<option id=' + model.name + '></option>').text(model.name));
-    selectNode(0);
-    addModelToScene('default-cube', 'default cube');
+    loadModel(cubeModel, 'default-cube');
+    createModel('default-cube', 'default cube', sceneTree);
 
     gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
     scene.add(gridHelper);
