@@ -73,23 +73,45 @@ button {
 .settings, .models, .file-menu, .tree-view, .tree-controls, .properties, .controls {
     margin: 5px;
 }
-.settings > label, .properties > label, #camera-properties > label {
+:not(.custom-file) > label {
     font-family: droid_sans_mono_regular;
     color: #cccccc;
+}
+#welcome > label {
+    font-family: Arial, Helvetica, sans-serif;
+}
+#welcome > input {
+    width: 20px;
 }
 .settings > input, .tree-controls > input {
     float: right;
 }
-pre, .controls > div, .controls > div > span {
+#current-camera {
     font-family: droid_sans_mono_regular;
+    font-size: 11pt;
+}
+pre, .controls > div, .controls > div > span {
     font-size: 12pt;
     color: #cccccc;
 }
-h1, h2, h3, p {
+h1, h2, h3 {
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
     color: #cccccc;
     margin: 1px;
+}
+p {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #cccccc;
+    margin: 1px;
+}
+h2 {
+    margin-top: 5px;
+    margin-left: 5px;
+}
+h1 {
+    font-size: 30pt;
+    margin-bottom: 10px;
 }
 input {
     color: #cccccc;
@@ -103,10 +125,6 @@ button > label {
     padding: 0px !important;
     margin: -4px 0px -1px 0px !important;
     border: 0px !important;
-}
-h2 {
-    margin-top: 5px;
-    margin-left: 5px;
 }
 ::-moz-selection {
     color: #cccccc;
@@ -125,10 +143,6 @@ input::selection {
 input:focus, .btn:focus, .btn:active {
     outline-color: #b049b9;
     box-shadow: none;
-}
-h1 {
-    font-size: 30pt;
-    margin: 0px;
 }
 #welcome {
     margin: 15px;

@@ -8,7 +8,8 @@ layout.registerComponent( 'fileComponent', function(container, componentState){
             </div>
         </div>
         <button type='button' class='btn btn-sm' onclick='saveProject()'>Save Project</button><br>
-        <button type='button' class='btn btn-sm' onclick='addViewport()'>Add Viewport</button>
+        <button type='button' class='btn btn-sm' onclick='addViewport()'>Add Viewport</button><br>
+        <button type='button' class='btn btn-sm' onclick='openWelcome()'>Open Welcome Screen</button>
     </div>`);
 });
 
@@ -95,4 +96,15 @@ function loadProject(files) {
         seekTime(0);
     };
     reader.readAsText(file);
+}
+
+function openWelcome() {
+    var welcomeConfig = {
+        type: 'component',
+        componentName: 'welcomeComponent',
+        componentState: {},
+        isClosable: true,
+        title: 'Welcome to Keyframe3D'
+    };
+    layout.root.contentItems[0].contentItems[1].contentItems[0].addChild(welcomeConfig, 0);
 }

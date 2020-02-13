@@ -697,13 +697,17 @@ function sign(n) {
 }
 
 $(function() {
+    var showWelcome = localStorage.getItem('show-welcome');
+    if (showWelcome != 'false') {
+        openWelcome();
+    }
+
     loadSettings(settings);
     updateTree();
     var defaultCamera = createCamera('default camera', sceneTree);
     defaultCamera.threeObject.position.z = 500;
     loadModel(cubeModel, 'default-cube');
     createModel('default-cube', 'default cube', sceneTree);
-
     gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
     scene.add(gridHelper);
     update();

@@ -82,7 +82,7 @@ var config = {
                 }]
             },{
                 type: 'stack',
-                height: 12,
+                height: 15,
                 content:[{
                     type: 'component',
                     componentName: 'timelineComponent',

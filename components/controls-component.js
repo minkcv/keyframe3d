@@ -21,7 +21,7 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
             <button type='button' class='btn btn-sm' onclick='seekTimeInput()'>Seek to Time:</button>
             <input type='number' name='seek-to-time' id='seek-to-time' value='0'><br>
             <hr>
-            <div>Current Camera: <span id='current-camera'></span></div>
+            <div>Current Camera: <span id='current-camera'>default camera</span></div>
             <button type='button' class='btn btn-sm' onclick='setKeyframeCamera()'>Set Camera</button>
             <select id='keyframe-camera'></select>
         </div>`);
