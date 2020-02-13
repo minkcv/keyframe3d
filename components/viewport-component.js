@@ -111,7 +111,6 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
             rotateAxis: AXIS.none,
             startX: 0,
             startY: 0,
-            startTheta: null,
             startPoint: null,
             pickedObject: null
         }
@@ -165,6 +164,7 @@ function updateViewport(id) {
         metaCamera.translateZ(renderDistance / 2);
         metaCamera.zoom = viewport.zoom;
         metaCamera.updateProjectionMatrix();
+        viewport.renderer.domElement.style.marginLeft = '0px';
         viewport.renderer.setSize(width, height);
     }
 }

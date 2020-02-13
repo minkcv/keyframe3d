@@ -17,8 +17,29 @@ layout.registerComponent( 'settingsComponent', function(container, componentStat
 
 function applySettings() {
     var length = parseInt($('#length').val());
+    if (length < 1) {
+        alert('Length cannot be less than 1');
+        loadSettings(settings);
+        return;
+    }
     var framerate = parseInt($('#framerate').val());
+    if (framerate < 1) {
+        alert('Framerate cannot be less than 1');
+        loadSettings(settings);
+        return;
+    }
+    if (framerate > 60) {
+        alert('Framerate cannot be greater than 60');
+        loadSettings(settings);
+        return;
+    }
     var aspectRatio = $('#aspect-ratio').val();
+    var ar = getAspectRatio(aspectRatio);
+    if (isNaN(ar)) {
+        alert('Aspect ratio must be in the form "width:height", such as "16:9" or "4:3"');
+        loadSettings(settings);
+        return;
+    }
     var newSettings = {
         length: length,
         framerate: framerate,

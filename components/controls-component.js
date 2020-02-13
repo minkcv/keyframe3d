@@ -6,7 +6,9 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
             <hr>
             <div>Current Time: <span id='current-time'>0</span></div>
             <button type='button' class='btn btn-sm' onclick='play()'>Play</button>
-            <button type='button' class='btn btn-sm' onclick='stop()'>Stop</button><br>
+            <button type='button' class='btn btn-sm' onclick='stop()'>Pause</button><br>
+            <button type='button' class='btn btn-sm' onclick='seekTimeInput()'>Seek to Time:</button>
+            <input type='number' name='seek-to-time' id='seek-to-time' value='0' placeholder='time'><br>
             <hr>
             <div>For All Nodes</div>
             <button type='button' class='btn btn-sm' onclick='removeKeyframe()'>Remove Keyframe</button><br>
@@ -18,10 +20,7 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
             <button type='button' class='btn btn-sm' onclick='seekNextNode()'>Seek Next Keyframe</button><br>
             <button type='button' class='btn btn-sm' onclick='seekPreviousNode()'>Seek Previous Keyframe</button><br>
             <hr>
-            <button type='button' class='btn btn-sm' onclick='seekTimeInput()'>Seek to Time:</button>
-            <input type='number' name='seek-to-time' id='seek-to-time' value='0'><br>
-            <hr>
-            <div>Current Camera: <span id='current-camera'>default camera</span></div>
+            <div>Key Camera: <span id='key-camera'>default camera</span></div>
             <button type='button' class='btn btn-sm' onclick='setKeyframeCamera()'>Set Camera</button>
             <select id='keyframe-camera'></select>
         </div>`);
@@ -259,6 +258,6 @@ function setKeyframeCamera() {
         kf.cameraId = cameraNode.cameraId;
         log('Updated camera to "' + cameraName + '" at time ' + time);
     }
-    $('#current-camera').text(cameraName);
+    $('#key-camera').text(cameraName);
     updateTimeline();
 }

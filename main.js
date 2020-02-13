@@ -330,7 +330,7 @@ function createCameraEditor(name, parent, id, cameraId, fov) {
     var cameraGeometry = createModelGeometry(cameraModel);
     cameraGeometry.cameraModel = true;
     node.threeObject.add(cameraGeometry);
-    log('Created camera with name "' + name + '" and camera id ' + node.cameraId);
+    log('Added camera with id ' + node.cameraId + ' to node "' + node.name + '"');
     updateCameraLists();
     selectNode(node.id);
     return node;

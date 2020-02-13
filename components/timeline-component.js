@@ -85,8 +85,8 @@ layout.registerComponent( 'timelineComponent', function(container, componentStat
 
             }
             else if (props.what == 'axis') {
-                timeline.setCustomTime(props.time, 'playhead');
-                timeChanged(props.time);
+                var time = timeChanged(props.time);
+                timeline.setCustomTime(time, 'playhead');
                 
             }
         };
@@ -113,6 +113,7 @@ function timeChanged(dateTime) {
         time = settings.length - 1;
     if (time != previousTime)
         seekTime(time);
+    return time;
 }
 
 function seekTime(time, noLog) {

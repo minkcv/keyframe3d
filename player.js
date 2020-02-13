@@ -2,7 +2,13 @@ var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
 
 function getAspectRatio(str) {
     var colonIndex = str.search(':');
-    return parseFloat(str.substring(0, colonIndex)) / parseFloat(str.substring(colonIndex + 1, str.length));
+    if (colonIndex < 1 || colonIndex == str.length - 1)
+        return NaN;
+    var width = parseFloat(str.substring(0, colonIndex));
+    var height = parseFloat(str.substring(colonIndex + 1, str.length));
+    if (width == 0 || height == 0)
+        return NaN;
+    return  width / height;
 }
 
 function findNode(nodeId, startNode) {
