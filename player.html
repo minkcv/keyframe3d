@@ -13,15 +13,22 @@
             width: 100%;
             height: 100%;
         }
+        #controls {
+            position: absolute;
+            bottom: 0px;
+        }
     </style>
 </head>
 <body>
     <div id='player'>
         <div id='controls'>
-
+            <button onclick='playPlayer()'>Play</button>
+            <button onclick='stopPlayer()'>Pause</button>
         </div>
     </div>
     <script type='text/javascript'>
+        var time = 0;
+        var timerId = -1;
         var settings, models, keyframes, renderer;
         var scene = new THREE.Scene();
         var sceneTree = {
@@ -30,6 +37,7 @@
             children:[], 
             threeObject: new THREE.Object3D()
         };
+        scene.add(sceneTree.threeObject);
         function loadJSON(path, success, error) {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
@@ -48,7 +56,8 @@
             xhr.send();
         }
         // 'http://minkcv.github.io/keyframe3d/demos/demo-1.json'
-        // python -m SimpleHTTPServer 8000
+        // python2: python -m SimpleHTTPServer 8000
+        // python3: python -m http.server
         loadJSON('http://localhost:8000/demos/demo-1.json', function(project) {
             settings = project.settings;
             models = project.models;
@@ -93,6 +102,11 @@
                 aspectWidth = width;
                 aspectHeight = width / ar;
             }
+            var remainderWidth = width - aspectWidth;
+            if (remainderWidth > 0)
+                renderer.domElement.style.marginLeft = remainderWidth / 2 + 'px';
+            else
+                renderer.domElement.style.marginLeft = '0px';
             renderer.setSize(aspectWidth, aspectHeight);
         }, function(xhr) {
             // Error

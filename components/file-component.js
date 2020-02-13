@@ -26,8 +26,10 @@ function saveProject() {
         };
         if (node.model !== undefined)
             copy.model = node.model;
-        if (node.cameraId !== undefined)
+        if (node.cameraId !== undefined){
             copy.cameraId = node.cameraId;
+            copy.cameraFov = node.cameraFov;
+        }
         var parent = getParentNode(node);
         if (parent != null) {
             // Search our copy tree for the parent

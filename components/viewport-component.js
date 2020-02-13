@@ -146,6 +146,11 @@ function updateViewport(id) {
             aspectWidth = width;
             aspectHeight = width / ar;
         }
+        var remainderWidth = width - aspectWidth;
+        if (remainderWidth > 0)
+            viewport.renderer.domElement.style.marginLeft = remainderWidth / 2 + 'px';
+        else
+            viewport.renderer.domElement.style.marginLeft = '0px';
         viewport.renderer.setSize(aspectWidth, aspectHeight);
     }
     else {

@@ -268,3 +268,29 @@ function seekTimePlayer(time) {
     }
     return cameraNode;
 }
+
+function playPlayer() {
+    if (time == settings.length - 1) {
+        time = 0;
+        clearInterval(timerId);
+    }
+    if (timerId != -1)
+        return;
+    timerId = setInterval(function() {
+        if (time + 1 > settings.length - 1) {
+            clearInterval(timerId);
+            timerId = -1;
+            return;
+        }
+        var camera = seekTimePlayer(time);
+        time = time + 1;
+        renderer.render(scene, camera.cameraObject);
+    }, 1000 / settings.framerate);
+}
+
+function stopPlayer() {
+    if (timerId != -1) {
+        clearInterval(timerId);
+        timerId = -1;
+    }
+}
