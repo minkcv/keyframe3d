@@ -58,7 +58,7 @@
         // 'http://minkcv.github.io/keyframe3d/demos/demo-1.json'
         // python2: python -m SimpleHTTPServer 8000
         // python3: python -m http.server
-        loadJSON('http://localhost:8000/demos/demo-1.json', function(project) {
+        loadJSON('http://localhost:8000/demos/demo-0.json', function(project) {
             settings = project.settings;
             models = project.models;
             keyframes = project.keyframes;
@@ -110,6 +110,8 @@
             else
                 renderer.domElement.style.marginLeft = '0px';
             renderer.setSize(aspectWidth, aspectHeight);
+            if (settings.autoplay)
+                playPlayer();
         }, function(xhr) {
             // Error
             console.log(xhr);

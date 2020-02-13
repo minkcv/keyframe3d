@@ -215,13 +215,21 @@ function play() {
     playState = PLAY.play;
     timerId = setInterval(function() {
         var time = timeline.getCustomTime('playhead').getTime();
-        if (time + 1 > settings.length - 1) {
-            playState = PLAY.stop;
-            clearInterval(timerId);
-            timerId = -1;
-            return;
+        seekTime(time, true);
+        time = time + 1;
+        if (time > settings.length - 1) {
+            if (settings.loop) {
+                time = 0;
+            }
+            else {
+                playState = PLAY.stop;
+                clearInterval(timerId);
+                timerId = -1;
+                return;
+            }
         }
-        seekTime(time + 1);
+        
+        timeline.setCustomTime(new Date(time), 'playhead');
     }, 1000 / settings.framerate);
 }
 

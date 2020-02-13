@@ -29,7 +29,9 @@ layout.init();
 var settings = {
     length: 1000,
     framerate: 60,
-    aspectRatio: '16:9'
+    aspectRatio: '16:9',
+    autoplay: false,
+    loop: false
 };
 
 var models = [];

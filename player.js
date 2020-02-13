@@ -268,20 +268,26 @@ function seekTimePlayer(time) {
 }
 
 function playPlayer() {
-    if (time == settings.length - 1) {
+    if (time == settings.length) {
         time = 0;
         clearInterval(timerId);
     }
     if (timerId != -1)
         return;
     timerId = setInterval(function() {
-        if (time + 1 > settings.length - 1) {
-            clearInterval(timerId);
-            timerId = -1;
-            return;
-        }
         var camera = seekTimePlayer(time);
         time = time + 1;
+        if (time > settings.length - 1) {
+            if (settings.loop) {
+                time = 0;
+            }
+            else {
+                clearInterval(timerId);
+                timerId = -1;
+                return;
+            }
+        }
+        
         renderer.render(scene, camera.cameraObject);
     }, 1000 / settings.framerate);
 }
