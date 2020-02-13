@@ -69,12 +69,14 @@
                 else if (loadNode.model !== undefined) {
                     var parentProject = getParentNode(loadNode, project.sceneTree);
                     var parent = findNode(parentProject.id);
-                    createModelPlayer(loadNode.model, loadNode.name, parent, loadNode.id);
+                    var node = createEmptyNodePlayer(loadNode.name, parent, loadNode.id);
+                    createModelPlayer(node, loadNode.model);
                 }
                 else if (loadNode.cameraId !== undefined) {
                     var parentProject = getParentNode(loadNode, project.sceneTree);
                     var parent = findNode(parentProject.id);
-                    createCameraPlayer(loadNode.name, parent, loadNode.id, loadNode.cameraId, loadNode.cameraFov);
+                    var node = createEmptyNodePlayer(loadNode.name, parent, loadNode.id);
+                    createCameraPlayer(node, loadNode.cameraId, loadNode.cameraFov);
                 }
                 else {
                     var parentProject = getParentNode(loadNode, project.sceneTree);

@@ -120,61 +120,7 @@ function seekTime(time, noLog) {
         log('Seek to ' + time);
     timeline.setCustomTime(new Date(time), 'playhead');
     $('#current-time').text(time);
-    var exact = getKeyframe(time);
-    if (exact != null) {
-        traverseTree(function(node) {
-            var data = getKeyframeData(exact, node.id);
-            if (data == null)
-                return;
-            node.threeObject.position.x = data.pos.x;
-            node.threeObject.position.y = data.pos.y;
-            node.threeObject.position.z = data.pos.z;
-            node.threeObject.quaternion.set(data.rot.x, data.rot.y, data.rot.z, data.rot.w);
-        })
-    }
-    else {
-        traverseTree(function(node) {
-            var before = getKeyframeBefore(time, node.id);
-            var after = getKeyframeAfter(time, node.id);
-            if (before.kf == null && after.kf != null) {
-                node.threeObject.position.x = after.data.pos.x;
-                node.threeObject.position.y = after.data.pos.y;
-                node.threeObject.position.z = after.data.pos.z;
-                node.threeObject.quaternion.set(after.data.rot.x, after.data.rot.y, after.data.rot.z, after.data.rot.w);
-            }
-            else if (before.kf != null && after.kf == null) {
-                node.threeObject.position.x = before.data.pos.x;
-                node.threeObject.position.y = before.data.pos.y;
-                node.threeObject.position.z = before.data.pos.z;
-                node.threeObject.quaternion.set(before.data.rot.x, before.data.rot.y, before.data.rot.z, before.data.rot.w);
-            }
-            else if (before.kf != null && after.kf != null) {
-                var alpha = (time - before.kf.time) / (after.kf.time - before.kf.time);
-                var posBefore = new THREE.Vector3(before.data.pos.x, before.data.pos.y, before.data.pos.z);
-                var posAfter = new THREE.Vector3(after.data.pos.x, after.data.pos.y, after.data.pos.z);
-                var rotBefore = new THREE.Quaternion(before.data.rot.x, before.data.rot.y, before.data.rot.z, before.data.rot.w);
-                var rotAfter = new THREE.Quaternion(after.data.rot.x, after.data.rot.y, after.data.rot.z, after.data.rot.w);
-                var pos = new THREE.Vector3();
-                var rot = new THREE.Quaternion();
-                pos.lerpVectors(posBefore, posAfter, alpha);
-                rotBefore.normalize();
-                rotAfter.normalize();
-                THREE.Quaternion.slerp(rotBefore, rotAfter, rot, alpha);
-                node.threeObject.position.set(pos.x, pos.y, pos.z);
-                node.threeObject.setRotationFromQuaternion(rot);
-            }
-        });
-    }
-    var cameraNode = null;
-    if (exact != null && exact.cameraId !== undefined)
-        cameraNode = findCamera(exact.cameraId);
-    else {
-        var before = getKeyframeBefore(time, null, true)
-        if (before.kf != null)
-            cameraNode = findCamera(before.kf.cameraId);
-        else
-            cameraNode = findCamera(0);
-    }
+    var cameraNode = seekTimePlayer(time);
     if (cameraNode)
         $('#current-camera').text(cameraNode.name);
     else 

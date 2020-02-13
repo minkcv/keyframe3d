@@ -64,9 +64,8 @@ function createEmptyNodePlayer(name, parent, id) {
     return newNode;
 }
 
-function createModelPlayer(modelName, nodeName, parent, id) {
+function createModelPlayer(node, modelName) {
     var model = getModel(modelName);
-    var node = createEmptyNodePlayer(nodeName, parent, id);
     node.model = modelName;
     var linesObject = createModelGeometry(model.data, modelName);
     node.threeObject.add(linesObject);
@@ -122,8 +121,7 @@ function createModelGeometry(data, modelName) {
     return linesObject;
 }
 
-function createCameraPlayer(name, parent, id, cameraId, fov) {
-    var node = createEmptyNodePlayer(name, parent, id);
+function createCameraPlayer(node, cameraId, fov) {
     node.cameraId = cameraId;
     node.cameraFov = fov;
     var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(settings.aspectRatio), 0.1, 16000);

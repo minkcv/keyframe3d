@@ -119,7 +119,7 @@ function getNextCameraId() {
     return nextId;
 }
 
-function createEmptyNode(name, parent, id) {
+function createEmptyNodeEditor(name, parent, id) {
     if (name.length < 1) {
         alert('Name for node cannot be blank');
         return null;
@@ -138,7 +138,7 @@ function createEmptyNode(name, parent, id) {
         return null;
     }
     var nodeId = id || getNextNodeId();
-    var obj = new THREE.Object3D();
+    var newNode = createEmptyNodePlayer(name, parent, nodeId);
     var axesGrips = new THREE.Object3D();
     axesGrips.visible = controlMode == CONTROLMODE.move;
     axesGrips.axesGrips = true;
@@ -182,7 +182,7 @@ function createEmptyNode(name, parent, id) {
     axesGrips.add(xGripCone);
     axesGrips.add(yGripCone);
     axesGrips.add(zGripCone);
-    obj.add(axesGrips);
+    newNode.threeObject.add(axesGrips);
     var rotationGrips = new THREE.Object3D();
     rotationGrips.visible = controlMode == CONTROLMODE.rotate;
     rotationGrips.rotGrips = true;
@@ -200,17 +200,7 @@ function createEmptyNode(name, parent, id) {
     rotationGrips.add(xRotate);
     rotationGrips.add(yRotate);
     rotationGrips.add(zRotate);
-    obj.add(rotationGrips)
-    var newNode = {
-        id: nodeId,
-        name: name,
-        children: [],
-        threeObject: obj
-    };
-    if (parent != null) {
-        parent.children.push(newNode);
-        parent.threeObject.add(obj);
-    }
+    newNode.threeObject.add(rotationGrips)
     updateTree();
     selectNode(nodeId)
     log('Created empty node with name "' + name + '"');
@@ -314,35 +304,30 @@ function updateCameraLists() {
     }
 }
 
-function createModel(modelName, nodeName, parent, id) {
+function createModelEditor(modelName, nodeName, parent, id) {
     var model = getModel(modelName);
     if (!model) {
         alert('Select a model from the list of loaded models');
         return;
     };
-    var node = createEmptyNode(nodeName, parent, id);
+    var node = createEmptyNodeEditor(nodeName, parent, id);
     if (node == null)
         return;
-    node.model = modelName;
-    var linesObject = createModelGeometry(model.data, modelName);
-    node.threeObject.add(linesObject);
+    createModelPlayer(node, modelName);
     log('Added model "' + modelName + '" to node "' + node.name + '"');
     selectNode(node.id);
     return node;
 }
 
-function createCamera(name, parent, id, cameraId, fov) {
-    var node = createEmptyNode(name, parent, id);
+function createCameraEditor(name, parent, id, cameraId, fov) {
+    var node = createEmptyNodeEditor(name, parent, id);
     if (node == null)
         return;
-    node.cameraId = cameraId || getNextCameraId();
-    node.cameraFov = 45 || fov;
+    cameraId = cameraId || getNextCameraId();
+    createCameraPlayer(node, cameraId, fov);
     var cameraGeometry = createModelGeometry(cameraModel);
     cameraGeometry.cameraModel = true;
     node.threeObject.add(cameraGeometry);
-    var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(settings.aspectRatio), 0.1, 16000);
-    node.threeObject.add(camera);
-    node.cameraObject = camera;
     log('Created camera with name "' + name + '" and camera id ' + node.cameraId);
     updateCameraLists();
     selectNode(node.id);
@@ -704,10 +689,10 @@ $(function() {
 
     loadSettings(settings);
     updateTree();
-    var defaultCamera = createCamera('default camera', sceneTree);
+    var defaultCamera = createCameraEditor('default camera', sceneTree, undefined, 0, 45);
     defaultCamera.threeObject.position.z = 500;
     loadModel(cubeModel, 'default-cube');
-    createModel('default-cube', 'default cube', sceneTree);
+    createModelEditor('default-cube', 'default cube', sceneTree);
     gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
     scene.add(gridHelper);
     update();

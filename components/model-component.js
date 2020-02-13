@@ -24,7 +24,7 @@ function addModelToScene(modelName) {
     else
         parent = findNode(treeNode.id);
     var nodeName = $('#model-node-name').val();
-    createModel(modelName, nodeName, parent);
+    createModelEditor(modelName, nodeName, parent);
 }
 
 function loadModelFromFiles(files) {

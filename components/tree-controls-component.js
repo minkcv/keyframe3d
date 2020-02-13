@@ -22,7 +22,7 @@ function addEmptyNode() {
     else
         parent = findNode(treeNode.id);
     var name = $('#empty-node-name').val();
-    createEmptyNode(name, parent)
+    createEmptyNodeEditor(name, parent)
 }
 
 function addCamera() {
@@ -33,5 +33,5 @@ function addCamera() {
     else
         parent = findNode(treeNode.id);
     var name = $('#camera-node-name').val();
-    createCamera(name, parent);
+    createCameraEditor(name, parent);
 }
