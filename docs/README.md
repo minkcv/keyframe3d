@@ -5,6 +5,20 @@ It is recommended to read this document and then the tutorial documents in this 
 The name 'Keyframe3D' is used to refer to the animation editor.
 The name 'Keyframe3D Player' is used to refer to the animation player.
 
+## Key Concepts
+
+An animation has a length in frames, and is played at a framerate (frames per second). 
+A scene contains a tree of nodes. Nodes can be cameras, models, walls, or empty. 
+Nodes have a transform in 3D space consisting of a position and rotation.
+Nodes can be children of other nodes and inherit the transforms of their parents.
+Keyframes are data at a specific time that is used to determine the transform of nodes in the scene.
+A node's transform is determined by the keyframes with data for that node at the current time, a time before and after, or a time before or after.
+If a node has a keyframe with data for it at the current time, then it's transform is the data in the keyframe.
+If a node has a keyframe with data for it before and after the current time, then it's transform is interpolated between the two keyframe's data.
+If a node has no keyframes with data for it then it has the default local transform (position: origin, rotation: facing toward -Z).
+A scene can have multiple cameras but the camera used at a specific time is dependent on the key camera set in the current or most recent keyframe.
+Different cameras can have different field of views, but the aspect ratio of the animation is fixed.
+
 ## Welcome Screen
 
 A welcome screen will be displayed the first time you open Keyframe3D. It has links to this documentation, sample projects, Line3D, and other resources.
@@ -59,7 +73,7 @@ Models can be unloaded from the project by selecting a model from the list and c
 The Properties pane shows the x, y, and z position and x, y, and z rotation of the selected node. 
 The properties pane will also show the field of view (FOV) of a scene camera if one is selected.
 Changing the fields in the Properties pane will update the values of the selected node live.
-Changes to the postiion and rotation will not be saved unless a keyframe is set.
+Changes to the position and rotation will not be saved unless a keyframe is set.
 A change to the camera field of view is saved to the camera and is independent of keyframes.
 
 ## Controls
@@ -82,7 +96,7 @@ Viewports display the scene, either from a free camera for transforming objects,
 Additional Viewports can be opened from the 'Add Viewport' button in the File pane.
 The drop down menu in the top right is used to change between free camera, the scene cameras, or the key camera.
 When the view is set to a scene camera or the key camera, the view will use the aspect ratio set in the settings.
-When the view is set to key camera, the view will show the scene from the key camera set in the current or closest earlier keyframe.
+When the view is set to key camera, the view will show the scene from the key camera set in the current or closest previous keyframe.
 Right mouse is used to rotate the free camera view. Middle mouse is used to pan the free camera.
 Scroll the mouse wheel to zoom the free camera in and out.
 The buttons 'Top', 'Front', 'Side', and 'Iso' set the free camera to a specific angle.
