@@ -237,10 +237,6 @@ function seekTimePlayer(time) {
                 return;
             node.threeObject.position.set(data.pos.x, data.pos.y, data.pos.z);
             node.threeObject.quaternion.set(data.rot.x, data.rot.y, data.rot.z, data.rot.w);
-            if (node.grips) {
-                node.grips.position.set(data.pos.x, data.pos.y, data.pos.z);
-                node.grips.quaternion.set(data.rot.x, data.rot.y, data.rot.z, data.rot.w);
-            }
             node.threeObject.scale.set(data.scale.x, data.scale.y, data.scale.z);
         });
     }
@@ -251,19 +247,11 @@ function seekTimePlayer(time) {
             if (before.kf == null && after.kf != null) {
                 node.threeObject.position.set(after.data.pos.x, after.data.pos.y, after.data.pos.z);
                 node.threeObject.quaternion.set(after.data.rot.x, after.data.rot.y, after.data.rot.z, after.data.rot.w);
-                if (node.grips) {
-                    node.grips.position.set(after.data.pos.x, after.data.pos.y, after.data.pos.z);
-                    node.grips.quaternion.set(after.data.rot.x, after.data.rot.y, after.data.rot.z, after.data.rot.w);
-                }
                 node.threeObject.scale.set(after.data.scale.x, after.data.scale.y, after.data.scale.z);
             }
             else if (before.kf != null && after.kf == null) {
                 node.threeObject.position.set(before.data.pos.x, before.data.pos.y, before.data.pos.z);
                 node.threeObject.quaternion.set(before.data.rot.x, before.data.rot.y, before.data.rot.z, before.data.rot.w);
-                if (node.grips) {
-                    node.grips.position.set(before.data.pos.x, before.data.pos.y, before.data.pos.z);
-                    node.grips.quaternion.set(before.data.rot.x, before.data.rot.y, before.data.rot.z, before.data.rot.w);
-                }
                 node.threeObject.scale.set(before.data.scale.x, before.data.scale.y, before.data.scale.z);
             }
             else if (before.kf != null && after.kf != null) {
@@ -284,10 +272,6 @@ function seekTimePlayer(time) {
                 var ys = before.data.scale.y + ((after.data.scale.y - before.data.scale.y) * alpha);
                 var zs = before.data.scale.z + ((after.data.scale.z - before.data.scale.z) * alpha);
                 node.threeObject.scale.set(xs, ys, zs);
-                if (node.grips) {
-                    node.grips.position.set(pos.x, pos.y, pos.z);
-                    node.grips.setRotationFromQuaternion(rot);
-                }
             }
         });
     }

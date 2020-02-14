@@ -35,12 +35,11 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
                     oldParent.children.splice(i, 1);
                     oldParent.threeObject.remove(movedNode.threeObject);
                     newParent.threeObject.add(movedNode.threeObject);
-                    oldParent.grips.remove(movedNode.grips);
-                    newParent.grips.add(movedNode.grips);
                     break;
                 }
             }
             newParent.children.push(movedNode);
+            updateGrips(movedNode);
         });
     });
 });

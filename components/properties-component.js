@@ -91,8 +91,6 @@ function changeProperties() {
     node.threeObject.scale.x = parseFloat($('#x-scale').val());
     node.threeObject.scale.y = parseFloat($('#y-scale').val());
     node.threeObject.scale.z = parseFloat($('#z-scale').val());
-    node.grips.position.copy(node.threeObject.position);
-    node.grips.rotation.copy(node.threeObject.rotation);
     if (node.cameraId !== undefined) {
         node.cameraFov = parseFloat($('#fov').val());
         node.cameraObject.fov = node.cameraFov;
@@ -104,4 +102,5 @@ function changeProperties() {
         node.wallObject.scale.x = node.wallWidth;
         node.wallObject.scale.y = node.wallHeight;
     }
+    updateGrips(node);
 }

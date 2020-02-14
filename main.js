@@ -36,16 +36,79 @@ var settings = {
 };
 
 var models = [];
+var keyframes = [];
 var sceneTree = {
     id: 0, 
     name: 'root', 
     children:[], 
-    threeObject: new THREE.Object3D(),
-    grips: new THREE.Object3D()
+    threeObject: new THREE.Object3D()
 };
-var keyframes = [];
 scene.add(sceneTree.threeObject);
-scene.add(sceneTree.grips);
+
+var grips = new THREE.Object3D();
+var axesGrips = new THREE.Object3D();
+axesGrips.visible = controlMode == CONTROLMODE.move;
+axesGrips.axesGrips = true;
+var xGripGeom = new THREE.Geometry();
+xGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
+xGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
+var xGrip = new THREE.Line(xGripGeom, redLineMat);
+xGrip.xGrip = true;
+var yGripGeom = new THREE.Geometry();
+yGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
+yGripGeom.vertices.push(new THREE.Vector3(0, 50, 0));
+var yGrip = new THREE.Line(yGripGeom, greenLineMat);
+yGrip.yGrip = true;
+var zGripGeom = new THREE.Geometry();
+// Don't make the line in the +Z direction because then
+// the object doesn't really point in a direction.
+// This comes up when calling getWorldDirection
+zGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
+zGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
+var zGrip = new THREE.Line(zGripGeom, blueLineMat);
+zGrip.rotateY(-Math.PI / 2);
+zGrip.rotateX(Math.PI / 2);
+zGrip.zGrip = true;
+axesGrips.add(xGrip);
+axesGrips.add(yGrip);
+axesGrips.add(zGrip);
+var xGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
+var xGripCone = new THREE.Mesh(xGripConeGeom, redMat);
+xGripCone.rotation.z = -Math.PI / 2;
+xGripCone.position.x = 50;
+xGripCone.xGrip = true;
+var yGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
+var yGripCone = new THREE.Mesh(yGripConeGeom, greenMat);
+yGripCone.position.y = 50;
+yGripCone.yGrip = true;
+var zGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
+var zGripCone = new THREE.Mesh(zGripConeGeom, blueMat);
+zGripCone.rotation.x = Math.PI / 2;
+zGripCone.position.z = 50;
+zGripCone.zGrip = true;
+axesGrips.add(xGripCone);
+axesGrips.add(yGripCone);
+axesGrips.add(zGripCone);
+grips.add(axesGrips);
+var rotationGrips = new THREE.Object3D();
+rotationGrips.visible = controlMode == CONTROLMODE.rotate;
+rotationGrips.rotGrips = true;
+var xRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
+var xRotate = new THREE.Mesh(xRotateGeom, redMat);
+xRotate.rotation.z = Math.PI / 2;
+xRotate.xRotGrip = true;
+var yRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
+var yRotate = new THREE.Mesh(yRotateGeom, greenMat);
+yRotate.yRotGrip = true;
+var zRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
+var zRotate = new THREE.Mesh(zRotateGeom, blueMat);
+zRotate.rotation.x = Math.PI / 2;
+zRotate.zRotGrip = true;
+rotationGrips.add(xRotate);
+rotationGrips.add(yRotate);
+rotationGrips.add(zRotate);
+grips.add(rotationGrips)
+scene.add(grips);
 
 function addViewport() {
     for (var i = 0; i < viewports.length; i++) {
@@ -89,6 +152,8 @@ function loadSettings(newSettings) {
 function selectNode(id) {
     var treeNode = $('#scene-tree').tree('getNodeById', id);
     $('#scene-tree').tree('selectNode', treeNode);
+    var node = findNode(id);
+    updateGrips(node);
     updateProperties();
 }
 
@@ -144,71 +209,6 @@ function createEmptyNodeEditor(name, parent, id) {
     }
     var nodeId = id || getNextNodeId();
     var newNode = createEmptyNodePlayer(name, parent, nodeId);
-    newNode.grips = new THREE.Object3D();
-    var axesGrips = new THREE.Object3D();
-    axesGrips.visible = controlMode == CONTROLMODE.move;
-    axesGrips.axesGrips = true;
-    var xGripGeom = new THREE.Geometry();
-    xGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
-    xGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
-    var xGrip = new THREE.Line(xGripGeom, redLineMat);
-    xGrip.xGrip = true;
-    var yGripGeom = new THREE.Geometry();
-    yGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
-    yGripGeom.vertices.push(new THREE.Vector3(0, 50, 0));
-    var yGrip = new THREE.Line(yGripGeom, greenLineMat);
-    yGrip.yGrip = true;
-    var zGripGeom = new THREE.Geometry();
-    // Don't make the line in the +Z direction because then
-    // the object doesn't really point in a direction.
-    // This comes up when calling getWorldDirection
-    zGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
-    zGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
-    var zGrip = new THREE.Line(zGripGeom, blueLineMat);
-    zGrip.rotateY(-Math.PI / 2);
-    zGrip.rotateX(Math.PI / 2);
-    zGrip.zGrip = true;
-    axesGrips.add(xGrip);
-    axesGrips.add(yGrip);
-    axesGrips.add(zGrip);
-    var xGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
-    var xGripCone = new THREE.Mesh(xGripConeGeom, redMat);
-    xGripCone.rotation.z = -Math.PI / 2;
-    xGripCone.position.x = 50;
-    xGripCone.xGrip = true;
-    var yGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
-    var yGripCone = new THREE.Mesh(yGripConeGeom, greenMat);
-    yGripCone.position.y = 50;
-    yGripCone.yGrip = true;
-    var zGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
-    var zGripCone = new THREE.Mesh(zGripConeGeom, blueMat);
-    zGripCone.rotation.x = Math.PI / 2;
-    zGripCone.position.z = 50;
-    zGripCone.zGrip = true;
-    axesGrips.add(xGripCone);
-    axesGrips.add(yGripCone);
-    axesGrips.add(zGripCone);
-    newNode.grips.add(axesGrips);
-    var rotationGrips = new THREE.Object3D();
-    rotationGrips.visible = controlMode == CONTROLMODE.rotate;
-    rotationGrips.rotGrips = true;
-    var xRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
-    var xRotate = new THREE.Mesh(xRotateGeom, redMat);
-    xRotate.rotation.z = Math.PI / 2;
-    xRotate.xRotGrip = true;
-    var yRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
-    var yRotate = new THREE.Mesh(yRotateGeom, greenMat);
-    yRotate.yRotGrip = true;
-    var zRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
-    var zRotate = new THREE.Mesh(zRotateGeom, blueMat);
-    zRotate.rotation.x = Math.PI / 2;
-    zRotate.zRotGrip = true;
-    rotationGrips.add(xRotate);
-    rotationGrips.add(yRotate);
-    rotationGrips.add(zRotate);
-    newNode.grips.add(rotationGrips)
-    newNode.grips.nodeObject = newNode.threeObject;
-    parent.grips.add(newNode.grips);
     updateTree();
     selectNode(nodeId)
     log('Created empty node with name "' + name + '"');
@@ -421,20 +421,21 @@ function update() {
                     if (child.wallObj)
                         child.material = editorWallMat;
                 });
-                if (node.grips) {
-                    node.grips.children.forEach(function(child) {
-                        if (child.axesGrips)
-                            child.visible = false;
-                        if (child.rotGrips)
-                            child.visible = false;
-                    });
-                }
             });
+            grips.children.forEach(function(child) {
+                if (child.axesGrips)
+                    child.visible = false;
+                if (child.rotGrips)
+                    child.visible = false;
+            });
+            var selectedNode = null;
             var treeNode = $('#scene-tree').tree('getSelectedNode');
-            if (treeNode != false) {
-                var node = findNode(treeNode.id);
-                if (node.grips) {
-                    node.grips.children.forEach(function(child) {
+            if (treeNode) {
+                selectedNode = findNode(treeNode.id);
+            }
+            if (selectedNode) {
+                if (selectedNode.id != 0) {
+                    grips.children.forEach(function(child) {
                         if (child.axesGrips)
                             child.visible = controlMode == CONTROLMODE.move;
                         if (child.rotGrips)
@@ -446,8 +447,8 @@ function update() {
                         if (child.model)
                             child.material = darkPinkLineMat;
                     });
-                }, node);
-                node.threeObject.children.forEach(function(child) {
+                }, selectedNode);
+                selectedNode.threeObject.children.forEach(function(child) {
                     if (child.model)
                         child.material = pinkLineMat;
                 });
@@ -457,6 +458,7 @@ function update() {
             var metaCamera = cameraY.children[0];
             // Show this camera center axes
             viewport.camera.children[1].visible = true;
+            
             var mouse = viewport.mouse;
             if (mouse.button == 2) { // Rotate view - Right click
                 cameraX.rotation.y += mouse.dx / rotateFactor;
@@ -472,9 +474,7 @@ function update() {
                 cameraX.position.add(translate);
             }
             else if (mouse.button == 0) {
-                var treeNode = $('#scene-tree').tree('getSelectedNode');
-                if (treeNode) {
-                    var selectedNode = findNode(treeNode.id);
+                if (selectedNode) {
                     var translate = getScreenTranslation(mouse);
                     var worldQ = new THREE.Quaternion();
                     selectedNode.threeObject.getWorldQuaternion(worldQ);
@@ -489,7 +489,6 @@ function update() {
                         translate.projectOnVector(worldX);
                         xDir.multiplyScalar(translate.length());
                         selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, xDir);
-                        selectedNode.grips.position.addVectors(selectedNode.grips.position, xDir);
                     }
                     if (mouse.moveAxis == AXIS.y) {
                         var yDir = new THREE.Vector3(0, 1, 0);
@@ -502,7 +501,6 @@ function update() {
                         translate.projectOnVector(worldY);
                         yDir.multiplyScalar(translate.length());
                         selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, yDir);
-                        selectedNode.grips.position.addVectors(selectedNode.grips.position, yDir);
                     }
                     if (mouse.moveAxis == AXIS.z) {
                         var zDir = new THREE.Vector3(0, 0, 1);
@@ -515,22 +513,19 @@ function update() {
                         translate.projectOnVector(worldZ);
                         zDir.multiplyScalar(translate.length());
                         selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, zDir);
-                        selectedNode.grips.position.addVectors(selectedNode.grips.position, zDir);
                     }
                     var rotation = getScreenRotation(selectedNode, mouse, worldQ, mouse.rotateAxis);
                     if (mouse.rotateAxis == AXIS.x) {
                         selectedNode.threeObject.rotateX(rotation);
-                        selectedNode.grips.rotateX(rotation);
                     }
                     if (mouse.rotateAxis == AXIS.y) {
                         selectedNode.threeObject.rotateY(rotation);
-                        selectedNode.grips.rotateY(rotation);
 
                     }
                     if (mouse.rotateAxis == AXIS.z) {
                         selectedNode.threeObject.rotateZ(rotation);
-                        selectedNode.grips.rotateZ(rotation);
                     }
+                    updateGrips(selectedNode);
                 }
             }
             if (mouse.dz < 0) { // Scroll wheel
@@ -583,9 +578,9 @@ function update() {
                 }
                 if (mouse.moveAxis != AXIS.none || mouse.rotateAxis != AXIS.none) {
                     var worldPos = new THREE.Vector3();
-                    mouse.pickedObject.parent.parent.nodeObject.getWorldPosition(worldPos);
+                    selectedNode.threeObject.getWorldPosition(worldPos);
                     var worldDir = new THREE.Quaternion();
-                    mouse.pickedObject.parent.parent.nodeObject.getWorldQuaternion(worldDir);
+                    selectedNode.threeObject.getWorldQuaternion(worldDir);
                     var pickedAxis;
                     var a, b;
                     if (mouse.moveAxis == AXIS.x) {
@@ -651,6 +646,15 @@ function update() {
             mouse.dz = 0;
         }
     });
+}
+
+function updateGrips(node) {
+    var worldPos = new THREE.Vector3();
+    var worldQ = new THREE.Quaternion();
+    node.threeObject.getWorldPosition(worldPos);
+    node.threeObject.getWorldQuaternion(worldQ);
+    grips.position.copy(worldPos);
+    grips.quaternion.copy(worldQ);
 }
 
 function getScreenTranslation(mouse) {
@@ -731,7 +735,6 @@ $(function() {
     updateTree();
     var defaultCamera = createCameraEditor('default camera', sceneTree, undefined, 0, 45);
     defaultCamera.threeObject.position.z = 500;
-    defaultCamera.grips.position.z = 500;
     loadModel(cubeModel, 'default-cube');
     createModelEditor('default-cube', 'default cube', sceneTree);
     gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
