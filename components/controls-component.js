@@ -8,7 +8,7 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
             <button type='button' class='btn btn-sm' onclick='play()'>Play</button>
             <button type='button' class='btn btn-sm' onclick='pause()'>Pause</button>
             <button type='button' class='btn btn-sm' onclick='stop()'>Stop</button><br>
-            <button type='button' class='btn btn-sm' onclick='seekTimeInput()'>Seek to Time:</button>
+            <button type='button' class='btn btn-sm' onclick='seekTimeInput()'>Seek To Time:</button>
             <input type='number' name='seek-to-time' id='seek-to-time' value='0' placeholder='time'><br>
             <hr>
             <div>For All Nodes</div>
