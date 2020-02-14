@@ -11,6 +11,8 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
             <button type='button' class='btn btn-sm' onclick='seekTimeInput()'>Seek To Time:</button>
             <input type='number' name='seek-to-time' id='seek-to-time' value='0' placeholder='time'><br>
             <hr>
+            <button type='button' class='btn btn-sm' onclick='copyKeyframe()'>Copy Keyframe To Time</button>
+            <input type='number' name='copy-to-time' id='copy-to-time' placeholder='time'><br>
             <div>For All Nodes</div>
             <button type='button' class='btn btn-sm' onclick='removeKeyframe()'>Remove Keyframe</button><br>
             <button type='button' class='btn btn-sm' onclick='seekNext(null)'>Seek Next Keyframe</button><br>
@@ -102,6 +104,20 @@ function setKeyframeNode() {
     updateTimeline();
 }
 
+function copyKeyframe() {
+    var time = timeline.getCustomTime('playhead').getTime();
+    var kf = getKeyframe(time);
+    if (kf == null) {
+        alert('No keyframe at current time. Seek to a time with a keyframe to copy');
+        return;
+    }
+    var copyTime = parseInt($('#copy-to-time').val());
+    var kfCopy = JSON.parse(JSON.stringify(kf));
+    kfCopy.time = copyTime;
+    keyframes.push(kfCopy);
+    updateTimeline();
+}
+
 function removeKeyframeNode() {
     var time = timeline.getCustomTime('playhead').getTime();
     var kf = getKeyframe(time);
@@ -130,6 +146,8 @@ function removeKeyframeNode() {
         }
     }
     seekTime(time);
+    updateGrips();
+    updateProperties();
     updateTimeline();
 }
 
@@ -143,6 +161,8 @@ function removeKeyframe() {
         }
     }
     seekTime(time);
+    updateGrips();
+    updateProperties();
     updateTimeline();
 }
 
@@ -164,6 +184,8 @@ function seekNext(node) {
     });
     if (newTime != -1) {
         seekTime(newTime);
+        updateProperties();
+        updateGrips();
     }
 }
 
@@ -185,6 +207,8 @@ function seekPrevious(node) {
     });
     if (newTime != -1) {
         seekTime(newTime);
+        updateProperties();
+        updateGrips();
     }
 }
 
@@ -215,6 +239,8 @@ function seekTimeInput() {
         return;
     }
     seekTime(time);
+    updateProperties();
+    updateGrips();
 }
 
 function play() {
@@ -252,6 +278,8 @@ function pause() {
 function stop() {
     pause();
     seekTime(0);
+    updateProperties();
+    updateGrips();
 }
 
 function setKeyframeCamera() {

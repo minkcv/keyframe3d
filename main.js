@@ -152,8 +152,7 @@ function loadSettings(newSettings) {
 function selectNode(id) {
     var treeNode = $('#scene-tree').tree('getNodeById', id);
     $('#scene-tree').tree('selectNode', treeNode);
-    var node = findNode(id);
-    updateGrips(node);
+    updateGrips();
     updateProperties();
 }
 
@@ -524,7 +523,7 @@ function update() {
                     if (mouse.rotateAxis == AXIS.z) {
                         selectedNode.threeObject.rotateZ(rotation);
                     }
-                    updateGrips(selectedNode);
+                    updateGrips();
                 }
             }
             if (mouse.dz < 0) { // Scroll wheel
@@ -647,7 +646,11 @@ function update() {
     });
 }
 
-function updateGrips(node) {
+function updateGrips() {
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    if (treeNode == false)
+        return;
+    var node = findNode(treeNode.id);
     var worldPos = new THREE.Vector3();
     var worldQ = new THREE.Quaternion();
     node.threeObject.getWorldPosition(worldPos);
