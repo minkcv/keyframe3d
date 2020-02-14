@@ -378,6 +378,8 @@ function update() {
                         child.material = whiteLineMat;
                     if (child.wallObj)
                         child.material = wallMat;
+                    if (child.cameraModel)
+                        child.visible = false;
                 });
             });
             var camera;
