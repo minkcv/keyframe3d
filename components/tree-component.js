@@ -26,6 +26,10 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
             }
             if (newParent.id == oldParent.id)
                 return; // Node was just reordered
+            if (event.move_info.position == 'before' || event.move_info.position == 'after') {
+                var neighborNode = findNode(event.move_info.target_node.id);
+                newParent = getParentNode(neighborNode);
+            }
             for (var i = 0; i < oldParent.children.length; i++) {
                 if (oldParent.children[i].id == movedNode.id) {
                     oldParent.children.splice(i, 1);
