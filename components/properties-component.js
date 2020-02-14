@@ -61,6 +61,9 @@ function updateProperties() {
         $('#z-scale').val(node.modelObject.scale.z.toFixed(precision));
         $('#model-properties').show();
     }
+    else
+        $('#model-properties').hide();
+        
     if (node.cameraId !== undefined) {
         $('#fov').val(node.cameraFov);
         $('#camera-properties').show();
