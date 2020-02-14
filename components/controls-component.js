@@ -62,15 +62,13 @@ function setKeyframeNode() {
             y: parseFloat(node.threeObject.quaternion.y.toFixed(precision)), 
             z: parseFloat(node.threeObject.quaternion.z.toFixed(precision)), 
             w: parseFloat(node.threeObject.quaternion.w.toFixed(precision))
+        },
+        scale: {
+            x: parseFloat(node.threeObject.scale.x.toFixed(precision)),
+            y: parseFloat(node.threeObject.scale.y.toFixed(precision)),
+            z: parseFloat(node.threeObject.scale.z.toFixed(precision))
         }
     };
-    if (node.model !== undefined) {
-        nodeKF.scale = {
-            x: parseFloat(node.modelObject.scale.x.toFixed(precision)),
-            y: parseFloat(node.modelObject.scale.y.toFixed(precision)),
-            z: parseFloat(node.modelObject.scale.z.toFixed(precision))
-        };
-    }
     if (existing == null) {
         var kf = {
             time: time,
@@ -89,8 +87,8 @@ function setKeyframeNode() {
             existingData.pos.z = nodeKF.pos.z;
             existingData.rot.x = nodeKF.rot.x;
             existingData.rot.y = nodeKF.rot.y;
-            existingData.rot.z = nodeKF.rot.w;
-            existingData.rot.w = nodeKF.rot.z;
+            existingData.rot.z = nodeKF.rot.z;
+            existingData.rot.w = nodeKF.rot.w;
             existingData.scale.x = nodeKF.scale.x;
             existingData.scale.y = nodeKF.scale.y;
             existingData.scale.z = nodeKF.scale.z;

@@ -15,16 +15,13 @@ layout.registerComponent( 'propertiesComponent', function(container, componentSt
         <input type='number' name='y-rot' id='y-rot' oninput='changeProperties()'><br>
         <label for='z-rot'>Z:</label>
         <input type='number' name='z-rot' id='z-rot' oninput='changeProperties()'><br>
-        <div id='model-properties'>
-            <hr>
-            <p>Model Scale</p>
-            <label for='x-scale'>X:</label>
-            <input type='number' name='x-scale' id='x-scale' oninput='changeProperties()'><br>
-            <label for='y-scale'>Y:</label>
-            <input type='number' name='y-scale' id='y-scale' oninput='changeProperties()'><br>
-            <label for='z-scale'>Z:</label>
-            <input type='number' name='z-scale' id='z-scale' oninput='changeProperties()'><br>
-        </div>
+        <p>Scale</p>
+        <label for='x-scale'>X:</label>
+        <input type='number' name='x-scale' id='x-scale' oninput='changeProperties()'><br>
+        <label for='y-scale'>Y:</label>
+        <input type='number' name='y-scale' id='y-scale' oninput='changeProperties()'><br>
+        <label for='z-scale'>Z:</label>
+        <input type='number' name='z-scale' id='z-scale' oninput='changeProperties()'><br>
         <div id='camera-properties'>
             <hr>
             <p>Camera</p>
@@ -55,15 +52,10 @@ function updateProperties() {
     $('#x-rot').val((node.threeObject.rotation.x * 180 / Math.PI).toFixed(precision));
     $('#y-rot').val((node.threeObject.rotation.y * 180 / Math.PI).toFixed(precision));
     $('#z-rot').val((node.threeObject.rotation.z * 180 / Math.PI).toFixed(precision));
-    if (node.model !== undefined) {
-        $('#x-scale').val(node.modelObject.scale.x.toFixed(precision));
-        $('#y-scale').val(node.modelObject.scale.y.toFixed(precision));
-        $('#z-scale').val(node.modelObject.scale.z.toFixed(precision));
-        $('#model-properties').show();
-    }
-    else
-        $('#model-properties').hide();
-        
+    $('#x-scale').val(node.threeObject.scale.x.toFixed(precision));
+    $('#y-scale').val(node.threeObject.scale.y.toFixed(precision));
+    $('#z-scale').val(node.threeObject.scale.z.toFixed(precision));
+
     if (node.cameraId !== undefined) {
         $('#fov').val(node.cameraFov);
         $('#camera-properties').show();
@@ -96,11 +88,9 @@ function changeProperties() {
     node.threeObject.rotation.x = parseFloat($('#x-rot').val() * Math.PI / 180);
     node.threeObject.rotation.y = parseFloat($('#y-rot').val() * Math.PI / 180);
     node.threeObject.rotation.z = parseFloat($('#z-rot').val() * Math.PI / 180);
-    if (node.model !== undefined) {
-        node.modelObject.scale.x = parseFloat($('#x-scale').val());
-        node.modelObject.scale.y = parseFloat($('#y-scale').val());
-        node.modelObject.scale.z = parseFloat($('#z-scale').val());
-    }
+    node.threeObject.scale.x = parseFloat($('#x-scale').val());
+    node.threeObject.scale.y = parseFloat($('#y-scale').val());
+    node.threeObject.scale.z = parseFloat($('#z-scale').val());
     if (node.cameraId !== undefined) {
         node.cameraFov = parseFloat($('#fov').val());
         node.cameraObject.fov = node.cameraFov;
@@ -112,4 +102,5 @@ function changeProperties() {
         node.wallObject.scale.x = node.wallWidth;
         node.wallObject.scale.y = node.wallHeight;
     }
+    updateGrips(node);
 }

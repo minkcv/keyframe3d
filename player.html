@@ -106,6 +106,8 @@
                 renderer.domElement.style.marginLeft = remainderWidth / 2 + 'px';
             else
                 renderer.domElement.style.marginLeft = '0px';
+            aspectWidth = Math.floor(aspectWidth);
+            aspectHeight = Math.floor(aspectHeight);
             renderer.setSize(aspectWidth, aspectHeight);
             if (settings.autoplay)
                 playPlayer();

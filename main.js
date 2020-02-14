@@ -36,14 +36,79 @@ var settings = {
 };
 
 var models = [];
+var keyframes = [];
 var sceneTree = {
     id: 0, 
     name: 'root', 
     children:[], 
     threeObject: new THREE.Object3D()
 };
-var keyframes = [];
 scene.add(sceneTree.threeObject);
+
+var grips = new THREE.Object3D();
+var axesGrips = new THREE.Object3D();
+axesGrips.visible = controlMode == CONTROLMODE.move;
+axesGrips.axesGrips = true;
+var xGripGeom = new THREE.Geometry();
+xGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
+xGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
+var xGrip = new THREE.Line(xGripGeom, redLineMat);
+xGrip.xGrip = true;
+var yGripGeom = new THREE.Geometry();
+yGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
+yGripGeom.vertices.push(new THREE.Vector3(0, 50, 0));
+var yGrip = new THREE.Line(yGripGeom, greenLineMat);
+yGrip.yGrip = true;
+var zGripGeom = new THREE.Geometry();
+// Don't make the line in the +Z direction because then
+// the object doesn't really point in a direction.
+// This comes up when calling getWorldDirection
+zGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
+zGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
+var zGrip = new THREE.Line(zGripGeom, blueLineMat);
+zGrip.rotateY(-Math.PI / 2);
+zGrip.rotateX(Math.PI / 2);
+zGrip.zGrip = true;
+axesGrips.add(xGrip);
+axesGrips.add(yGrip);
+axesGrips.add(zGrip);
+var xGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
+var xGripCone = new THREE.Mesh(xGripConeGeom, redMat);
+xGripCone.rotation.z = -Math.PI / 2;
+xGripCone.position.x = 50;
+xGripCone.xGrip = true;
+var yGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
+var yGripCone = new THREE.Mesh(yGripConeGeom, greenMat);
+yGripCone.position.y = 50;
+yGripCone.yGrip = true;
+var zGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
+var zGripCone = new THREE.Mesh(zGripConeGeom, blueMat);
+zGripCone.rotation.x = Math.PI / 2;
+zGripCone.position.z = 50;
+zGripCone.zGrip = true;
+axesGrips.add(xGripCone);
+axesGrips.add(yGripCone);
+axesGrips.add(zGripCone);
+grips.add(axesGrips);
+var rotationGrips = new THREE.Object3D();
+rotationGrips.visible = controlMode == CONTROLMODE.rotate;
+rotationGrips.rotGrips = true;
+var xRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
+var xRotate = new THREE.Mesh(xRotateGeom, redMat);
+xRotate.rotation.z = Math.PI / 2;
+xRotate.xRotGrip = true;
+var yRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
+var yRotate = new THREE.Mesh(yRotateGeom, greenMat);
+yRotate.yRotGrip = true;
+var zRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
+var zRotate = new THREE.Mesh(zRotateGeom, blueMat);
+zRotate.rotation.x = Math.PI / 2;
+zRotate.zRotGrip = true;
+rotationGrips.add(xRotate);
+rotationGrips.add(yRotate);
+rotationGrips.add(zRotate);
+grips.add(rotationGrips)
+scene.add(grips);
 
 function addViewport() {
     for (var i = 0; i < viewports.length; i++) {
@@ -87,6 +152,8 @@ function loadSettings(newSettings) {
 function selectNode(id) {
     var treeNode = $('#scene-tree').tree('getNodeById', id);
     $('#scene-tree').tree('selectNode', treeNode);
+    var node = findNode(id);
+    updateGrips(node);
     updateProperties();
 }
 
@@ -142,68 +209,6 @@ function createEmptyNodeEditor(name, parent, id) {
     }
     var nodeId = id || getNextNodeId();
     var newNode = createEmptyNodePlayer(name, parent, nodeId);
-    var axesGrips = new THREE.Object3D();
-    axesGrips.visible = controlMode == CONTROLMODE.move;
-    axesGrips.axesGrips = true;
-    var xGripGeom = new THREE.Geometry();
-    xGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
-    xGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
-    var xGrip = new THREE.Line(xGripGeom, redLineMat);
-    xGrip.xGrip = true;
-    var yGripGeom = new THREE.Geometry();
-    yGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
-    yGripGeom.vertices.push(new THREE.Vector3(0, 50, 0));
-    var yGrip = new THREE.Line(yGripGeom, greenLineMat);
-    yGrip.yGrip = true;
-    var zGripGeom = new THREE.Geometry();
-    // Don't make the line in the +Z direction because then
-    // the object doesn't really point in a direction.
-    // This comes up when calling getWorldDirection
-    zGripGeom.vertices.push(new THREE.Vector3(0, 0, 0));
-    zGripGeom.vertices.push(new THREE.Vector3(50, 0, 0));
-    var zGrip = new THREE.Line(zGripGeom, blueLineMat);
-    zGrip.rotateY(-Math.PI / 2);
-    zGrip.rotateX(Math.PI / 2);
-    zGrip.zGrip = true;
-    axesGrips.add(xGrip);
-    axesGrips.add(yGrip);
-    axesGrips.add(zGrip);
-    var xGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
-    var xGripCone = new THREE.Mesh(xGripConeGeom, redMat);
-    xGripCone.rotation.z = -Math.PI / 2;
-    xGripCone.position.x = 50;
-    xGripCone.xGrip = true;
-    var yGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
-    var yGripCone = new THREE.Mesh(yGripConeGeom, greenMat);
-    yGripCone.position.y = 50;
-    yGripCone.yGrip = true;
-    var zGripConeGeom = new THREE.ConeGeometry(5, 10, 8);
-    var zGripCone = new THREE.Mesh(zGripConeGeom, blueMat);
-    zGripCone.rotation.x = Math.PI / 2;
-    zGripCone.position.z = 50;
-    zGripCone.zGrip = true;
-    axesGrips.add(xGripCone);
-    axesGrips.add(yGripCone);
-    axesGrips.add(zGripCone);
-    newNode.threeObject.add(axesGrips);
-    var rotationGrips = new THREE.Object3D();
-    rotationGrips.visible = controlMode == CONTROLMODE.rotate;
-    rotationGrips.rotGrips = true;
-    var xRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
-    var xRotate = new THREE.Mesh(xRotateGeom, redMat);
-    xRotate.rotation.z = Math.PI / 2;
-    xRotate.xRotGrip = true;
-    var yRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
-    var yRotate = new THREE.Mesh(yRotateGeom, greenMat);
-    yRotate.yRotGrip = true;
-    var zRotateGeom = new THREE.CylinderGeometry(70, 70, 2, 30, 1, true);
-    var zRotate = new THREE.Mesh(zRotateGeom, blueMat);
-    zRotate.rotation.x = Math.PI / 2;
-    zRotate.zRotGrip = true;
-    rotationGrips.add(xRotate);
-    rotationGrips.add(yRotate);
-    rotationGrips.add(zRotate);
-    newNode.threeObject.add(rotationGrips)
     updateTree();
     selectNode(nodeId)
     log('Created empty node with name "' + name + '"');
@@ -366,10 +371,9 @@ function update() {
         if (viewport.cameraId != CAMERA.free) {
             // Render camera
             gridHelper.visible = false;
+            grips.visible = false;
             traverseTree(function(node) {
                 node.threeObject.children.forEach(function(child) {
-                    if (child.rotGrips || child.axesGrips || child.cameraModel)
-                        child.visible = false;
                     if (child.model)
                         child.material = whiteLineMat;
                     if (child.wallObj)
@@ -411,41 +415,47 @@ function update() {
                 node.threeObject.children.forEach(function(child) {
                     if (child.model)
                         child.material = whiteLineMat;
-                    if (child.axesGrips)
-                        child.visible = false;
-                    if (child.rotGrips)
-                        child.visible = false;
                     if (child.cameraModel)
                         child.visible = true;
                     if (child.wallObj)
                         child.material = editorWallMat;
                 });
             });
+            var selectedNode = null;
             var treeNode = $('#scene-tree').tree('getSelectedNode');
-            if (treeNode != false) {
-                var node = findNode(treeNode.id);
-                node.threeObject.children.forEach(function(child) {
-                    if (child.axesGrips)
-                        child.visible = controlMode == CONTROLMODE.move;
-                    if (child.rotGrips)
-                        child.visible = controlMode == CONTROLMODE.rotate;
-                });
-                traverseTree(function(node) {
-                    node.threeObject.children.forEach(function(child) {
+            if (treeNode) {
+                selectedNode = findNode(treeNode.id);
+            }
+            if (selectedNode) {
+                grips.visible = true;
+                if (selectedNode.id != 0) {
+                    grips.children.forEach(function(child) {
+                        if (child.axesGrips)
+                            child.visible = controlMode == CONTROLMODE.move;
+                        if (child.rotGrips)
+                            child.visible = controlMode == CONTROLMODE.rotate;
+                    });
+                }
+                traverseTree(function(subNode) {
+                    subNode.threeObject.children.forEach(function(child) {
                         if (child.model)
                             child.material = darkPinkLineMat;
                     });
-                }, node);
-                node.threeObject.children.forEach(function(child) {
+                }, selectedNode);
+                selectedNode.threeObject.children.forEach(function(child) {
                     if (child.model)
                         child.material = pinkLineMat;
                 });
+            }
+            else {
+                grips.visible = false;
             }
             var cameraX = viewport.camera;
             var cameraY = cameraX.children[0];
             var metaCamera = cameraY.children[0];
             // Show this camera center axes
             viewport.camera.children[1].visible = true;
+            
             var mouse = viewport.mouse;
             if (mouse.button == 2) { // Rotate view - Right click
                 cameraX.rotation.y += mouse.dx / rotateFactor;
@@ -461,9 +471,7 @@ function update() {
                 cameraX.position.add(translate);
             }
             else if (mouse.button == 0) {
-                var treeNode = $('#scene-tree').tree('getSelectedNode');
-                if (treeNode) {
-                    var selectedNode = findNode(treeNode.id);
+                if (selectedNode) {
                     var translate = getScreenTranslation(mouse);
                     var worldQ = new THREE.Quaternion();
                     selectedNode.threeObject.getWorldQuaternion(worldQ);
@@ -509,10 +517,12 @@ function update() {
                     }
                     if (mouse.rotateAxis == AXIS.y) {
                         selectedNode.threeObject.rotateY(rotation);
+
                     }
                     if (mouse.rotateAxis == AXIS.z) {
                         selectedNode.threeObject.rotateZ(rotation);
                     }
+                    updateGrips(selectedNode);
                 }
             }
             if (mouse.dz < 0) { // Scroll wheel
@@ -565,9 +575,9 @@ function update() {
                 }
                 if (mouse.moveAxis != AXIS.none || mouse.rotateAxis != AXIS.none) {
                     var worldPos = new THREE.Vector3();
-                    mouse.pickedObject.getWorldPosition(worldPos);
+                    selectedNode.threeObject.getWorldPosition(worldPos);
                     var worldDir = new THREE.Quaternion();
-                    mouse.pickedObject.parent.parent.getWorldQuaternion(worldDir);
+                    selectedNode.threeObject.getWorldQuaternion(worldDir);
                     var pickedAxis;
                     var a, b;
                     if (mouse.moveAxis == AXIS.x) {
@@ -633,6 +643,15 @@ function update() {
             mouse.dz = 0;
         }
     });
+}
+
+function updateGrips(node) {
+    var worldPos = new THREE.Vector3();
+    var worldQ = new THREE.Quaternion();
+    node.threeObject.getWorldPosition(worldPos);
+    node.threeObject.getWorldQuaternion(worldQ);
+    grips.position.copy(worldPos);
+    grips.quaternion.copy(worldQ);
 }
 
 function getScreenTranslation(mouse) {

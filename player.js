@@ -235,42 +235,24 @@ function seekTimePlayer(time) {
             var data = getKeyframeData(exact, node.id);
             if (data == null)
                 return;
-            node.threeObject.position.x = data.pos.x;
-            node.threeObject.position.y = data.pos.y;
-            node.threeObject.position.z = data.pos.z;
+            node.threeObject.position.set(data.pos.x, data.pos.y, data.pos.z);
             node.threeObject.quaternion.set(data.rot.x, data.rot.y, data.rot.z, data.rot.w);
-            if (node.model) {
-                node.modelObject.scale.x = data.scale.x;
-                node.modelObject.scale.y = data.scale.y;
-                node.modelObject.scale.z = data.scale.z;
-            }
-        })
+            node.threeObject.scale.set(data.scale.x, data.scale.y, data.scale.z);
+        });
     }
     else {
         traverseTree(function(node) {
             var before = getKeyframeBefore(time, node.id);
             var after = getKeyframeAfter(time, node.id);
             if (before.kf == null && after.kf != null) {
-                node.threeObject.position.x = after.data.pos.x;
-                node.threeObject.position.y = after.data.pos.y;
-                node.threeObject.position.z = after.data.pos.z;
+                node.threeObject.position.set(after.data.pos.x, after.data.pos.y, after.data.pos.z);
                 node.threeObject.quaternion.set(after.data.rot.x, after.data.rot.y, after.data.rot.z, after.data.rot.w);
-                if (node.model) {
-                    node.modelObject.scale.x = after.data.scale.x;
-                    node.modelObject.scale.y = after.data.scale.y;
-                    node.modelObject.scale.z = after.data.scale.z;
-                }
+                node.threeObject.scale.set(after.data.scale.x, after.data.scale.y, after.data.scale.z);
             }
             else if (before.kf != null && after.kf == null) {
-                node.threeObject.position.x = before.data.pos.x;
-                node.threeObject.position.y = before.data.pos.y;
-                node.threeObject.position.z = before.data.pos.z;
+                node.threeObject.position.set(before.data.pos.x, before.data.pos.y, before.data.pos.z);
                 node.threeObject.quaternion.set(before.data.rot.x, before.data.rot.y, before.data.rot.z, before.data.rot.w);
-                if (node.model) {
-                    node.modelObject.scale.x = before.data.scale.x;
-                    node.modelObject.scale.y = before.data.scale.y;
-                    node.modelObject.scale.z = before.data.scale.z;
-                }
+                node.threeObject.scale.set(before.data.scale.x, before.data.scale.y, before.data.scale.z);
             }
             else if (before.kf != null && after.kf != null) {
                 var alpha = (time - before.kf.time) / (after.kf.time - before.kf.time);
@@ -286,14 +268,10 @@ function seekTimePlayer(time) {
                 THREE.Quaternion.slerp(rotBefore, rotAfter, rot, alpha);
                 node.threeObject.position.set(pos.x, pos.y, pos.z);
                 node.threeObject.setRotationFromQuaternion(rot);
-                if (node.model) {
-                    var xs = before.data.scale.x + ((after.data.scale.x - before.data.scale.x) * alpha);
-                    var ys = before.data.scale.y + ((after.data.scale.y - before.data.scale.y) * alpha);
-                    var zs = before.data.scale.z + ((after.data.scale.z - before.data.scale.z) * alpha);
-                    node.modelObject.scale.x = xs;
-                    node.modelObject.scale.y = ys;
-                    node.modelObject.scale.z = zs;
-                }
+                var xs = before.data.scale.x + ((after.data.scale.x - before.data.scale.x) * alpha);
+                var ys = before.data.scale.y + ((after.data.scale.y - before.data.scale.y) * alpha);
+                var zs = before.data.scale.z + ((after.data.scale.z - before.data.scale.z) * alpha);
+                node.threeObject.scale.set(xs, ys, zs);
             }
         });
     }

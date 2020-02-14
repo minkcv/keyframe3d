@@ -150,6 +150,8 @@ function updateViewport(id) {
             viewport.renderer.domElement.style.marginLeft = remainderWidth / 2 + 'px';
         else
             viewport.renderer.domElement.style.marginLeft = '0px';
+        aspectWidth = Math.floor(aspectWidth);
+        aspectHeight = Math.floor(aspectHeight);
         viewport.renderer.setSize(aspectWidth, aspectHeight);
     }
     else {
