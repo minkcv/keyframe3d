@@ -124,6 +124,11 @@ function seekTime(time, noLog) {
     var cameraNode = seekTimePlayer(time);
     $('#current-camera').text(cameraNode.name);
     previousTime = time;
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    if (treeNode) {
+        var node = findNode(treeNode.id);
+        updateGrips(node);
+    }
     updateProperties();
 }
 
