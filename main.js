@@ -371,10 +371,9 @@ function update() {
         if (viewport.cameraId != CAMERA.free) {
             // Render camera
             gridHelper.visible = false;
+            grips.visible = false;
             traverseTree(function(node) {
                 node.threeObject.children.forEach(function(child) {
-                    if (child.rotGrips || child.axesGrips || child.cameraModel)
-                        child.visible = false;
                     if (child.model)
                         child.material = whiteLineMat;
                     if (child.wallObj)
@@ -422,18 +421,13 @@ function update() {
                         child.material = editorWallMat;
                 });
             });
-            grips.children.forEach(function(child) {
-                if (child.axesGrips)
-                    child.visible = false;
-                if (child.rotGrips)
-                    child.visible = false;
-            });
             var selectedNode = null;
             var treeNode = $('#scene-tree').tree('getSelectedNode');
             if (treeNode) {
                 selectedNode = findNode(treeNode.id);
             }
             if (selectedNode) {
+                grips.visible = true;
                 if (selectedNode.id != 0) {
                     grips.children.forEach(function(child) {
                         if (child.axesGrips)
@@ -452,6 +446,9 @@ function update() {
                     if (child.model)
                         child.material = pinkLineMat;
                 });
+            }
+            else {
+                grips.visible = false;
             }
             var cameraX = viewport.camera;
             var cameraY = cameraX.children[0];

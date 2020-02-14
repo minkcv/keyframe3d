@@ -7,19 +7,18 @@ The name 'Keyframe3D Player' is used to refer to the animation player.
 
 ## Key Concepts
 
-An animation has a length in frames, and is played at a framerate (frames per second). 
-A scene contains a tree of nodes. Nodes can be cameras, models, walls, or empty. 
-Nodes have a transform in 3D space consisting of a position and rotation.
-Nodes can be children of other nodes and inherit the transforms of their parents.
-Models have a 3D scale in the x, y, and z dimensions.
-Keyframes are data at a specific time that is used to determine the transform of nodes in the scene.
-A node's transform is determined by the keyframes with data for that node at the current time, a time before and after, or a time before or after.
-A model's scale can be keyframed, but children of the model node do not inherit the scale of the parent.
-If a node has a keyframe with data for it at the current time, then it's transform is the data in the keyframe.
-If a node has a keyframe with data for it before and after the current time, then it's transform is interpolated between the two keyframe's data.
-If a node has no keyframes with data for it then it has the default local transform (position: origin, rotation: facing toward -Z).
-A scene can have multiple cameras but the camera used at a specific time is dependent on the key camera set in the current or most recent keyframe.
-Different cameras can have different field of views, but the aspect ratio of the animation is fixed.
+* An animation has a length in frames, and is played at a framerate (frames per second). 
+* A scene contains a tree of nodes. Nodes can be cameras, models, walls, or empty. 
+* Nodes have a transform in 3D space consisting of a position, rotation, and scale.
+* Nodes can be children of other nodes and inherit the transforms of their parents.
+* Rotated nodes of non-uniformly scaled parents may be deformed.
+* Keyframes are data at a specific time that is used to determine the transform of nodes in the scene.
+* A node's transform is determined by the keyframes with data for that node at the current time, a time before and after, or a time before or after.
+* If a node has a keyframe with data for it at the current time, then it's transform is the data in the keyframe.
+* If a node has a keyframe with data for it before and after the current time, then it's transform is interpolated between the two keyframe's data.
+* If a node has no keyframes with data for it then it has the default local transform (position: origin, rotation: facing toward -Z).
+* A scene can have multiple cameras but the camera used at a specific time is dependent on the key camera set in the current or most recent keyframe.
+* Different cameras can have different field of views, but the aspect ratio of the animation is fixed.
 
 ## Welcome Screen
 
@@ -36,7 +35,7 @@ The 'Add Viewport' button opens an additional 3D viewport.
 ## Settings
 
 The Settings pane contains settings for the length (in frames) and framerate of the animation, aspect ratio of the camera, if the animation should play automatically, and if the animation should loop.
-The animation length cannot be less than 1;
+The animation length cannot be less than 1.
 The framerate cannot be greater than 60 and cannot be less than 1.
 The aspect ratio should be entered as `width:height`. 
 The 'Apply' button must be clicked after changes are made in the Settings pane.
@@ -72,7 +71,7 @@ Models can be unloaded from the project by selecting a model from the list and c
 
 ## Properties
 
-The Properties pane shows the x, y, and z position and x, y, and z rotation of the selected node. 
+The Properties pane shows the x, y, and z position, x, y, and z rotation, and x, y, and z scale of the selected node. 
 Changing the fields in the Properties pane will update the values of the selected node live.
 Changes to the position and rotation will not be saved unless a keyframe is set.
 The properties pane will show the vertical field of view (FOV) of a scene camera if one is selected.
@@ -92,7 +91,7 @@ Buttons under the heading 'For All Nodes' modify the keyframe at the current tim
 Buttons under the heading 'For Selected' modify the keyframe at the current time for the selected node.
 The 'Remove Keyframe' button removes the keyframe data from the keyframe at the current time for the selected node, or all nodes.
 The 'Seek Next Keyframe' and 'Seek Previous Keyframe' buttons set the current time to next or previous keyframe for the selected node, or for any node.
-The 'Set Keyframe' button sets the position and rotation of the selected node to the keyframe at the current time, creating a keyframe if necessary.
+The 'Set Keyframe' button sets the transform of the selected node to the keyframe at the current time, creating a keyframe if necessary.
 The 'Set Camera' button sets the key camera for the keyframe at the current time, creating a keyframe if necessary.
 
 ## Viewports
@@ -109,9 +108,9 @@ The buttons 'Recenter World' and 'Recenter Selected' move the free camera to the
 
 ## Timeline
 
-The Timeline pane shows a range of frames from 0 to the length - 1, a playhead at the current time, and dots for keyframes.
+The Timeline pane shows a range of frames from 0 to length - 1, a playhead at the current time, and dots for keyframes.
 The dots for keyframes are displayed slightly ahead of the vertical line for a time.
-Left click on the top area of the timeline with the times to seek directly to that time.
+Left click on the top area of the timeline to seek directly to that time.
 Click and drag the playhead left or right to seek to a time while updating the scene live. This is referred to as 'scrubbing'.
 Scroll the mouse wheel to zoom in or out on the timeline.
 Click and drag the timeline to pan around when zoomed in.
