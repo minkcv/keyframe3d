@@ -1,4 +1,5 @@
 var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
+var wallMat = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
 
 function getAspectRatio(str) {
     var colonIndex = str.search(':');
@@ -134,6 +135,17 @@ function createCameraPlayer(node, cameraId, fov) {
     node.threeObject.add(camera);
     node.cameraObject = camera;
     return node;
+}
+
+function createWallPlayer(node, width, height) {
+    var wallGeom = new THREE.PlaneGeometry(1, 1, 1, 1);
+    var wall = new THREE.Mesh(wallGeom, wallMat);
+    wall.wallObj = true;
+    wall.scale.x = width;
+    wall.scale.y = height;
+    node.wallWidth = width;
+    node.wallHeight = height;
+    node.threeObject.add(wall);
 }
 
 function findCamera(cameraId, startNode) {

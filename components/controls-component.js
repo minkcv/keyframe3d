@@ -6,7 +6,8 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
             <hr>
             <div>Current Time: <span id='current-time'>0</span></div>
             <button type='button' class='btn btn-sm' onclick='play()'>Play</button>
-            <button type='button' class='btn btn-sm' onclick='stop()'>Pause</button><br>
+            <button type='button' class='btn btn-sm' onclick='pause()'>Pause</button>
+            <button type='button' class='btn btn-sm' onclick='stop()'>Stop</button><br>
             <button type='button' class='btn btn-sm' onclick='seekTimeInput()'>Seek to Time:</button>
             <input type='number' name='seek-to-time' id='seek-to-time' value='0' placeholder='time'><br>
             <hr>
@@ -232,12 +233,17 @@ function play() {
     }, 1000 / settings.framerate);
 }
 
-function stop() {
+function pause() {
     playState = PLAY.stop;
     if (timerId != -1) {
         clearInterval(timerId);
         timerId = -1;
     }
+}
+
+function stop() {
+    pause();
+    seekTime(0);
 }
 
 function setKeyframeCamera() {

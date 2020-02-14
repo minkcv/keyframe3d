@@ -17,8 +17,15 @@ layout.registerComponent( 'propertiesComponent', function(container, componentSt
         <input type='number' name='z-rot' id='z-rot' oninput='changeProperties()'><br>
         <div id='camera-properties'>
             <hr>
-            <label for='fov'>FOV:</label>
+            <label for='fov'>FOV (degrees):</label>
             <input type='number' name='fov' id='fov' oninput='changeProperties()'><br>
+        </div>
+        <div id='wall-properties'>
+            <hr>
+            <label for='width'>Width:</label>
+            <input type='number' name='width' id='wall-width' oninput='changeProperties()'><br>
+            <label for='height'>Height:</label>
+            <input type='number' name='height' id='wall-height' oninput='changeProperties()'><br>
         </div>
     </div>`);
 });
@@ -42,6 +49,13 @@ function updateProperties() {
     }
     else
         $('#camera-properties').hide();
+    if (node.wallWidth !== undefined) {
+        $('#wall-width').val(node.wallWidth);
+        $('#wall-height').val(node.wallHeight);
+        $('#wall-properties').show();
+    }
+    else
+        $('#wall-properties').hide();
 }
 
 function changeProperties() {
@@ -64,5 +78,15 @@ function changeProperties() {
         node.cameraFov = parseFloat($('#fov').val());
         node.cameraObject.fov = node.cameraFov;
         node.cameraObject.updateProjectionMatrix();
+    }
+    if (node.wallWidth !== undefined) {
+        node.wallWidth = parseFloat($('#wall-width').val());
+        node.wallHeight = parseFloat($('#wall-height').val());
+        node.threeObject.children.forEach(function(obj) {
+            if (obj.wallObj) {
+                obj.scale.x = node.wallWidth;
+                obj.scale.y = node.wallHeight;
+            }
+        })
     }
 }

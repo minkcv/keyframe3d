@@ -31,6 +31,10 @@ function saveProject() {
             copy.cameraId = node.cameraId;
             copy.cameraFov = node.cameraFov;
         }
+        if (node.wallWidth !== undefined) {
+            copy.wallWidth = node.wallWidth;
+            copy.wallHeight = node.wallHeight;
+        }
         var parent = getParentNode(node);
         if (parent != null) {
             // Search our copy tree for the parent
@@ -74,20 +78,21 @@ function loadProject(files) {
             if (loadNode.id == 0) {
                 return;
             }
-            else if (loadNode.model !== undefined) {
-                var parentProject = getParentNode(loadNode, project.sceneTree);
-                var parent = findNode(parentProject.id);
-                createModelEditor(loadNode.model, loadNode.name, parent, loadNode.id);
-            }
-            else if (loadNode.cameraId !== undefined) {
-                var parentProject = getParentNode(loadNode, project.sceneTree);
-                var parent = findNode(parentProject.id);
-                createCameraEditor(loadNode.name, parent, loadNode.id, loadNode.cameraId, loadNode.cameraFov);
-            }
             else {
                 var parentProject = getParentNode(loadNode, project.sceneTree);
                 var parent = findNode(parentProject.id);
-                createEmptyNodeEditor(loadNode.name, parent, loadNode.id);
+                if (loadNode.model !== undefined) {
+                    createModelEditor(loadNode.model, loadNode.name, parent, loadNode.id);
+                }
+                else if (loadNode.cameraId !== undefined) {
+                    createCameraEditor(loadNode.name, parent, loadNode.id, loadNode.cameraId, loadNode.cameraFov);
+                }
+                else if (loadNode.wallWidth !== undefined) {
+                    createWallEditor(loadNode.name, parent, loadNode.id, loadNode.wallWidth, loadNode.wallHeight);
+                }
+                else {
+                    createEmptyNodeEditor(loadNode.name, parent, loadNode.id);
+                }
             }
         }, project.sceneTree);
         keyframes = project.keyframes;

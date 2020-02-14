@@ -11,6 +11,9 @@ layout.registerComponent( 'treeControlsComponent', function(container, component
         <br>
         <button type='button' class='btn btn-sm' onclick='addCamera()'>Create Camera</button>
         <input type='text' id='camera-node-name' placeholder='name'></input>
+        <br>
+        <button type='button' class='btn btn-sm' onclick='addWall()'>Create Wall</button>
+        <input type='text' id='wall-node-name' placeholder='name'></input>
     </div>`);
 });
 
@@ -34,4 +37,15 @@ function addCamera() {
         parent = findNode(treeNode.id);
     var name = $('#camera-node-name').val();
     createCameraEditor(name, parent);
+}
+
+function addWall() {
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    var parent;
+    if (treeNode == null)
+        parent = sceneTree;
+    else
+        parent = findNode(treeNode.id);
+    var name = $('#wall-node-name').val();
+    createWallEditor(name, parent);
 }

@@ -29,7 +29,7 @@ var config = {
                     }]
                 },{
                     type: 'component',
-                    height: 20,
+                    height: 22,
                     componentName: 'treeControlsComponent',
                     componentState: {},
                     isClosable: false,

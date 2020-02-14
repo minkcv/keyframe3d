@@ -71,17 +71,20 @@ Models can be unloaded from the project by selecting a model from the list and c
 ## Properties
 
 The Properties pane shows the x, y, and z position and x, y, and z rotation of the selected node. 
-The properties pane will also show the field of view (FOV) of a scene camera if one is selected.
 Changing the fields in the Properties pane will update the values of the selected node live.
 Changes to the position and rotation will not be saved unless a keyframe is set.
+The properties pane will show the vertical field of view (FOV) of a scene camera if one is selected.
 A change to the camera field of view is saved to the camera and is independent of keyframes.
+The properties pane will show the width and height of a wall if one is selected.
+A change to the wall dimensions is saved to the wall and is independent of keyframes.
 
 ## Controls
 
 The Controls pane contains buttons for changing between position and rotation transform controls, modifying keyframes, and for seeking around the timeline.
 The current time is displayed in frames.
 The 'Play' button causes the current time to advance at the framerate set in the settings.
-The 'Pause' button stops the playback caused by the 'Play' button.
+The 'Pause' button stops the playback at the current time.
+The 'Stop' button stops the playback and seeks to time 0.
 The 'Seek To Time' button sets the current time to the time entered into the 'time' field.
 Buttons under the heading 'For All Nodes' modify the keyframe at the current time for all nodes.
 Buttons under the heading 'For Selected' modify the keyframe at the current time for the selected node.

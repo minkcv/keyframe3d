@@ -11,6 +11,7 @@ var redMat = new THREE.MeshBasicMaterial({color: 0xff0000, side: THREE.DoubleSid
 var greenMat = new THREE.MeshBasicMaterial({color: 0x00ff00, side: THREE.DoubleSide});
 var blueMat = new THREE.MeshBasicMaterial({color: 0x0000ff, side: THREE.DoubleSide});
 var planeMat = new THREE.MeshBasicMaterial({visible: false, color: 0xcccccc, side: THREE.DoubleSide, opacity: 0.5, transparent: true});
+var editorWallMat = new THREE.MeshBasicMaterial({color: 0xcccccc, side: THREE.DoubleSide, opacity: 0.5, transparent: true});
 var gripPlaneGeom = new THREE.PlaneGeometry(10000, 10000, 1, 1);
 var gripPlane = new THREE.Mesh(gripPlaneGeom, planeMat);
 gripPlane.gripPlane = true;
@@ -326,12 +327,27 @@ function createCameraEditor(name, parent, id, cameraId, fov) {
     if (node == null)
         return;
     cameraId = cameraId || getNextCameraId();
+    fov = fov || 45;
     createCameraPlayer(node, cameraId, fov);
     var cameraGeometry = createModelGeometry(cameraModel);
     cameraGeometry.cameraModel = true;
     node.threeObject.add(cameraGeometry);
     log('Added camera with id ' + node.cameraId + ' to node "' + node.name + '"');
     updateCameraLists();
+    selectNode(node.id);
+    return node;
+}
+
+function createWallEditor(name, parent, id, width, height) {
+    var node = createEmptyNodeEditor(name, parent, id);
+    if (node == null)
+        return;
+    if (!width)
+        width = 100;
+    if (!height)
+        height = 100;
+    createWallPlayer(node, width, height);
+    log('Added wall to node "' + node.name + '"');
     selectNode(node.id);
     return node;
 }
@@ -356,6 +372,8 @@ function update() {
                         child.visible = false;
                     if (child.model)
                         child.material = whiteLineMat;
+                    if (child.wallObj)
+                        child.material = wallMat;
                 });
             });
             var camera;
@@ -399,6 +417,8 @@ function update() {
                         child.visible = false;
                     if (child.cameraModel)
                         child.visible = true;
+                    if (child.wallObj)
+                        child.material = editorWallMat;
                 });
             });
             var treeNode = $('#scene-tree').tree('getSelectedNode');
