@@ -40,10 +40,12 @@ var sceneTree = {
     id: 0, 
     name: 'root', 
     children:[], 
-    threeObject: new THREE.Object3D()
+    threeObject: new THREE.Object3D(),
+    grips: new THREE.Object3D()
 };
 var keyframes = [];
 scene.add(sceneTree.threeObject);
+scene.add(sceneTree.grips);
 
 function addViewport() {
     for (var i = 0; i < viewports.length; i++) {
@@ -142,6 +144,7 @@ function createEmptyNodeEditor(name, parent, id) {
     }
     var nodeId = id || getNextNodeId();
     var newNode = createEmptyNodePlayer(name, parent, nodeId);
+    newNode.grips = new THREE.Object3D();
     var axesGrips = new THREE.Object3D();
     axesGrips.visible = controlMode == CONTROLMODE.move;
     axesGrips.axesGrips = true;
@@ -185,7 +188,7 @@ function createEmptyNodeEditor(name, parent, id) {
     axesGrips.add(xGripCone);
     axesGrips.add(yGripCone);
     axesGrips.add(zGripCone);
-    newNode.threeObject.add(axesGrips);
+    newNode.grips.add(axesGrips);
     var rotationGrips = new THREE.Object3D();
     rotationGrips.visible = controlMode == CONTROLMODE.rotate;
     rotationGrips.rotGrips = true;
@@ -203,7 +206,9 @@ function createEmptyNodeEditor(name, parent, id) {
     rotationGrips.add(xRotate);
     rotationGrips.add(yRotate);
     rotationGrips.add(zRotate);
-    newNode.threeObject.add(rotationGrips)
+    newNode.grips.add(rotationGrips)
+    newNode.grips.nodeObject = newNode.threeObject;
+    parent.grips.add(newNode.grips);
     updateTree();
     selectNode(nodeId)
     log('Created empty node with name "' + name + '"');
@@ -411,27 +416,33 @@ function update() {
                 node.threeObject.children.forEach(function(child) {
                     if (child.model)
                         child.material = whiteLineMat;
-                    if (child.axesGrips)
-                        child.visible = false;
-                    if (child.rotGrips)
-                        child.visible = false;
                     if (child.cameraModel)
                         child.visible = true;
                     if (child.wallObj)
                         child.material = editorWallMat;
                 });
+                if (node.grips) {
+                    node.grips.children.forEach(function(child) {
+                        if (child.axesGrips)
+                            child.visible = false;
+                        if (child.rotGrips)
+                            child.visible = false;
+                    });
+                }
             });
             var treeNode = $('#scene-tree').tree('getSelectedNode');
             if (treeNode != false) {
                 var node = findNode(treeNode.id);
-                node.threeObject.children.forEach(function(child) {
-                    if (child.axesGrips)
-                        child.visible = controlMode == CONTROLMODE.move;
-                    if (child.rotGrips)
-                        child.visible = controlMode == CONTROLMODE.rotate;
-                });
-                traverseTree(function(node) {
-                    node.threeObject.children.forEach(function(child) {
+                if (node.grips) {
+                    node.grips.children.forEach(function(child) {
+                        if (child.axesGrips)
+                            child.visible = controlMode == CONTROLMODE.move;
+                        if (child.rotGrips)
+                            child.visible = controlMode == CONTROLMODE.rotate;
+                    });
+                }
+                traverseTree(function(subNode) {
+                    subNode.threeObject.children.forEach(function(child) {
                         if (child.model)
                             child.material = darkPinkLineMat;
                     });
@@ -478,6 +489,7 @@ function update() {
                         translate.projectOnVector(worldX);
                         xDir.multiplyScalar(translate.length());
                         selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, xDir);
+                        selectedNode.grips.position.addVectors(selectedNode.grips.position, xDir);
                     }
                     if (mouse.moveAxis == AXIS.y) {
                         var yDir = new THREE.Vector3(0, 1, 0);
@@ -490,6 +502,7 @@ function update() {
                         translate.projectOnVector(worldY);
                         yDir.multiplyScalar(translate.length());
                         selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, yDir);
+                        selectedNode.grips.position.addVectors(selectedNode.grips.position, yDir);
                     }
                     if (mouse.moveAxis == AXIS.z) {
                         var zDir = new THREE.Vector3(0, 0, 1);
@@ -502,16 +515,21 @@ function update() {
                         translate.projectOnVector(worldZ);
                         zDir.multiplyScalar(translate.length());
                         selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, zDir);
+                        selectedNode.grips.position.addVectors(selectedNode.grips.position, zDir);
                     }
                     var rotation = getScreenRotation(selectedNode, mouse, worldQ, mouse.rotateAxis);
                     if (mouse.rotateAxis == AXIS.x) {
                         selectedNode.threeObject.rotateX(rotation);
+                        selectedNode.grips.rotateX(rotation);
                     }
                     if (mouse.rotateAxis == AXIS.y) {
                         selectedNode.threeObject.rotateY(rotation);
+                        selectedNode.grips.rotateY(rotation);
+
                     }
                     if (mouse.rotateAxis == AXIS.z) {
                         selectedNode.threeObject.rotateZ(rotation);
+                        selectedNode.grips.rotateZ(rotation);
                     }
                 }
             }
@@ -565,9 +583,9 @@ function update() {
                 }
                 if (mouse.moveAxis != AXIS.none || mouse.rotateAxis != AXIS.none) {
                     var worldPos = new THREE.Vector3();
-                    mouse.pickedObject.getWorldPosition(worldPos);
+                    mouse.pickedObject.parent.parent.nodeObject.getWorldPosition(worldPos);
                     var worldDir = new THREE.Quaternion();
-                    mouse.pickedObject.parent.parent.getWorldQuaternion(worldDir);
+                    mouse.pickedObject.parent.parent.nodeObject.getWorldQuaternion(worldDir);
                     var pickedAxis;
                     var a, b;
                     if (mouse.moveAxis == AXIS.x) {
@@ -713,6 +731,7 @@ $(function() {
     updateTree();
     var defaultCamera = createCameraEditor('default camera', sceneTree, undefined, 0, 45);
     defaultCamera.threeObject.position.z = 500;
+    defaultCamera.grips.position.z = 500;
     loadModel(cubeModel, 'default-cube');
     createModelEditor('default-cube', 'default cube', sceneTree);
     gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);

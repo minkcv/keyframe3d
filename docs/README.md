@@ -11,8 +11,10 @@ An animation has a length in frames, and is played at a framerate (frames per se
 A scene contains a tree of nodes. Nodes can be cameras, models, walls, or empty. 
 Nodes have a transform in 3D space consisting of a position and rotation.
 Nodes can be children of other nodes and inherit the transforms of their parents.
+Models have a 3D scale in the x, y, and z dimensions.
 Keyframes are data at a specific time that is used to determine the transform of nodes in the scene.
 A node's transform is determined by the keyframes with data for that node at the current time, a time before and after, or a time before or after.
+A model's scale can be keyframed, but children of the model node do not inherit the scale of the parent.
 If a node has a keyframe with data for it at the current time, then it's transform is the data in the keyframe.
 If a node has a keyframe with data for it before and after the current time, then it's transform is interpolated between the two keyframe's data.
 If a node has no keyframes with data for it then it has the default local transform (position: origin, rotation: facing toward -Z).
