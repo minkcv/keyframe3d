@@ -66,22 +66,19 @@
                 if (loadNode.id == 0) {
                     return;
                 }
-                else if (loadNode.model !== undefined) {
-                    var parentProject = getParentNode(loadNode, project.sceneTree);
-                    var parent = findNode(parentProject.id);
-                    var node = createEmptyNodePlayer(loadNode.name, parent, loadNode.id);
-                    createModelPlayer(node, loadNode.model);
-                }
-                else if (loadNode.cameraId !== undefined) {
-                    var parentProject = getParentNode(loadNode, project.sceneTree);
-                    var parent = findNode(parentProject.id);
-                    var node = createEmptyNodePlayer(loadNode.name, parent, loadNode.id);
-                    createCameraPlayer(node, loadNode.cameraId, loadNode.cameraFov);
-                }
                 else {
                     var parentProject = getParentNode(loadNode, project.sceneTree);
                     var parent = findNode(parentProject.id);
-                    createEmptyNodePlayer(loadNode.name, parent, loadNode.id);
+                    var node = createEmptyNodePlayer(loadNode.name, parent, loadNode.id);
+                    if (loadNode.model !== undefined) {
+                        createModelPlayer(node, loadNode.model);
+                    }
+                    else if (loadNode.cameraId !== undefined) {
+                        createCameraPlayer(node, loadNode.cameraId, loadNode.cameraFov);
+                    }
+                    else if (loadNode.wallWidth !== undefined) {
+                        createWallPlayer(node, loadNode.wallWidth, loadNode.wallHeight);
+                    }
                 }
             }, project.sceneTree);
             renderer = new THREE.WebGLRenderer({antialias: true});

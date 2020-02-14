@@ -15,13 +15,25 @@ layout.registerComponent( 'propertiesComponent', function(container, componentSt
         <input type='number' name='y-rot' id='y-rot' oninput='changeProperties()'><br>
         <label for='z-rot'>Z:</label>
         <input type='number' name='z-rot' id='z-rot' oninput='changeProperties()'><br>
+        <div id='model-properties'>
+            <hr>
+            <p>Model Scale</p>
+            <label for='x-scale'>X:</label>
+            <input type='number' name='x-scale' id='x-scale' oninput='changeProperties()'><br>
+            <label for='y-scale'>Y:</label>
+            <input type='number' name='y-scale' id='y-scale' oninput='changeProperties()'><br>
+            <label for='z-scale'>Z:</label>
+            <input type='number' name='z-scale' id='z-scale' oninput='changeProperties()'><br>
+        </div>
         <div id='camera-properties'>
             <hr>
+            <p>Camera</p>
             <label for='fov'>FOV (degrees):</label>
             <input type='number' name='fov' id='fov' oninput='changeProperties()'><br>
         </div>
         <div id='wall-properties'>
             <hr>
+            <p>Wall</p>
             <label for='width'>Width:</label>
             <input type='number' name='width' id='wall-width' oninput='changeProperties()'><br>
             <label for='height'>Height:</label>
@@ -43,12 +55,19 @@ function updateProperties() {
     $('#x-rot').val((node.threeObject.rotation.x * 180 / Math.PI).toFixed(precision));
     $('#y-rot').val((node.threeObject.rotation.y * 180 / Math.PI).toFixed(precision));
     $('#z-rot').val((node.threeObject.rotation.z * 180 / Math.PI).toFixed(precision));
+    if (node.model !== undefined) {
+        $('#x-scale').val(node.modelObject.scale.x.toFixed(precision));
+        $('#y-scale').val(node.modelObject.scale.y.toFixed(precision));
+        $('#z-scale').val(node.modelObject.scale.z.toFixed(precision));
+        $('#model-properties').show();
+    }
     if (node.cameraId !== undefined) {
         $('#fov').val(node.cameraFov);
         $('#camera-properties').show();
     }
     else
         $('#camera-properties').hide();
+
     if (node.wallWidth !== undefined) {
         $('#wall-width').val(node.wallWidth);
         $('#wall-height').val(node.wallHeight);
@@ -74,6 +93,11 @@ function changeProperties() {
     node.threeObject.rotation.x = parseFloat($('#x-rot').val() * Math.PI / 180);
     node.threeObject.rotation.y = parseFloat($('#y-rot').val() * Math.PI / 180);
     node.threeObject.rotation.z = parseFloat($('#z-rot').val() * Math.PI / 180);
+    if (node.model !== undefined) {
+        node.modelObject.scale.x = parseFloat($('#x-scale').val());
+        node.modelObject.scale.y = parseFloat($('#y-scale').val());
+        node.modelObject.scale.z = parseFloat($('#z-scale').val());
+    }
     if (node.cameraId !== undefined) {
         node.cameraFov = parseFloat($('#fov').val());
         node.cameraObject.fov = node.cameraFov;
@@ -82,11 +106,7 @@ function changeProperties() {
     if (node.wallWidth !== undefined) {
         node.wallWidth = parseFloat($('#wall-width').val());
         node.wallHeight = parseFloat($('#wall-height').val());
-        node.threeObject.children.forEach(function(obj) {
-            if (obj.wallObj) {
-                obj.scale.x = node.wallWidth;
-                obj.scale.y = node.wallHeight;
-            }
-        })
+        node.wallObject.scale.x = node.wallWidth;
+        node.wallObject.scale.y = node.wallHeight;
     }
 }

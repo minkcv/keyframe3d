@@ -64,6 +64,13 @@ function setKeyframeNode() {
             w: parseFloat(node.threeObject.quaternion.w.toFixed(precision))
         }
     };
+    if (node.model !== undefined) {
+        nodeKF.scale = {
+            x: parseFloat(node.modelObject.scale.x.toFixed(precision)),
+            y: parseFloat(node.modelObject.scale.y.toFixed(precision)),
+            z: parseFloat(node.modelObject.scale.z.toFixed(precision))
+        };
+    }
     if (existing == null) {
         var kf = {
             time: time,
@@ -77,13 +84,16 @@ function setKeyframeNode() {
     else {
         var existingData = getKeyframeData(existing, node.id);
         if (existingData) {
-            existingData.pos.x = parseFloat(node.threeObject.position.x.toFixed(precision));
-            existingData.pos.y = parseFloat(node.threeObject.position.y.toFixed(precision));
-            existingData.pos.z = parseFloat(node.threeObject.position.z.toFixed(precision));
-            existingData.rot.x = parseFloat(node.threeObject.quaternion.x.toFixed(precision));
-            existingData.rot.y = parseFloat(node.threeObject.quaternion.y.toFixed(precision));
-            existingData.rot.z = parseFloat(node.threeObject.quaternion.z.toFixed(precision));
-            existingData.rot.w = parseFloat(node.threeObject.quaternion.w.toFixed(precision));
+            existingData.pos.x = nodeKF.pos.x;
+            existingData.pos.y = nodeKF.pos.y;
+            existingData.pos.z = nodeKF.pos.z;
+            existingData.rot.x = nodeKF.rot.x;
+            existingData.rot.y = nodeKF.rot.y;
+            existingData.rot.z = nodeKF.rot.w;
+            existingData.rot.w = nodeKF.rot.z;
+            existingData.scale.x = nodeKF.scale.x;
+            existingData.scale.y = nodeKF.scale.y;
+            existingData.scale.z = nodeKF.scale.z;
             log('Updated data for node "' + node.name + '" (' + node.id + ') to keyframe at ' + time);
         }
         else {
