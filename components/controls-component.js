@@ -87,8 +87,8 @@ function setKeyframeNode() {
             existingData.pos.z = nodeKF.pos.z;
             existingData.rot.x = nodeKF.rot.x;
             existingData.rot.y = nodeKF.rot.y;
-            existingData.rot.z = nodeKF.rot.w;
-            existingData.rot.w = nodeKF.rot.z;
+            existingData.rot.z = nodeKF.rot.z;
+            existingData.rot.w = nodeKF.rot.w;
             existingData.scale.x = nodeKF.scale.x;
             existingData.scale.y = nodeKF.scale.y;
             existingData.scale.z = nodeKF.scale.z;
