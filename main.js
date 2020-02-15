@@ -392,7 +392,7 @@ function update() {
                     camera = findCamera(exact.cameraId);
                 }
                 else {
-                    var before = getKeyframeBefore(time, null, true);
+                    var before = getKeyframeBefore(time, null, '', true);
                     if (before.kf != null)
                         camera = findCamera(before.kf.cameraId);
                     else

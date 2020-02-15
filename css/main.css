@@ -61,6 +61,7 @@ select, select:focus {
     background-color: #2c2c2c;
     outline-color: #2c2c2c;
     border-color: #2c2c2c;
+    margin-bottom: 5px;
 }
 #scene-tree {
     border: 1px solid #cccccc;
@@ -83,8 +84,11 @@ button {
 #welcome > input {
     width: 20px;
 }
-.settings > input, .tree-controls > input {
+.settings > input, .tree-controls > input, .controls > input {
     float: right;
+}
+input[type=checkbox] {
+    margin: 4px;
 }
 #current-camera {
     font-family: droid_sans_mono_regular;

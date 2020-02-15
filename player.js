@@ -173,12 +173,12 @@ function getKeyframe(time) {
     return found;
 }
 
-function getKeyframeBefore(time, nodeId, hasCamera) {
+function getKeyframeBefore(time, nodeId, dataType, hasCamera) {
     var found = null;
     var foundData = null;
     keyframes.forEach(function(keyframe) {
         var data = getKeyframeData(keyframe, nodeId);
-        if (data != null || hasCamera) {
+        if ((data != null && data[dataType] !== undefined) || hasCamera) {
             if (!hasCamera || keyframe.cameraId !== undefined) {
                 if (keyframe.time < time) {
                     if (found == null) {
@@ -235,42 +235,58 @@ function seekTimePlayer(time) {
             var data = getKeyframeData(exact, node.id);
             if (data == null)
                 return;
-            node.threeObject.position.set(data.pos.x, data.pos.y, data.pos.z);
-            node.threeObject.quaternion.set(data.rot.x, data.rot.y, data.rot.z, data.rot.w);
-            node.threeObject.scale.set(data.scale.x, data.scale.y, data.scale.z);
+            if (data.pos)
+                node.threeObject.position.set(data.pos.x, data.pos.y, data.pos.z);
+            if (data.rot)
+                node.threeObject.quaternion.set(data.rot.x, data.rot.y, data.rot.z, data.rot.w);
+            if (data.scale)
+                node.threeObject.scale.set(data.scale.x, data.scale.y, data.scale.z);
         });
     }
     else {
         traverseTree(function(node) {
-            var before = getKeyframeBefore(time, node.id);
-            var after = getKeyframeAfter(time, node.id);
-            if (before.kf == null && after.kf != null) {
-                node.threeObject.position.set(after.data.pos.x, after.data.pos.y, after.data.pos.z);
-                node.threeObject.quaternion.set(after.data.rot.x, after.data.rot.y, after.data.rot.z, after.data.rot.w);
-                node.threeObject.scale.set(after.data.scale.x, after.data.scale.y, after.data.scale.z);
-            }
-            else if (before.kf != null && after.kf == null) {
-                node.threeObject.position.set(before.data.pos.x, before.data.pos.y, before.data.pos.z);
-                node.threeObject.quaternion.set(before.data.rot.x, before.data.rot.y, before.data.rot.z, before.data.rot.w);
-                node.threeObject.scale.set(before.data.scale.x, before.data.scale.y, before.data.scale.z);
-            }
-            else if (before.kf != null && after.kf != null) {
-                var alpha = (time - before.kf.time) / (after.kf.time - before.kf.time);
-                var posBefore = new THREE.Vector3(before.data.pos.x, before.data.pos.y, before.data.pos.z);
-                var posAfter = new THREE.Vector3(after.data.pos.x, after.data.pos.y, after.data.pos.z);
-                var rotBefore = new THREE.Quaternion(before.data.rot.x, before.data.rot.y, before.data.rot.z, before.data.rot.w);
-                var rotAfter = new THREE.Quaternion(after.data.rot.x, after.data.rot.y, after.data.rot.z, after.data.rot.w);
+            var beforePos = getKeyframeBefore(time, node.id, 'pos');
+            var beforeRot = getKeyframeBefore(time, node.id, 'rot');
+            var beforeScale = getKeyframeBefore(time, node.id, 'scale');
+            var afterPos = getKeyframeAfter(time, node.id, 'pos');
+            var afterRot = getKeyframeAfter(time, node.id, 'rot');
+            var afterScale = getKeyframeAfter(time, node.id, 'scale');
+            if (afterPos && !beforePos)
+                node.threeObject.position.set(afterPos.data.pos.x, afterPos.data.pos.y, afterPos.data.pos.z);
+            if (afterRot.data && !beforeRot.data)
+                node.threeObject.quaternion.set(afterRot.data.rot.x, afterRot.data.rot.y, afterRot.data.rot.z, afterRot.data.rot.w);
+            if (afterScale.data && !beforeScale.data)
+                node.threeObject.scale.set(afterScale.data.scale.x, afterScale.data.scale.y, afterScale.data.scale.z);
+            if (beforePos.data && !afterPos.data)
+                node.threeObject.position.set(beforePos.data.pos.x, beforePos.data.pos.y, beforePos.data.pos.z);
+            if (beforeRot.data && !afterRot.data)
+                node.threeObject.quaternion.set(beforeRot.data.rot.x, beforeRot.data.rot.y, beforeRot.data.rot.z, beforeRot.data.rot.w);
+            if (beforeScale.data && !afterScale.data)
+                node.threeObject.scale.set(beforeScale.data.scale.x, beforeScale.data.scale.y, beforeScale.data.scale.z);
+            if (beforePos.data && afterPos.data) {
+                var alpha = (time - beforePos.kf.time) / (afterPos.kf.time - beforePos.kf.time);
+                var posBefore = new THREE.Vector3(beforePos.data.pos.x, beforePos.data.pos.y, beforePos.data.pos.z);
+                var posAfter = new THREE.Vector3(afterPos.data.pos.x, afterPos.data.pos.y, afterPos.data.pos.z);
                 var pos = new THREE.Vector3();
-                var rot = new THREE.Quaternion();
                 pos.lerpVectors(posBefore, posAfter, alpha);
+                node.threeObject.position.set(pos.x, pos.y, pos.z);
+            }
+            if (beforeRot.data && afterRot.data) {
+                var alpha = (time - beforeRot.kf.time) / (afterRot.kf.time - beforeRot.kf.time);
+                var rotBefore = new THREE.Quaternion(beforeRot.data.rot.x, beforeRot.data.rot.y, beforeRot.data.rot.z, beforeRot.data.rot.w);
+                var rotAfter = new THREE.Quaternion(afterRot.data.rot.x, afterRot.data.rot.y, afterRot.data.rot.z, afterRot.data.rot.w);
+                var rot = new THREE.Quaternion();
                 rotBefore.normalize();
                 rotAfter.normalize();
                 THREE.Quaternion.slerp(rotBefore, rotAfter, rot, alpha);
-                node.threeObject.position.set(pos.x, pos.y, pos.z);
                 node.threeObject.setRotationFromQuaternion(rot);
-                var xs = before.data.scale.x + ((after.data.scale.x - before.data.scale.x) * alpha);
-                var ys = before.data.scale.y + ((after.data.scale.y - before.data.scale.y) * alpha);
-                var zs = before.data.scale.z + ((after.data.scale.z - before.data.scale.z) * alpha);
+
+            }
+            if (afterScale.data && beforeScale.data) {
+                var alpha = (time - beforeScale.kf.time) / (afterScale.kf.time - beforeScale.kf.time);
+                var xs = beforeScale.data.scale.x + ((afterScale.data.scale.x - beforeScale.data.scale.x) * alpha);
+                var ys = beforeScale.data.scale.y + ((afterScale.data.scale.y - beforeScale.data.scale.y) * alpha);
+                var zs = beforeScale.data.scale.z + ((afterScale.data.scale.z - beforeScale.data.scale.z) * alpha);
                 node.threeObject.scale.set(xs, ys, zs);
             }
         });
@@ -279,7 +295,7 @@ function seekTimePlayer(time) {
     if (exact != null && exact.cameraId !== undefined)
         cameraNode = findCamera(exact.cameraId);
     else {
-        var before = getKeyframeBefore(time, null, true)
+        var before = getKeyframeBefore(time, null, '', true)
         if (before.kf != null)
             cameraNode = findCamera(before.kf.cameraId);
         else
