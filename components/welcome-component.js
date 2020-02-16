@@ -4,7 +4,7 @@ layout.registerComponent('welcomeComponent', function(container, componentState)
         <h1>Keyframe3D</h1>
         <p>
             Keyframe3D is a web application for creating 3D animations with wireframe graphics. <br>
-            Documentation is available in the  <a href='https://github.com/minkcv/keyframe3d/docs' target="_blank">/docs</a> folder in the repo. <br>
+            Documentation is available in the  <a href='https://github.com/minkcv/keyframe3d/tree/master/docs' target="_blank">/docs</a> folder in the repo. <br>
             Sample projects are avilable in the <a href='https://github.com/minkcv/keyframe3d/tree/master/demos' target="_blank">/demos</a> folder in the repo. <br>
             Sample projects can be viewed at <a href='https://minkcv.github.io/keyframe3d/demos/' target="_blank">https://minkcv.github.io/keyframe3d/demos/</a>. <br>
             Models are created with the application <a href='https://minkcv.github.io/line3d' target="_blank">Line3D</a>. <br>
