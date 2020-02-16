@@ -11,3 +11,4 @@ The finished project for this tutorial is available in the demos folder
 7. Select the Scene Tree pane.
 8. Select `default cube` in the Scene Tree.
 9. Click 'Delete Node' in the Scene Tree Controls pane.
+

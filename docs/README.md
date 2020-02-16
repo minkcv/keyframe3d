@@ -13,6 +13,7 @@ The name 'Keyframe3D Player' is used to refer to the animation player.
 * Nodes can be children of other nodes and inherit the transforms of their parents.
 * Rotated nodes of non-uniformly scaled parents may be deformed.
 * Keyframes are data at a specific time that is used to determine the transform of nodes in the scene.
+* A keyframe may contain position, rotation, and/or scale data.
 * A node's transform is determined by the keyframes with data for that node at the current time, a time before and after, or a time before or after.
 * If a node has a keyframe with data for it at the current time, then it's transform is the data in the keyframe.
 * If a node has a keyframe with data for it before and after the current time, then it's transform is interpolated between the two keyframe's data.
@@ -87,12 +88,14 @@ The 'Play' button causes the current time to advance at the framerate set in the
 The 'Pause' button stops the playback at the current time.
 The 'Stop' button stops the playback and seeks to time 0.
 The 'Seek To Time' button sets the current time to the time entered into the 'time' field.
-Buttons under the heading 'For All Nodes' modify the keyframe at the current time for all nodes.
-Buttons under the heading 'For Selected' modify the keyframe at the current time for the selected node.
-The 'Remove Keyframe' button removes the keyframe data from the keyframe at the current time for the selected node, or all nodes.
-The 'Seek Next Keyframe' and 'Seek Previous Keyframe' buttons set the current time to next or previous keyframe for the selected node, or for any node.
-The 'Set Keyframe' button sets the transform of the selected node to the keyframe at the current time, creating a keyframe if necessary.
-The 'Set Camera' button sets the key camera for the keyframe at the current time, creating a keyframe if necessary.
+Buttons for modifying or seeking to keyframes are dependent on the settings for which nodes and what data.
+Keyframes can be modified for 'All Nodes', the 'Selected' node, or the 'Selected And Child' nodes from the drop down menu.
+Keyframes can be modified for any combination of 'Position', 'Rotation', and/or 'Scaling'.
+A keyframe can be set at the current time using the 'Set Keyframe' button.
+The current keyframe data can be copied to a keyframe at another time using the 'Copy Keyframe' button and the 'time' field.
+The current keyframe data can be removed using the 'Remove Keyframe' button.
+The current time can be moved to the next or previous keyframe that contains data using the 'Seek Next Keyframe' and 'Seek Previous Keyframe' buttons.
+The key camera can be set at the current time using the 'Set Camera' button and using the drop down menu to select the camera.
 
 ## Viewports
 
