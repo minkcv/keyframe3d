@@ -81,14 +81,14 @@ function setKeyframe() {
     }
     var existing = getKeyframe(time);
     var nodesData = [];
-    var nodeNames = '';
+    var nodeNames = '"';
     var kfPosition = $('#kf-position').prop('checked');
     var kfRotation = $('#kf-rotation').prop('checked');
     var kfScale = $('#kf-scale').prop('checked');
     nodes.forEach(function(node) {
         if (node.id == 0)
             return;
-        nodeNames += '" ' + node.name;
+        nodeNames += node.name + '" ';
         var nodeKF = getNodeData(node, kfPosition, kfRotation, kfScale);
         nodesData.push(nodeKF);
     });
@@ -98,7 +98,7 @@ function setKeyframe() {
             nodes: nodesData
         };
         keyframes.push(kf);
-        log('Created new keyframe at ' + time + ' with data for nodes "' + nodeNames + '"');
+        log('Created new keyframe at ' + time + ' with data for nodes ' + nodeNames);
     }
     else {
         nodesData.forEach(function(data) {
@@ -118,7 +118,7 @@ function setKeyframe() {
                 existing.nodes.push(data);
             }
         });
-        log('Updated keyframe data for nodes ' + nodeNames + '"');
+        log('Updated keyframe data for nodes ' + nodeNames);
     }
     updateTimeline();
 }
@@ -167,7 +167,8 @@ function copyKeyframe() {
     var kfExisting = getKeyframe(copyTime);
     if (kfExisting == null) {
         kfExisting = {
-            time: copyTime
+            time: copyTime,
+            nodes: []
         };
         keyframes.push(kfExisting);
     }
@@ -205,7 +206,15 @@ function copyKeyframe() {
                 existingData.scale = nodeData.scale;
         }
         else {
-            kfNewNodeData.push(newData);
+            var newData = {id: node.id};
+            if (kfPosition)
+                newData.pos = nodeData.pos;
+            if (kfRotation)
+                newData.rot = nodeData.rot;
+            if (kfScale)
+                newData.scale = nodeData.scale;
+            if (kfPosition || kfRotation || kfScale)
+                kfNewNodeData.push(newData);
         }
     });
     kfNewNodeData.forEach(function(newData) {
@@ -234,6 +243,7 @@ function removeKeyframe() {
         alert('Select a node to remove a keyframe');
         return;
     }
+    var nodeNames = '"';
     kf.nodes.forEach(function(node) {
         if (kfWhatNodes == 'selected-and-children') {
             var skip = true;
@@ -248,6 +258,8 @@ function removeKeyframe() {
             if (node.id != treeNode.id || node.id == 0)
                 return;
         }
+        var sceneNode = findNode(node.id);
+        nodeNames += + sceneNode.name + '" ';
         if (kfPosition)
             node.pos = undefined;
         if (kfRotation)
@@ -257,8 +269,9 @@ function removeKeyframe() {
     });
     for (var i = 0; i < kf.nodes.length; i++) {
         if (kf.nodes[i].pos === undefined && kf.nodes[i].rot === undefined && kf.nodes[i].scale == undefined) {
-            log('Removed data from keyframe at' + time + ' for node "' + node.name + '" (' + node.id + ')');
+            log('Removed data from keyframe at ' + time + ' for nodes ' + nodeNames);
             kf.nodes.splice(i, 1);
+            i--;
         }
     }
     for (var i = 0; i < keyframes.length; i++) {
@@ -286,34 +299,39 @@ function seekNextPrevious(next) {
     if (treeNode != false)
         selectedNode = findNode(treeNode.id);
     keyframes.forEach(function(kf) {
-        var data = null;
-        if (selectedNode != null)
-            data = getKeyframeData(kf, treeNode.id);
-        if ((selectedNode == null && kfWhatNodes == 'all-nodes') || data != null) {
-            if (kfWhatNodes != 'all-nodes') {
+        if (kfWhatNodes == 'all-nodes') {
+            if ((next && kf.time > time) || (!next && kf.time < time)) {
+                if (newTime == -1)
+                    newTime = kf.time;
+                else if ((next && kf.time < newTime) || (!next && kf.time > newTime))
+                   newTime = kf.time;
+            }
+        }
+        else {
+            if (!kf.nodes)
+                return;
+            kf.nodes.forEach(function(nodeData) {
                 var skip = true;
                 if (kfWhatNodes == 'selected-and-children') {
                     traverseTree(function(other) {
-                        if (other.id == node.id)
+                        if (other.id == nodeData.id)
                             skip = false;
                     }, selectedNode);
                 }
-                else if (kfWhatNodes == 'selected-node'){
-                    if (node.id == selectedNode.id)
-                        skip = false;
-                }
+                else if (nodeData.id == selectedNode.id)
+                    skip = false;
                 if (skip)
                     return;
-            }
-            
-            if ((data.pos && kfPosition) || (data.rot && kfRotation) || (data.scale && kfScale)) {
-                if ((next && kf.time > time) || (!next && kf.time < time)) {
-                    if (newTime == -1)
-                        newTime = kf.time;
-                    else if (newTime > kf.time)
-                       newTime = kf.time;
+                
+                if ((nodeData.pos && kfPosition) || (nodeData.rot && kfRotation) || (nodeData.scale && kfScale)) {
+                    if ((next && kf.time > time) || (!next && kf.time < time)) {
+                        if (newTime == -1)
+                            newTime = kf.time;
+                        else if ((next && kf.time < newTime) || (!next && kf.time > newTime))
+                           newTime = kf.time;
+                    }
                 }
-            }
+            });
         }
     });
     if (newTime != -1) {
