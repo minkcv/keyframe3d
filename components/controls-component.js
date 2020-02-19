@@ -15,7 +15,7 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
                 <span>Set Keyframe For:</span>
                 <select id='keyframe-what-nodes'>
                     <option value='all-nodes'>All Nodes</option>
-                    <option value='selected-and-children'>Selected And Child</option>
+                    <option value='selected-and-children'>Selected And Children</option>
                     <option value='selected-node'>Selected</option>
                 </select>
             </div>
@@ -29,6 +29,8 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
             <button type='button' class='btn btn-sm' onclick='setKeyframe()'>Set Keyframe</button><br>
             <button type='button' class='btn btn-sm' onclick='copyKeyframe()'>Copy Keyframe To Time</button>
             <input type='number' name='copy-to-time' id='copy-to-time' placeholder='time'><br>
+            <button type='button' class='btn btn-sm' onclick='shiftKeyframes()'>Shift Keyframes</button>
+            <input type='number' name='shift-by-time' id='shift-by-time' placeholder='time'><br>
             <button type='button' class='btn btn-sm' onclick='removeKeyframe()'>Remove Keyframe</button><br>
             <button type='button' class='btn btn-sm' onclick='seekNext()'>Seek Next Keyframe</button><br>
             <button type='button' class='btn btn-sm' onclick='seekPrevious()'>Seek Previous Keyframe</button><br>
@@ -120,6 +122,108 @@ function setKeyframe() {
         });
         log('Updated keyframe data for nodes ' + nodeNames);
     }
+    updateTimeline();
+}
+
+function shiftKeyframes() {
+    var shiftBy = parseInt($('#shift-by-time').val());
+    var kfWhatNodes = $('#keyframe-what-nodes').val();
+    var kfPosition = $('#kf-position').prop('checked');
+    var kfRotation = $('#kf-rotation').prop('checked');
+    var kfScale = $('#kf-scale').prop('checked');
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    var selectedNode = null;
+    var nodeNames = '"';
+    if (treeNode != false)
+        selectedNode = findNode(treeNode.id);
+    var newKeyframes = {};
+    for (var i = 0; i < keyframes.length; i++) {
+        var kf = keyframes[i];
+        var currentTime = kf.time;
+        var newTime = currentTime + shiftBy;
+        if (newTime < 0) {
+            log('The keyframe at time ' + currentTime + ' was moved to a negative time and was removed', 'warning');
+            keyframes.splice(i, 1);
+            i--;
+        }
+        if (newTime >= settings.length) {
+            log('The keyframe at time ' + currentTime + ' was moved to a time past the animation length', 'warning');
+        }
+        var newKF = {time: newTime, nodes: []};
+        if (kfWhatNodes == 'selected-node') {
+            var data = getKeyframeData(kf, selectedNode.id);
+            if (data == null)
+                return;
+            nodeNames += selectedNode.name + '" ';
+            var newData = {id: selectedNode.id};
+            if (kfPosition && data.pos)
+                newData.pos = JSON.parse(JSON.stringify(data.pos));
+            if (kfRotation && data.rot)
+                newData.rot = JSON.parse(JSON.stringify(data.rot));
+            if (kfScale && data.scale)
+                newData.scale = JSON.parse(JSON.stringify(data.scale));
+            newKF.nodes.push(newData);
+        }
+        else {
+            if (kfWhatNodes == 'all-nodes')
+                selectedNode = findNode(0);
+            traverseTree(function(node) {
+                var data = getKeyframeData(kf, node.id);
+                if (data == null)
+                    return;
+                nodeNames += node.name + '" ';
+                var newData = {id: node.id};
+                if (kfPosition && data.pos)
+                    newData.pos = JSON.parse(JSON.stringify(data.pos));
+                if (kfRotation && data.rot)
+                    newData.rot = JSON.parse(JSON.stringify(data.rot));
+                if (kfScale && data.scale)
+                    newData.scale = JSON.parse(JSON.stringify(data.scale));
+                newKF.nodes.push(newData);
+            }, selectedNode);
+        }
+        newKeyframes[currentTime.toString()] = newKF;
+    };
+    Object.keys(newKeyframes).forEach(function(key) {
+        var oldTime = parseInt(key);
+        var newKF = newKeyframes[key];
+        var oldKF = getKeyframe(oldTime);
+        newKF.nodes.forEach(function(node) {
+            var data = getKeyframeData(oldKF, node.id);
+            if (data == null)
+                return;
+            if (kfPosition)
+                data.pos = undefined;
+            if (kfRotation)
+                data.rot = undefined;
+            if (kfScale)
+                data.scale = undefined;
+        });
+    });
+    Object.keys(newKeyframes).forEach(function(key) {
+        var oldTime = parseInt(key);
+        var newKF = newKeyframes[key];
+        var existingKF = getKeyframe(newKF.time);
+        if (existingKF == null) {
+            existingKF = {time: newKF.time, nodes: []};
+            keyframes.push(existingKF);
+        }
+        newKF.nodes.forEach(function(node) {
+            var data = getKeyframeData(existingKF, node.id);
+            if (data == null) {
+                var data = {id: node.id};
+                existingKF.nodes.push(data);
+            }
+            if (kfPosition)
+                data.pos = node.pos;
+            if (kfRotation)
+                data.rot = node.rot;
+            if (kfScale)
+                data.scale = node.scale;
+        });
+    });
+    log('Shifted time for data for nodes ' + nodeNames);
+    cleanKeyframes(nodeNames);
     updateTimeline();
 }
 
@@ -267,24 +371,31 @@ function removeKeyframe() {
         if (kfScale)
             node.scale = undefined;
     });
-    for (var i = 0; i < kf.nodes.length; i++) {
-        if (kf.nodes[i].pos === undefined && kf.nodes[i].rot === undefined && kf.nodes[i].scale == undefined) {
-            log('Removed data from keyframe at ' + time + ' for nodes ' + nodeNames);
-            kf.nodes.splice(i, 1);
-            i--;
-        }
-    }
-    for (var i = 0; i < keyframes.length; i++) {
-        if (keyframes[i].nodes.length == 0) {
-            log('Removed keyframe at' + time);
-            keyframes.splice(i, 1);
-            break;
-        }
-    }
+    cleanKeyframes(nodeNames);
     seekTime(time);
     updateGrips();
     updateProperties();
     updateTimeline();
+}
+
+function cleanKeyframes(nodeNames) {
+    for (var i = 0; i < keyframes.length; i++) {
+        var kf = keyframes[i];
+        for (var n = 0; n < kf.nodes.length; n++) {
+            if (kf.nodes[n].pos === undefined && kf.nodes[n].rot === undefined && kf.nodes[n].scale == undefined) {
+                log('Removed data from keyframe at ' + kf.time + ' for nodes ' + nodeNames);
+                kf.nodes.splice(n, 1);
+                n--;
+            }
+        }
+    }
+    for (var i = 0; i < keyframes.length; i++) {
+        if (keyframes[i].nodes.length == 0) {
+            log('Removed keyframe at ' + keyframes[i].time);
+            keyframes.splice(i, 1);
+            i--;
+        }
+    }
 }
 
 function seekNextPrevious(next) {
