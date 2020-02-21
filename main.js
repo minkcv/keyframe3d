@@ -421,6 +421,9 @@ function update() {
                         child.material = editorWallMat;
                 });
             });
+            var cameraX = viewport.camera;
+            var cameraY = cameraX.children[0];
+            var metaCamera = cameraY.children[0];
             var selectedNode = null;
             var treeNode = $('#scene-tree').tree('getSelectedNode');
             if (treeNode != false) {
@@ -428,7 +431,7 @@ function update() {
             }
             if (selectedNode) {
                 if (selectedNode.id != 0) {
-                    updateGrips(selectedNode);
+                    updateGrips(selectedNode, metaCamera.zoom);
                 }
                 traverseTree(function(subNode) {
                     subNode.threeObject.children.forEach(function(child) {
@@ -444,9 +447,7 @@ function update() {
             else {
                 grips.visible = false;
             }
-            var cameraX = viewport.camera;
-            var cameraY = cameraX.children[0];
-            var metaCamera = cameraY.children[0];
+            
             // Show this camera center axes
             viewport.camera.children[1].visible = true;
             
@@ -526,7 +527,7 @@ function update() {
                 metaCamera.zoom *= 1 - zoomSpeed;
                 metaCamera.updateProjectionMatrix();
             }
-
+            viewport.renderer.render(scene, metaCamera);
             if (mouse.down && mouse.button == 0) {
                 var div = viewport.div[0];
                 var mouseVec = new THREE.Vector2();
@@ -629,7 +630,6 @@ function update() {
                 }
                 updateProperties();
             }
-            viewport.renderer.render(scene, metaCamera);
             
             mouse.dx = 0;
             mouse.dy = 0;
@@ -638,7 +638,7 @@ function update() {
     });
 }
 
-function updateGrips(selectedNode) {
+function updateGrips(selectedNode, zoom) {
     if (selectedNode.id == 0) {
         grips.visible = false;
         return;
@@ -650,7 +650,9 @@ function updateGrips(selectedNode) {
     selectedNode.threeObject.getWorldQuaternion(worldQ);
     grips.position.copy(worldPos);
     grips.quaternion.copy(worldQ);
+    var scale = 1 / zoom;
     grips.children.forEach(function(child) {
+        child.scale.set(scale, scale, scale);
         if (child.axesGrips)
             child.visible = controlMode == CONTROLMODE.move;
         if (child.rotGrips)
