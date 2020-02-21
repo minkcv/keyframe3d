@@ -152,7 +152,6 @@ function loadSettings(newSettings) {
 function selectNode(id) {
     var treeNode = $('#scene-tree').tree('getNodeById', id);
     $('#scene-tree').tree('selectNode', treeNode);
-    updateGrips();
     updateProperties();
 }
 
@@ -424,18 +423,12 @@ function update() {
             });
             var selectedNode = null;
             var treeNode = $('#scene-tree').tree('getSelectedNode');
-            if (treeNode) {
+            if (treeNode != false) {
                 selectedNode = findNode(treeNode.id);
             }
             if (selectedNode) {
-                grips.visible = true;
                 if (selectedNode.id != 0) {
-                    grips.children.forEach(function(child) {
-                        if (child.axesGrips)
-                            child.visible = controlMode == CONTROLMODE.move;
-                        if (child.rotGrips)
-                            child.visible = controlMode == CONTROLMODE.rotate;
-                    });
+                    updateGrips(selectedNode);
                 }
                 traverseTree(function(subNode) {
                     subNode.threeObject.children.forEach(function(child) {
@@ -523,7 +516,6 @@ function update() {
                     if (mouse.rotateAxis == AXIS.z) {
                         selectedNode.threeObject.rotateZ(rotation);
                     }
-                    updateGrips();
                 }
             }
             if (mouse.dz < 0) { // Scroll wheel
@@ -646,17 +638,24 @@ function update() {
     });
 }
 
-function updateGrips() {
-    var treeNode = $('#scene-tree').tree('getSelectedNode');
-    if (treeNode == false)
+function updateGrips(selectedNode) {
+    if (selectedNode.id == 0) {
+        grips.visible = false;
         return;
-    var node = findNode(treeNode.id);
+    }
+    grips.visible = true;
     var worldPos = new THREE.Vector3();
     var worldQ = new THREE.Quaternion();
-    node.threeObject.getWorldPosition(worldPos);
-    node.threeObject.getWorldQuaternion(worldQ);
+    selectedNode.threeObject.getWorldPosition(worldPos);
+    selectedNode.threeObject.getWorldQuaternion(worldQ);
     grips.position.copy(worldPos);
     grips.quaternion.copy(worldQ);
+    grips.children.forEach(function(child) {
+        if (child.axesGrips)
+            child.visible = controlMode == CONTROLMODE.move;
+        if (child.rotGrips)
+            child.visible = controlMode == CONTROLMODE.rotate;
+    });
 }
 
 function getScreenTranslation(mouse) {

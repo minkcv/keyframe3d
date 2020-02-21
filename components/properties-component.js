@@ -102,5 +102,4 @@ function changeProperties() {
         node.wallObject.scale.x = node.wallWidth;
         node.wallObject.scale.y = node.wallHeight;
     }
-    updateGrips(node);
 }

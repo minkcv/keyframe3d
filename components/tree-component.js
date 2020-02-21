@@ -39,7 +39,6 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
                 }
             }
             newParent.children.push(movedNode);
-            updateGrips(movedNode);
         });
     });
 });

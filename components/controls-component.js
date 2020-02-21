@@ -373,7 +373,6 @@ function removeKeyframe() {
     });
     cleanKeyframes(nodeNames);
     seekTime(time);
-    updateGrips();
     updateProperties();
     updateTimeline();
 }
@@ -448,7 +447,6 @@ function seekNextPrevious(next) {
     if (newTime != -1) {
         seekTime(newTime);
         updateProperties();
-        updateGrips();
     }
 }
 
@@ -468,7 +466,6 @@ function seekTimeInput() {
     }
     seekTime(time);
     updateProperties();
-    updateGrips();
 }
 
 function play() {
@@ -507,7 +504,6 @@ function stop() {
     pause();
     seekTime(0);
     updateProperties();
-    updateGrips();
 }
 
 function setKeyframeCamera() {
