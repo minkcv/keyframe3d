@@ -686,12 +686,12 @@ function getScreenRotation(node, mouse, worldQ, axis) {
     newVec.subVectors(mouse.currentPoint, worldPos);
     var rotCross = new THREE.Vector3();
     rotCross.crossVectors(newVec, startVec);
+    rotCross.normalize();
     var angle = -newVec.angleTo(startVec);
-    if (axis == AXIS.x && sign(normal.x) != sign(rotCross.x))
-        angle = -angle;
-    else if (axis == AXIS.y && sign(normal.y) != sign(rotCross.y))
-        angle = -angle;
-    else if (axis == AXIS.z && sign(normal.z) != sign(rotCross.z))
+    var sig = 0;
+    if (rotCross.lengthSq() != 0)
+        sig = normal.angleTo(rotCross);
+    if (sig > Math.PI / 2)
         angle = -angle;
     return angle;
 }
