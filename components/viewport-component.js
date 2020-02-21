@@ -156,7 +156,7 @@ function updateViewport(id) {
     }
     else {
         var scale = 2;
-        var renderDistance = 16000;
+        var renderDistance = 160000;
         var metaCamera = new THREE.OrthographicCamera(
             -width / scale, width / scale,
             height / scale, -height / scale,

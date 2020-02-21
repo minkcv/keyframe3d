@@ -132,7 +132,7 @@ function createModelGeometry(data, modelName) {
 function createCameraPlayer(node, cameraId, fov) {
     node.cameraId = cameraId;
     node.cameraFov = fov;
-    var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(settings.aspectRatio), 0.1, 16000);
+    var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(settings.aspectRatio), 0.1, 160000);
     node.threeObject.add(camera);
     node.cameraObject = camera;
     return node;
@@ -246,8 +246,10 @@ function seekTimePlayer(time) {
             node.threeObject.quaternion.set(currentRot.x, currentRot.y, currentRot.z, currentRot.w);
         if (currentScale)
             node.threeObject.scale.set(currentScale.x, currentScale.y, currentScale.z);
-        if (currentPos && currentRot && currentScale)
+        if (currentPos && currentRot && currentScale) {
+            node.threeObject.quaternion.normalize();
             return;
+        }
         var beforePos = getKeyframeBefore(time, node.id, 'pos');
         var beforeRot = getKeyframeBefore(time, node.id, 'rot');
         var beforeScale = getKeyframeBefore(time, node.id, 'scale');
@@ -292,6 +294,7 @@ function seekTimePlayer(time) {
             var zs = beforeScale.data.scale.z + ((afterScale.data.scale.z - beforeScale.data.scale.z) * alpha);
             node.threeObject.scale.set(xs, ys, zs);
         }
+        node.threeObject.quaternion.normalize();
     });
     var cameraNode = null;
     if (kf != null && kf.cameraId !== undefined)

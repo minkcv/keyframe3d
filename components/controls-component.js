@@ -113,7 +113,7 @@ function setKeyframe() {
                     existingData.rot = data.rot;
                 }
                 if (kfScale) {
-                    existingData.rot = data.rot;
+                    existingData.scale = data.scale;
                 }
             }
             else {
