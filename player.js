@@ -1,5 +1,11 @@
-var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
-var wallMat = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
+var lineMaterial = new THREE.LineBasicMaterial({color: 0xffffff});
+var wallMaterial = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
+
+function loadSettingsPlayer(newSettings) {
+    lineMaterial = new THREE.LineBasicMaterial({color: newSettings.lineColor});
+    wallMaterial = new THREE.MeshBasicMaterial({color: newSettings.bgColor, side: THREE.DoubleSide});
+    scene.background = new THREE.Color(newSettings.bgColor);
+}
 
 function getAspectRatio(str) {
     var colonIndex = str.search(':');
@@ -123,7 +129,7 @@ function createModelGeometry(data, modelName) {
         });
     });
     var mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(geometries);
-    var linesObject = new THREE.LineSegments(mergedGeometry, whiteLineMat);
+    var linesObject = new THREE.LineSegments(mergedGeometry, lineMaterial);
     if (modelName)
         linesObject.model = modelName;
     return linesObject;
@@ -140,7 +146,7 @@ function createCameraPlayer(node, cameraId, fov) {
 
 function createWallPlayer(node, width, height) {
     var wallGeom = new THREE.PlaneGeometry(1, 1, 1, 1);
-    var wall = new THREE.Mesh(wallGeom, wallMat);
+    var wall = new THREE.Mesh(wallGeom, wallMaterial);
     wall.wallObj = true;
     wall.scale.x = width;
     wall.scale.y = height;

@@ -60,6 +60,7 @@
         // python3: python -m http.server
         loadJSON('http://localhost:8000/demos/demo-0.json', function(project) {
             settings = project.settings;
+            loadSettingsPlayer(settings);
             models = project.models;
             keyframes = project.keyframes;
             traverseTree(function (loadNode) {

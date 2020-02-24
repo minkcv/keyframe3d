@@ -90,6 +90,9 @@ button {
 input[type=checkbox] {
     margin: 4px;
 }
+input {
+    font-family: droid_sans_mono_regular
+}
 #current-camera {
     font-family: droid_sans_mono_regular;
     font-size: 11pt;

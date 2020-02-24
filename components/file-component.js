@@ -63,7 +63,7 @@ function loadProject(files) {
     reader.onloadend = function () {
         var project = JSON.parse(reader.result);
         log('--- Loading project "' + file.name + '" ---');
-        loadSettings(project.settings);
+        loadSettingsEditor(project.settings);
         models = [];
         $('#model-select').html('');
         project.models.forEach(function(model) {

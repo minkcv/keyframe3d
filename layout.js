@@ -20,12 +20,6 @@ var config = {
                         componentState: {},
                         isClosable: false,
                         title: 'File'
-                    },{
-                        type: 'component',
-                        componentName: 'settingsComponent',
-                        componentState: {},
-                        isClosable: false,
-                        title: 'Settings'
                     }]
                 },{
                     type: 'component',
@@ -62,11 +56,20 @@ var config = {
                     isClosable: false,
                     title: 'Properties'
                 },{
-                    type: 'component',
-                    componentName: 'controlsComponent',
-                    componentState: {},
-                    isClosable: false,
-                    title: 'Controls'
+                    type: 'stack',
+                    content:[{
+                        type: 'component',
+                        componentName: 'controlsComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Controls'
+                    },{
+                        type: 'component',
+                        componentName: 'settingsComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Settings'
+                    }]
                 }]
             }]
         },{

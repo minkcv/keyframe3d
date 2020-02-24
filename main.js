@@ -2,6 +2,7 @@ var viewports = [];
 var scene = new THREE.Scene();
 var gridHelper;
 var precision = 3;
+var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
 var pinkLineMat = new THREE.LineBasicMaterial({color: 0xdf3eff});
 var darkPinkLineMat = new THREE.LineBasicMaterial({color: 0xa464b1});
 var redLineMat = new THREE.LineBasicMaterial({color: 0xff0000});
@@ -32,7 +33,9 @@ var settings = {
     framerate: 60,
     aspectRatio: '16:9',
     autoplay: false,
-    loop: false
+    loop: false,
+    lineColor: 0xffffff,
+    bgColor: 0x000000
 };
 
 var models = [];
@@ -132,21 +135,33 @@ function addViewport() {
     log('Opened new viewport with id "' + newViewportId + '"');
 }
 
-function loadSettings(newSettings) {
+function loadSettingsEditor(newSettings) {
     settings = newSettings;
+    loadSettingsPlayer(newSettings);
     var options = timeline.options;
     options.max = new Date(settings.length);
     timeline.setOptions(options);
     $('#length').val(settings.length);
     $('#framerate').val(settings.framerate);
     $('#aspect-ratio').val(settings.aspectRatio);
-    var ar = getAspectRatio(settings.aspectRatio);
-    traverseTree(function(node) {
-        if (node.cameraId !== undefined) {
-            node.cameraObject.aspec = ar;
-            node.cameraObject.updateProjectionMatrix();
-        }
-    });
+    $('#autoplay').prop('checked', settings.autoplay);
+    $('#loop').prop('checked', settings.loop);
+    var lineColorFmt = formatColor(settings.lineColor);
+    $('#line-color').val(lineColorFmt);
+    var bgColorFmt = formatColor(settings.bgColor);
+    $('#bg-color').val(bgColorFmt);
+    for (var i = 0; i < viewports.length; i++) {
+        updateViewport(i);
+    }
+}
+
+function formatColor(color) {
+    var str = color.toString(16);
+    while (str.length < 6) {
+        str = '0' + str;
+    }
+    str = '0x' + str;
+    return str;
 }
 
 function selectNode(id) {
@@ -368,14 +383,15 @@ function update() {
         }
         if (viewport.cameraId != CAMERA.free) {
             // Render camera
+            scene.background = new THREE.Color(settings.bgColor);
             gridHelper.visible = false;
             grips.visible = false;
             traverseTree(function(node) {
                 node.threeObject.children.forEach(function(child) {
                     if (child.model)
-                        child.material = whiteLineMat;
+                        child.material = lineMaterial;
                     if (child.wallObj)
-                        child.material = wallMat;
+                        child.material = wallMaterial;
                     if (child.cameraModel)
                         child.visible = false;
                 });
@@ -409,6 +425,7 @@ function update() {
         }
         else if (viewport.camera != null) {
             // Meta camera
+            scene.background = new THREE.Color(0x000000);
             gridHelper.visible = true;
             traverseTree(function (node) {
                 node.threeObject.visible = true;
@@ -734,7 +751,7 @@ $(function() {
         openWelcome();
     }
 
-    loadSettings(settings);
+    loadSettingsEditor(settings);
     updateTree();
     var defaultCamera = createCameraEditor('default camera', sceneTree, undefined, 0, 45);
     defaultCamera.threeObject.position.z = 500;
