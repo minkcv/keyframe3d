@@ -262,7 +262,7 @@ function seekTimePlayer(time) {
         var afterPos = getKeyframeAfter(time, node.id, 'pos');
         var afterRot = getKeyframeAfter(time, node.id, 'rot');
         var afterScale = getKeyframeAfter(time, node.id, 'scale');
-        if (afterPos && !beforePos && !currentPos)
+        if (afterPos.data && !beforePos.data && !currentPos)
             node.threeObject.position.set(afterPos.data.pos.x, afterPos.data.pos.y, afterPos.data.pos.z);
         if (afterRot.data && !beforeRot.data && !currentRot)
             node.threeObject.quaternion.set(afterRot.data.rot.x, afterRot.data.rot.y, afterRot.data.rot.z, afterRot.data.rot.w);
