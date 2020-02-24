@@ -447,9 +447,7 @@ function update() {
                 selectedNode = findNode(treeNode.id);
             }
             if (selectedNode) {
-                if (selectedNode.id != 0) {
-                    updateGrips(selectedNode, metaCamera.zoom);
-                }
+                updateGrips(selectedNode, metaCamera.zoom);
                 traverseTree(function(subNode) {
                     subNode.threeObject.children.forEach(function(child) {
                         if (child.model)
