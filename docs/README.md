@@ -18,6 +18,7 @@ The name 'Keyframe3D Player' is used to refer to the animation player.
 * If a node has a keyframe with data for it at the current time, then it's transform is the data in the keyframe.
 * If a node has a keyframe with data for it before and after the current time, then it's transform is interpolated between the two keyframe's data.
 * If a node has no keyframes with data for it then it has the default local transform (position: origin, rotation: facing toward -Z).
+* A node with a model can have its visibility keyframed to visibile or non visible. This value updates at and after a keyframe and does not apply to children.
 * A scene can have multiple cameras but the camera used at a specific time is dependent on the key camera set in the current or most recent keyframe.
 * Different cameras can have different field of views, but the aspect ratio of the animation is fixed.
 
@@ -39,6 +40,8 @@ The Settings pane contains settings for the length (in frames) and framerate of 
 The animation length cannot be less than 1.
 The framerate cannot be greater than 60 and cannot be less than 1.
 The aspect ratio should be entered as `width:height`. 
+The line color and background color can be set using hexadecimal color codes. A web search for 'hex color picker' can help with this.
+Note that these colors only appy for the view from scene cameras and are not used for the free cameras.
 The 'Apply' button must be clicked after changes are made in the Settings pane.
 
 ## Scene Tree Controls
@@ -90,7 +93,7 @@ The 'Stop' button stops the playback and seeks to time 0.
 The 'Seek To Time' button sets the current time to the time entered into the 'time' field.
 Buttons for modifying or seeking to keyframes are dependent on the settings for which nodes and what data.
 Keyframes can be modified for 'All Nodes', the 'Selected' node, or the 'Selected And Child' nodes from the drop down menu.
-Keyframes can be modified for any combination of 'Position', 'Rotation', and/or 'Scaling'.
+Keyframes can be modified for any combination of 'Position', 'Rotation', 'Scaling', and/or 'Visibility'.
 A keyframe can be set at the current time using the 'Set Keyframe' button.
 The current keyframe data can be copied to a keyframe at another time using the 'Copy Keyframe' button and the 'time' field.
 The current keyframe data can be removed using the 'Remove Keyframe' button.
