@@ -79,7 +79,7 @@ function setKeyframe() {
         nodes.push(selectedNode);
     }
     
-    if (treeNode == false && kfWhat != 'all-nodes') {
+    if (treeNode == false && kfWhatNodes != 'all-nodes') {
         alert('Select a node to set a keyframe');
         return;
     }
@@ -441,40 +441,32 @@ function seekNextPrevious(next) {
     if (treeNode != false)
         selectedNode = findNode(treeNode.id);
     keyframes.forEach(function(kf) {
-        if (kfWhatNodes == 'all-nodes') {
-            if ((next && kf.time > time) || (!next && kf.time < time)) {
-                if (newTime == -1)
-                    newTime = kf.time;
-                else if ((next && kf.time < newTime) || (!next && kf.time > newTime))
-                   newTime = kf.time;
+        if (!kf.nodes)
+            return;
+        kf.nodes.forEach(function(nodeData) {
+            var skip = true;
+            if (kfWhatNodes == 'all-nodes')
+                skip = false;
+            else if (kfWhatNodes == 'selected-and-children') {
+                traverseTree(function(other) {
+                    if (other.id == nodeData.id)
+                        skip = false;
+                }, selectedNode);
             }
-        }
-        else {
-            if (!kf.nodes)
+            else if (nodeData.id == selectedNode.id)
+                skip = false;
+            if (skip)
                 return;
-            kf.nodes.forEach(function(nodeData) {
-                var skip = true;
-                if (kfWhatNodes == 'selected-and-children') {
-                    traverseTree(function(other) {
-                        if (other.id == nodeData.id)
-                            skip = false;
-                    }, selectedNode);
+            
+            if ((nodeData.pos && kfPosition) || (nodeData.rot && kfRotation) || (nodeData.scale && kfScale) || nodeData.vis && kfVisible) {
+                if ((next && kf.time > time) || (!next && kf.time < time)) {
+                    if (newTime == -1)
+                        newTime = kf.time;
+                    else if ((next && kf.time < newTime) || (!next && kf.time > newTime))
+                        newTime = kf.time;
                 }
-                else if (nodeData.id == selectedNode.id)
-                    skip = false;
-                if (skip)
-                    return;
-                
-                if ((nodeData.pos && kfPosition) || (nodeData.rot && kfRotation) || (nodeData.scale && kfScale) || nodeData.vis && kfVisible) {
-                    if ((next && kf.time > time) || (!next && kf.time < time)) {
-                        if (newTime == -1)
-                            newTime = kf.time;
-                        else if ((next && kf.time < newTime) || (!next && kf.time > newTime))
-                           newTime = kf.time;
-                    }
-                }
-            });
-        }
+            }
+        });
     });
     if (newTime != -1) {
         seekTime(newTime);

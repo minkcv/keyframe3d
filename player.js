@@ -203,12 +203,12 @@ function getKeyframeBefore(time, nodeId, dataType, hasCamera) {
     return {kf: found, data: foundData};
 }
 
-function getKeyframeAfter(time, nodeId) {
+function getKeyframeAfter(time, nodeId, dataType) {
     var found = null;
     var foundData = null;
     keyframes.forEach(function(keyframe) {
         var data = getKeyframeData(keyframe, nodeId);
-        if (data != null) {
+        if (data != null && data[dataType] !== undefined) {
             if (keyframe.time > time) {
                 if (found == null) {
                     found = keyframe;
