@@ -84,6 +84,9 @@ button {
 #welcome > input {
     width: 20px;
 }
+#properties > div {
+    margin: 5px;
+}
 .settings > input, .tree-controls > input, .controls > input {
     float: right;
 }

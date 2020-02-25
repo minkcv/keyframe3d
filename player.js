@@ -130,6 +130,7 @@ function createModelGeometry(data, modelName) {
     });
     var mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(geometries);
     var linesObject = new THREE.LineSegments(mergedGeometry, lineMaterial);
+    linesObject.computeLineDistances();
     if (modelName)
         linesObject.model = modelName;
     return linesObject;
@@ -241,10 +242,12 @@ function seekTimePlayer(time) {
         var currentPos = null;
         var currentRot = null;
         var currentScale = null;
+        var currentVis = null;
         if (current) {
             currentPos = current.pos;
             currentRot = current.rot;
             currentScale = current.scale;
+            currentVis = current.vis;
         }
         if (currentPos)
             node.threeObject.position.set(currentPos.x, currentPos.y, currentPos.z);
@@ -252,16 +255,49 @@ function seekTimePlayer(time) {
             node.threeObject.quaternion.set(currentRot.x, currentRot.y, currentRot.z, currentRot.w);
         if (currentScale)
             node.threeObject.scale.set(currentScale.x, currentScale.y, currentScale.z);
-        if (currentPos && currentRot && currentScale) {
+        if (currentVis == false) {
+            node.threeObject.children.forEach(function(child) {
+                if (child.model) {
+                    child.visible = false;
+                    child.vis = false;
+                }
+            });
+        }
+        else if (currentVis == true) {
+            node.threeObject.children.forEach(function(child) {
+                if (child.model) {
+                    child.visible = true;
+                    child.vis = true;
+                }
+            });
+        }
+        if (currentPos && currentRot && currentScale && currentVis != null) {
             node.threeObject.quaternion.normalize();
             return;
         }
         var beforePos = getKeyframeBefore(time, node.id, 'pos');
         var beforeRot = getKeyframeBefore(time, node.id, 'rot');
         var beforeScale = getKeyframeBefore(time, node.id, 'scale');
+        var beforeVis = getKeyframeBefore(time, node.id, 'vis');
         var afterPos = getKeyframeAfter(time, node.id, 'pos');
         var afterRot = getKeyframeAfter(time, node.id, 'rot');
         var afterScale = getKeyframeAfter(time, node.id, 'scale');
+        if (beforeVis.data && beforeVis.data.vis == false && currentVis == null) {
+            node.threeObject.children.forEach(function(child) {
+                if (child.model) {
+                    child.visible = false;
+                    child.vis = false;
+                }
+            });
+        }
+        else if (beforeVis.data && beforeVis.data.vis == true && currentVis == null) {
+            node.threeObject.children.forEach(function(child) {
+                if (child.model) {
+                    child.visible = true;
+                    child.vis = true;
+                }
+            });
+        }
         if (afterPos.data && !beforePos.data && !currentPos)
             node.threeObject.position.set(afterPos.data.pos.x, afterPos.data.pos.y, afterPos.data.pos.z);
         if (afterRot.data && !beforeRot.data && !currentRot)

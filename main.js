@@ -5,6 +5,9 @@ var precision = 3;
 var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
 var pinkLineMat = new THREE.LineBasicMaterial({color: 0xdf3eff});
 var darkPinkLineMat = new THREE.LineBasicMaterial({color: 0xa464b1});
+var invisMaterial = new THREE.LineDashedMaterial({color: 0xffffff, dashSize: 5, gapSize: 3});
+var pinkInvisMaterial = new THREE.LineDashedMaterial({color: 0xdf3eff, dashSize: 5, gapSize: 3});
+var darkPinkInvisMaterial = new THREE.LineDashedMaterial({color: 0xa464b1, dashSize: 5, gapSize: 3});
 var redLineMat = new THREE.LineBasicMaterial({color: 0xff0000});
 var greenLineMat = new THREE.LineBasicMaterial({color: 0x00ff00});
 var blueLineMat = new THREE.LineBasicMaterial({color: 0x0000ff});
@@ -388,8 +391,15 @@ function update() {
             grips.visible = false;
             traverseTree(function(node) {
                 node.threeObject.children.forEach(function(child) {
-                    if (child.model)
-                        child.material = lineMaterial;
+                    if (child.model) {
+                        if (child.vis || child.vis === undefined) {
+                            child.material = lineMaterial;
+                            child.visible = true;
+                        }
+                        else {
+                            child.visible = false;
+                        }
+                    }
                     if (child.wallObj)
                         child.material = wallMaterial;
                     if (child.cameraModel)
@@ -428,10 +438,17 @@ function update() {
             scene.background = new THREE.Color(0x000000);
             gridHelper.visible = true;
             traverseTree(function (node) {
-                node.threeObject.visible = true;
+                node.threeObject.visible = true; // TODO: need this?
                 node.threeObject.children.forEach(function(child) {
-                    if (child.model)
-                        child.material = whiteLineMat;
+                    if (child.model) {
+                        child.visible = true;
+                        if (child.vis || child.vis === undefined) {
+                            child.material = whiteLineMat;
+                        }
+                        else {
+                            child.material = invisMaterial;
+                        }
+                    }
                     if (child.cameraModel)
                         child.visible = true;
                     if (child.wallObj)
@@ -450,13 +467,21 @@ function update() {
                 updateGrips(selectedNode, metaCamera.zoom);
                 traverseTree(function(subNode) {
                     subNode.threeObject.children.forEach(function(child) {
-                        if (child.model)
-                            child.material = darkPinkLineMat;
+                        if (child.model) {
+                            if (child.vis || child.vis === undefined)
+                                child.material = darkPinkLineMat;
+                            else
+                                child.material = darkPinkInvisMaterial;
+                        }
                     });
                 }, selectedNode);
                 selectedNode.threeObject.children.forEach(function(child) {
-                    if (child.model)
-                        child.material = pinkLineMat;
+                    if (child.model) {
+                        if (child.vis || child.vis === undefined)
+                            child.material = pinkLineMat;
+                        else
+                            child.material = pinkInvisMaterial;
+                    }
                 });
             }
             else {

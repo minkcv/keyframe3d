@@ -25,6 +25,8 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
             <input type='checkbox' name='kf-rotation' id='kf-rotation' checked='true'><br>
             <label for='kf-scale'>Scale:</label>
             <input type='checkbox' name='kf-scale' id='kf-scale' checked='true'><br>
+            <label for='kf-visible'>Visibility:</label>
+            <input type='checkbox' name='kf-visible' id='kf-visible' checked='true'><br>
 
             <button type='button' class='btn btn-sm' onclick='setKeyframe()'>Set Keyframe</button><br>
             <button type='button' class='btn btn-sm' onclick='copyKeyframe()'>Copy Keyframe To Time</button>
@@ -87,11 +89,12 @@ function setKeyframe() {
     var kfPosition = $('#kf-position').prop('checked');
     var kfRotation = $('#kf-rotation').prop('checked');
     var kfScale = $('#kf-scale').prop('checked');
+    var kfVisible = $('#kf-visible').prop('checked');
     nodes.forEach(function(node) {
         if (node.id == 0)
             return;
         nodeNames += node.name + '" ';
-        var nodeKF = getNodeData(node, kfPosition, kfRotation, kfScale);
+        var nodeKF = getNodeData(node, kfPosition, kfRotation, kfScale, kfVisible);
         nodesData.push(nodeKF);
     });
     if (existing == null) {
@@ -115,6 +118,9 @@ function setKeyframe() {
                 if (kfScale) {
                     existingData.scale = data.scale;
                 }
+                if (kfVisible) {
+                    existingData.vis = data.vis;
+                }
             }
             else {
                 existing.nodes.push(data);
@@ -131,6 +137,7 @@ function shiftKeyframes() {
     var kfPosition = $('#kf-position').prop('checked');
     var kfRotation = $('#kf-rotation').prop('checked');
     var kfScale = $('#kf-scale').prop('checked');
+    var kfVisible = $('#kf-visible').prop('checked');
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     var selectedNode = null;
     var nodeNames = '"';
@@ -162,6 +169,8 @@ function shiftKeyframes() {
                 newData.rot = JSON.parse(JSON.stringify(data.rot));
             if (kfScale && data.scale)
                 newData.scale = JSON.parse(JSON.stringify(data.scale));
+            if (kfVisible && data.vis)
+                newData.vis = JSON.parse(JSON.stringify(data.vis));
             newKF.nodes.push(newData);
         }
         else {
@@ -179,6 +188,8 @@ function shiftKeyframes() {
                     newData.rot = JSON.parse(JSON.stringify(data.rot));
                 if (kfScale && data.scale)
                     newData.scale = JSON.parse(JSON.stringify(data.scale));
+                if (kfVisible && data.vis)
+                    newData.vis = JSON.parse(JSON.stringify(data.vis));
                 newKF.nodes.push(newData);
             }, selectedNode);
         }
@@ -198,6 +209,8 @@ function shiftKeyframes() {
                 data.rot = undefined;
             if (kfScale)
                 data.scale = undefined;
+            if (kfVisible)
+                data.vis = undefined;
         });
     });
     Object.keys(newKeyframes).forEach(function(key) {
@@ -227,7 +240,7 @@ function shiftKeyframes() {
     updateTimeline();
 }
 
-function getNodeData(node, kfPosition, kfRotation, kfScale) {
+function getNodeData(node, kfPosition, kfRotation, kfScale, kfVisible) {
     var nodeKF = {
         id: node.id,
     };
@@ -253,6 +266,16 @@ function getNodeData(node, kfPosition, kfRotation, kfScale) {
             z: parseFloat(node.threeObject.scale.z.toFixed(precision))
         };
     }
+    if (kfVisible) {
+        var vis = null;
+        node.threeObject.children.forEach(function(child) {
+            if (child.model) {
+                vis = child.vis;
+            }
+        });
+        if (vis != null && vis !== undefined)
+            nodeKF.vis = vis;
+    }
     return nodeKF;
 }
 
@@ -268,6 +291,7 @@ function copyKeyframe() {
     var kfPosition = $('#kf-position').prop('checked');
     var kfRotation = $('#kf-rotation').prop('checked');
     var kfScale = $('#kf-scale').prop('checked');
+    var kfVisible = $('#kf-visible').prop('checked');
     var kfExisting = getKeyframe(copyTime);
     if (kfExisting == null) {
         kfExisting = {
@@ -308,6 +332,8 @@ function copyKeyframe() {
                 existingData.rot = nodeData.rot;
             if (nodeData.scale && kfScale)
                 existingData.scale = nodeData.scale;
+            if (nodeData.vis && kfVisible)
+                existingData.vis = nodeData.vis;
         }
         else {
             var newData = {id: node.id};
@@ -317,6 +343,8 @@ function copyKeyframe() {
                 newData.rot = nodeData.rot;
             if (kfScale)
                 newData.scale = nodeData.scale;
+            if (kfVisible)
+                newData.vis = nodeData.vis;
             if (kfPosition || kfRotation || kfScale)
                 kfNewNodeData.push(newData);
         }
@@ -339,6 +367,7 @@ function removeKeyframe() {
     var kfPosition = $('#kf-position').prop('checked');
     var kfRotation = $('#kf-rotation').prop('checked');
     var kfScale = $('#kf-scale').prop('checked');
+    var kfVisible = $('#kf-visible').prop('checked');
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     var selectedNode = null;
     if (treeNode != false)
@@ -370,6 +399,8 @@ function removeKeyframe() {
             node.rot = undefined;
         if (kfScale)
             node.scale = undefined;
+        if (kfVisible)
+            node.vis = undefined;
     });
     cleanKeyframes(nodeNames);
     seekTime(time);
@@ -404,6 +435,7 @@ function seekNextPrevious(next) {
     var kfPosition = $('#kf-position').prop('checked');
     var kfRotation = $('#kf-rotation').prop('checked');
     var kfScale = $('#kf-scale').prop('checked');
+    var kfVisible = $('#kf-visible').prop('checked');
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     var selectedNode = null;
     if (treeNode != false)
@@ -433,7 +465,7 @@ function seekNextPrevious(next) {
                 if (skip)
                     return;
                 
-                if ((nodeData.pos && kfPosition) || (nodeData.rot && kfRotation) || (nodeData.scale && kfScale)) {
+                if ((nodeData.pos && kfPosition) || (nodeData.rot && kfRotation) || (nodeData.scale && kfScale) || nodeData.vis && kfVisible) {
                     if ((next && kf.time > time) || (!next && kf.time < time)) {
                         if (newTime == -1)
                             newTime = kf.time;

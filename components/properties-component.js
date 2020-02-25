@@ -28,6 +28,10 @@ layout.registerComponent( 'propertiesComponent', function(container, componentSt
             <label for='z-scale'>Z:</label>
             <input type='number' name='z-scale' id='z-scale' oninput='changeProperties()'><br>
         </div>
+        <div id='visibility'>
+            <label for='visible'>Visible: </label>
+            <input type='checkbox' name='visible' id='visible' oninput='changeProperties()'>
+        </div>
         <div id='camera-properties'>
             <hr>
             <p>Camera</p>
@@ -61,6 +65,17 @@ function updateProperties() {
     $('#x-scale').val(node.threeObject.scale.x.toFixed(precision));
     $('#y-scale').val(node.threeObject.scale.y.toFixed(precision));
     $('#z-scale').val(node.threeObject.scale.z.toFixed(precision));
+    $('#visibility').hide();
+    var vis = null;
+    node.threeObject.children.forEach(function(child) {
+        if (child.model) {
+            $('#visibility').show();
+            vis = child.vis;
+        } 
+    });
+    if (vis === undefined)
+        vis = true;
+    $('#visible').prop('checked', vis);
 
     if (node.cameraId !== undefined) {
         $('#fov').val(node.cameraFov);
@@ -97,6 +112,16 @@ function changeProperties() {
     node.threeObject.scale.x = parseFloat($('#x-scale').val());
     node.threeObject.scale.y = parseFloat($('#y-scale').val());
     node.threeObject.scale.z = parseFloat($('#z-scale').val());
+    node.threeObject.children.forEach(function(child) {
+        if (child.model) {
+            if ($('#visible').prop('checked')) {
+                child.vis = true;
+            }
+            else {
+                child.vis = false;
+            }
+        }
+    });
     if (node.cameraId !== undefined) {
         node.cameraFov = parseFloat($('#fov').val());
         node.cameraObject.fov = node.cameraFov;
