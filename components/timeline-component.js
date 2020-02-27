@@ -42,9 +42,9 @@ layout.registerComponent( 'timelineComponent', function(container, componentStat
         var options = {
             height: '100px',
             min: new Date(0),
-            max: new Date(settings.length),
+            max: new Date(pcx.settings.length),
             start: new Date(0),
-            end: new Date(settings.length),
+            end: new Date(pcx.settings.length),
             showCurrentTime: true,
             orientation: 'top',
             format: formatOptions,
@@ -68,8 +68,8 @@ layout.registerComponent( 'timelineComponent', function(container, componentStat
                 if (event.time < new Date(0)) {
                     timeline.setCustomTime(new Date(0), 'playhead');
                 }
-                if (event.time > new Date(settings.length)) {
-                    timeline.setCustomTime(new Date(settings.length - 1), 'playhead');
+                if (event.time > new Date(pcx.settings.length)) {
+                    timeline.setCustomTime(new Date(pcx.settings.length - 1), 'playhead');
                 }
             }
         });
@@ -109,8 +109,8 @@ function timeChanged(dateTime) {
     var time = dateTime.getTime();
     if (time < 0)
         time = 0;
-    if (time >= settings.length)
-        time = settings.length - 1;
+    if (time >= pcx.settings.length)
+        time = pcx.settings.length - 1;
     if (time != previousTime)
         seekTime(time);
     return time;
@@ -121,7 +121,7 @@ function seekTime(time, noLog) {
         log('Seek to ' + time);
     timeline.setCustomTime(new Date(time), 'playhead');
     $('#current-time').text(time);
-    var cameraNode = seekTimePlayer(time);
+    var cameraNode = seekTimePlayer(pcx, time);
     $('#key-camera').text(cameraNode.name);
     previousTime = time;
     updateProperties();
@@ -129,7 +129,7 @@ function seekTime(time, noLog) {
 
 function updateTimeline() {
     var data = new vis.DataSet();
-    keyframes.forEach(function(kf) {
+    pcx.keyframes.forEach(function(kf) {
         data.add({
             start: new Date(kf.time),
             type: 'point',

@@ -15,9 +15,9 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
             event.preventDefault();
             selectNode(event.node.id);
         }).on('tree.move', function(event) {
-            var movedNode = findNode(event.move_info.moved_node.id);
-            var newParent = findNode(event.move_info.target_node.id);
-            var oldParent = findNode(event.move_info.previous_parent.id);
+            var movedNode = findNode(pcx, event.move_info.moved_node.id);
+            var newParent = findNode(pcx, event.move_info.target_node.id);
+            var oldParent = findNode(pcx, event.move_info.previous_parent.id);
             if (newParent.id == 0 &&
                 (event.move_info.position == 'before' || event.move_info.position == 'after')) {
                 // Only root node can be top level
@@ -27,8 +27,8 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
             if (newParent.id == oldParent.id)
                 return; // Node was just reordered
             if (event.move_info.position == 'before' || event.move_info.position == 'after') {
-                var neighborNode = findNode(event.move_info.target_node.id);
-                newParent = getParentNode(neighborNode);
+                var neighborNode = findNode(pcx, event.move_info.target_node.id);
+                newParent = getParentNode(pcx, neighborNode);
             }
             for (var i = 0; i < oldParent.children.length; i++) {
                 if (oldParent.children[i].id == movedNode.id) {
@@ -44,6 +44,6 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
 });
 
 function updateTree() {
-    if (sceneTree)
-        $('#scene-tree').tree('loadData', [sceneTree]);
+    if (pcx.sceneTree)
+        $('#scene-tree').tree('loadData', [pcx.sceneTree]);
 }

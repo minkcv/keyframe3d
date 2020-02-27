@@ -20,9 +20,9 @@ function addModelToScene(modelName) {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     var parent;
     if (treeNode == false)
-        parent = sceneTree;
+        parent = pcx.sceneTree;
     else
-        parent = findNode(treeNode.id);
+        parent = findNode(pcx, treeNode.id);
     var nodeName = $('#model-node-name').val();
     createModelEditor(modelName, nodeName, parent);
 }
@@ -30,7 +30,7 @@ function addModelToScene(modelName) {
 function loadModelFromFiles(files) {
     for (var i = 0; i < files.length; i++) {
         var duplicate = false;
-        models.forEach(function(model) {
+        pcx.models.forEach(function(model) {
             if (model.name == files[i].name)
                 duplicate = true;
         });
@@ -58,7 +58,7 @@ function loadModelFromFiles(files) {
 
 function loadModel(data, name) {
     var duplicate = false;
-    models.forEach(function(existing) {
+    pcx.models.forEach(function(existing) {
         if (existing.name == name)
             duplicate = true;
     });
@@ -70,7 +70,7 @@ function loadModel(data, name) {
         name: name,
         data: data
     }
-    models.push(model);
+    pcx.models.push(model);
     log('Loaded model "' + model.name + '"');
     $('#model-select').append($('<option id=' + name + '></option>').text(name));
 }
@@ -81,9 +81,9 @@ function unloadModel() {
         alert('Select a model to unload');
         return;
     }
-    for (var i = 0; i < models.length; i++) {
-        if (models[i].name == name) {
-            models.splice(i, 1);
+    for (var i = 0; i < pcx.models.length; i++) {
+        if (pcx.models[i].name == name) {
+            pcx.models.splice(i, 1);
             break;
         }
     }

@@ -21,9 +21,9 @@ function addEmptyNode() {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     var parent;
     if (treeNode == null)
-        parent = sceneTree;
+        parent = pcx.sceneTree;
     else
-        parent = findNode(treeNode.id);
+        parent = findNode(pcx, treeNode.id);
     var name = $('#empty-node-name').val();
     createEmptyNodeEditor(name, parent)
 }
@@ -32,9 +32,9 @@ function addCamera() {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     var parent;
     if (treeNode == null)
-        parent = sceneTree;
+        parent = pcx.sceneTree;
     else
-        parent = findNode(treeNode.id);
+        parent = findNode(pcx, treeNode.id);
     var name = $('#camera-node-name').val();
     createCameraEditor(name, parent);
 }
@@ -43,9 +43,9 @@ function addWall() {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     var parent;
     if (treeNode == null)
-        parent = sceneTree;
+        parent = pcx.sceneTree;
     else
-        parent = findNode(treeNode.id);
+        parent = findNode(pcx, treeNode.id);
     var name = $('#wall-node-name').val();
     createWallEditor(name, parent);
 }

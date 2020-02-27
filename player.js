@@ -1,10 +1,115 @@
-var lineMaterial = new THREE.LineBasicMaterial({color: 0xffffff});
-var wallMaterial = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
+var playerContexts = {};
 
-function loadSettingsPlayer(newSettings) {
-    lineMaterial = new THREE.LineBasicMaterial({color: newSettings.lineColor});
-    wallMaterial = new THREE.MeshBasicMaterial({color: newSettings.bgColor, side: THREE.DoubleSide});
-    scene.background = new THREE.Color(newSettings.bgColor);
+function createContext(name) {
+    var context = {
+        time: 0,
+        timerId: -1,
+        scene: new THREE.Scene(),
+        sceneTree: {
+            id: 0, 
+            name: 'root', 
+            children:[], 
+            threeObject: new THREE.Object3D()
+        },
+        divName: name,
+        settings: {},
+        models: [],
+        keyframes: [],
+        renderer: null
+    };
+    context.scene.add(context.sceneTree.threeObject);
+    playerContexts[name] = context;
+    return context;
+}
+
+function getContext(name) {
+    return playerContexts[name];
+}
+
+function loadProjectPlayer(url, pcx) {
+    loadJSON(url, pcx, function(project) {
+        loadSettingsPlayer(pcx, project.settings);
+        pcx.models = project.models;
+        pcx.keyframes = project.keyframes;
+        traverseTree(pcx, function (loadNode) {
+            if (loadNode.id == 0) {
+                return;
+            }
+            else {
+                var parentProject = getParentNode(pcx, loadNode, project.sceneTree);
+                var parent = findNode(pcx, parentProject.id);
+                var node = createEmptyNodePlayer(loadNode.name, parent, loadNode.id);
+                if (loadNode.model !== undefined) {
+                    createModelPlayer(pcx, node, loadNode.model);
+                }
+                else if (loadNode.cameraId !== undefined) {
+                    createCameraPlayer(pcx, node, loadNode.cameraId, loadNode.cameraFov);
+                }
+                else if (loadNode.wallWidth !== undefined) {
+                    createWallPlayer(pcx, node, loadNode.wallWidth, loadNode.wallHeight);
+                }
+            }
+        }, project.sceneTree);
+        pcx.renderer = new THREE.WebGLRenderer({antialias: true});
+        var div = document.getElementById(pcx.divName);
+        div.appendChild(pcx.renderer.domElement);
+        var width = div.clientWidth;
+        var height = div.clientHeight;
+        var ar = getAspectRatio(pcx.settings.aspectRatio);
+        var aspectWidth = width;
+        var aspectHeight = height;
+        if (width > height)
+            aspectHeight = width / ar;
+        else if (height > width)
+            aspectWidth = height * ar;
+        if (aspectHeight > height) {
+            aspectHeight = height;
+            aspectWidth = height * ar;
+        }
+        if (aspectWidth > width) {
+            aspectWidth = width;
+            aspectHeight = width / ar;
+        }
+        var remainderWidth = width - aspectWidth;
+        if (remainderWidth > 0)
+            pcx.renderer.domElement.style.marginLeft = remainderWidth / 2 + 'px';
+        else
+            pcx.renderer.domElement.style.marginLeft = '0px';
+        aspectWidth = Math.floor(aspectWidth);
+        aspectHeight = Math.floor(aspectHeight);
+        pcx.renderer.setSize(aspectWidth, aspectHeight);
+        if (pcx.settings.autoplay)
+            playPlayer();
+    }, function(xhr) {
+        // Error
+        console.log(xhr);
+        alert(xhr.statusText);
+    });
+}
+
+function loadJSON(path, pcx, success, error) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                if (success)
+                    success(JSON.parse(xhr.responseText), pcx);
+            }
+            else {
+                if (error)
+                    error(xhr);
+            }
+        }
+    };
+    xhr.open("GET", path, true);
+    xhr.send();
+}
+
+function loadSettingsPlayer(pcx, newSettings) {
+    pcx.lineMaterial = new THREE.LineBasicMaterial({color: newSettings.lineColor});
+    pcx.wallMaterial = new THREE.MeshBasicMaterial({color: newSettings.bgColor, side: THREE.DoubleSide});
+    pcx.scene.background = new THREE.Color(newSettings.bgColor);
+    pcx.settings = newSettings;
 }
 
 function getAspectRatio(str) {
@@ -18,25 +123,25 @@ function getAspectRatio(str) {
     return  width / height;
 }
 
-function findNode(nodeId, startNode) {
+function findNode(pcx, nodeId, startNode) {
     if (!startNode)
-        startNode = sceneTree;
+        startNode = pcx.sceneTree;
     if (!startNode)
         return null;
     var found = null;
     if (startNode.id == nodeId)
         return startNode;
     startNode.children.forEach(function(node) {
-        var foundSub = findNode(nodeId, node);
+        var foundSub = findNode(pcx, nodeId, node);
         if (foundSub)
             found = foundSub;
     });
     return found;
 }
 
-function getParentNode(find, tree) {
+function getParentNode(pcx, find, tree) {
     var parent = null;
-    traverseTree(function(node) {
+    traverseTree(pcx, function(node) {
         node.children.forEach(function(child) {
             if (child.id == find.id)
                 parent = node;
@@ -45,20 +150,20 @@ function getParentNode(find, tree) {
     return parent;
 }
 
-function getModel(modelName) {
-    for (var i = 0; i < models.length; i++) {
-        if (models[i].name == modelName)
-            return models[i];
+function getModel(pcx, modelName) {
+    for (var i = 0; i < pcx.models.length; i++) {
+        if (pcx.models[i].name == modelName)
+            return pcx.models[i];
     }
     return null;
 }
 
-function traverseTree(func, startNode) {
+function traverseTree(pcx, func, startNode) {
     if (!startNode)
-        startNode = sceneTree;
+        startNode = pcx.sceneTree;
     func(startNode);
     startNode.children.forEach(function(node) {
-        traverseTree(func, node);
+        traverseTree(pcx, func, node);
     });
 }
 
@@ -77,16 +182,16 @@ function createEmptyNodePlayer(name, parent, id) {
     return newNode;
 }
 
-function createModelPlayer(node, modelName) {
-    var model = getModel(modelName);
+function createModelPlayer(pcx, node, modelName) {
+    var model = getModel(pcx, modelName);
     node.model = modelName;
-    var linesObject = createModelGeometry(model.data, modelName);
+    var linesObject = createModelGeometry(pcx, model.data, modelName);
     node.threeObject.add(linesObject);
     node.modelObject = linesObject;
     return node;
 }
 
-function createModelGeometry(data, modelName) {
+function createModelGeometry(pcx, data, modelName) {
     var geometries = [];
     var lines = [];
     data.forEach((point) => {
@@ -129,25 +234,25 @@ function createModelGeometry(data, modelName) {
         });
     });
     var mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(geometries);
-    var linesObject = new THREE.LineSegments(mergedGeometry, lineMaterial);
+    var linesObject = new THREE.LineSegments(mergedGeometry, pcx.lineMaterial);
     linesObject.computeLineDistances();
     if (modelName)
         linesObject.model = modelName;
     return linesObject;
 }
 
-function createCameraPlayer(node, cameraId, fov) {
+function createCameraPlayer(pcx, node, cameraId, fov) {
     node.cameraId = cameraId;
     node.cameraFov = fov;
-    var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(settings.aspectRatio), 0.1, 160000);
+    var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(pcx.settings.aspectRatio), 0.1, 160000);
     node.threeObject.add(camera);
     node.cameraObject = camera;
     return node;
 }
 
-function createWallPlayer(node, width, height) {
+function createWallPlayer(pcx, node, width, height) {
     var wallGeom = new THREE.PlaneGeometry(1, 1, 1, 1);
-    var wall = new THREE.Mesh(wallGeom, wallMaterial);
+    var wall = new THREE.Mesh(wallGeom, pcx.wallMaterial);
     wall.wallObj = true;
     wall.scale.x = width;
     wall.scale.y = height;
@@ -157,33 +262,33 @@ function createWallPlayer(node, width, height) {
     node.wallObject = wall;
 }
 
-function findCamera(cameraId, startNode) {
+function findCamera(pcx, cameraId, startNode) {
     if (!startNode)
-        startNode = sceneTree;
+        startNode = pcx.sceneTree;
     var found = null;
     if (startNode.cameraId == cameraId)
         return startNode;
     startNode.children.forEach(function(node) {
-        var foundSub = findCamera(cameraId, node);
+        var foundSub = findCamera(pcx, cameraId, node);
         if (foundSub)
             found = foundSub;
     });
     return found;
 }
 
-function getKeyframe(time) {
+function getKeyframe(pcx, time) {
     var found = null;
-    keyframes.forEach(function(keyframe) {
+    pcx.keyframes.forEach(function(keyframe) {
         if (keyframe.time == time)
             found = keyframe
     });
     return found;
 }
 
-function getKeyframeBefore(time, nodeId, dataType, hasCamera) {
+function getKeyframeBefore(pcx, time, nodeId, dataType, hasCamera) {
     var found = null;
     var foundData = null;
-    keyframes.forEach(function(keyframe) {
+    pcx.keyframes.forEach(function(keyframe) {
         var data = getKeyframeData(keyframe, nodeId);
         if ((data != null && data[dataType] !== undefined) || hasCamera) {
             if (!hasCamera || keyframe.cameraId !== undefined) {
@@ -203,10 +308,10 @@ function getKeyframeBefore(time, nodeId, dataType, hasCamera) {
     return {kf: found, data: foundData};
 }
 
-function getKeyframeAfter(time, nodeId, dataType) {
+function getKeyframeAfter(pcx, time, nodeId, dataType) {
     var found = null;
     var foundData = null;
-    keyframes.forEach(function(keyframe) {
+    pcx.keyframes.forEach(function(keyframe) {
         var data = getKeyframeData(keyframe, nodeId);
         if (data != null && data[dataType] !== undefined) {
             if (keyframe.time > time) {
@@ -235,9 +340,9 @@ function getKeyframeData(kf, nodeId) {
     return found;
 }
 
-function seekTimePlayer(time) {
-    var kf = getKeyframe(time);
-    traverseTree(function(node) {
+function seekTimePlayer(pcx, time) {
+    var kf = getKeyframe(pcx, time);
+    traverseTree(pcx, function(node) {
         var current = getKeyframeData(kf, node.id);
         var currentPos = null;
         var currentRot = null;
@@ -275,13 +380,13 @@ function seekTimePlayer(time) {
             node.threeObject.quaternion.normalize();
             return;
         }
-        var beforePos = getKeyframeBefore(time, node.id, 'pos');
-        var beforeRot = getKeyframeBefore(time, node.id, 'rot');
-        var beforeScale = getKeyframeBefore(time, node.id, 'scale');
-        var beforeVis = getKeyframeBefore(time, node.id, 'vis');
-        var afterPos = getKeyframeAfter(time, node.id, 'pos');
-        var afterRot = getKeyframeAfter(time, node.id, 'rot');
-        var afterScale = getKeyframeAfter(time, node.id, 'scale');
+        var beforePos = getKeyframeBefore(pcx, time, node.id, 'pos');
+        var beforeRot = getKeyframeBefore(pcx, time, node.id, 'rot');
+        var beforeScale = getKeyframeBefore(pcx, time, node.id, 'scale');
+        var beforeVis = getKeyframeBefore(pcx, time, node.id, 'vis');
+        var afterPos = getKeyframeAfter(pcx, time, node.id, 'pos');
+        var afterRot = getKeyframeAfter(pcx, time, node.id, 'rot');
+        var afterScale = getKeyframeAfter(pcx, time, node.id, 'scale');
         if (beforeVis.data && beforeVis.data.vis == false && currentVis == null) {
             node.threeObject.children.forEach(function(child) {
                 if (child.model) {
@@ -340,45 +445,47 @@ function seekTimePlayer(time) {
     });
     var cameraNode = null;
     if (kf != null && kf.cameraId !== undefined)
-        cameraNode = findCamera(kf.cameraId);
+        cameraNode = findCamera(pcx, kf.cameraId);
     else {
-        var before = getKeyframeBefore(time, null, '', true)
+        var before = getKeyframeBefore(pcx, time, null, '', true)
         if (before.kf != null)
-            cameraNode = findCamera(before.kf.cameraId);
+            cameraNode = findCamera(pcx, before.kf.cameraId);
         else
-            cameraNode = findCamera(0);
+            cameraNode = findCamera(pcx, 0);
     }
     return cameraNode;
 }
 
-function playPlayer() {
-    if (time == settings.length) {
-        time = 0;
-        clearInterval(timerId);
+function playPlayer(player) {
+    pcx = getContext(player);
+    if (pcx.time == pcx.settings.length) {
+        pcx.time = 0;
+        clearInterval(pcx.timerId);
     }
-    if (timerId != -1)
+    if (pcx.timerId != -1)
         return;
-    timerId = setInterval(function() {
-        var camera = seekTimePlayer(time);
-        time = time + 1;
-        if (time > settings.length - 1) {
-            if (settings.loop) {
-                time = 0;
+    pcx.timerId = setInterval(function() {
+        var camera = seekTimePlayer(pcx, pcx.time);
+        pcx.time = pcx.time + 1;
+        if (pcx.time > pcx.settings.length - 1) {
+            if (pcx.settings.loop) {
+                pcx.time = 0;
             }
             else {
-                clearInterval(timerId);
-                timerId = -1;
+                clearInterval(pcx.timerId);
+                pcx.timerId = -1;
                 return;
             }
         }
         
-        renderer.render(scene, camera.cameraObject);
-    }, 1000 / settings.framerate);
+        pcx.renderer.render(pcx.scene, camera.cameraObject);
+    }, 1000 / pcx.settings.framerate);
 }
 
-function stopPlayer() {
-    if (timerId != -1) {
-        clearInterval(timerId);
-        timerId = -1;
+function pausePlayer(player) {
+    pcx = getContext(player);
+    if (pcx.timerId != -1) {
+        clearInterval(pcx.timerId);
+        pcx.timerId = -1;
     }
 }

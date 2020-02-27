@@ -31,7 +31,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         for (var i = 0; i < viewports.length; i++) {
             if (viewports[i].viewportId == componentState.viewportId) {
                 viewports[i].div.remove();
-                scene.remove(viewports[i].camera);
+                pcx.scene.remove(viewports[i].camera);
                 viewports.splice(i, 1);
                 break;
             }
@@ -93,7 +93,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
     cameraX.rotation.y = Math.PI / 4;
     cameraY.rotation.x = -Math.PI / 4;
     camAxes.rotation.y = -Math.PI / 4;
-    scene.add(cameraX);
+    pcx.scene.add(cameraX);
     div.append(renderer.domElement);
     // Disable right click context menu
     renderer.domElement.addEventListener('contextmenu', event => event.preventDefault());
@@ -130,7 +130,7 @@ function updateViewport(id) {
         return;
     
     if (viewport.cameraId != CAMERA.free) {
-        var ar = getAspectRatio(settings.aspectRatio);
+        var ar = getAspectRatio(pcx.settings.aspectRatio);
         var aspectWidth = width;
         var aspectHeight = height;
         if (width > height)
@@ -228,10 +228,10 @@ function viewRecenterSelected(viewportId) {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     if (treeNode == false)
         return;
-    var node = findNode(treeNode.id);
+    var node = findNode(pcx, treeNode.id);
     viewport.camera.position.set(0, 0, 0);
-    traverseTree(function(other) {
-        var found = findNode(node.id, other);
+    traverseTree(pcx, function(other) {
+        var found = findNode(pcx, node.id, other);
         if (found != null)
             viewport.camera.position.add(other.threeObject.position);
     });

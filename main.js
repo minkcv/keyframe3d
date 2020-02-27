@@ -1,5 +1,17 @@
+var pcx = createContext('editor-context');
+
+var defaultSettings = {
+    length: 1000,
+    framerate: 60,
+    aspectRatio: '16:9',
+    autoplay: false,
+    loop: false,
+    lineColor: 0xffffff,
+    bgColor: 0x000000
+};
+loadSettingsPlayer(pcx, defaultSettings);
+
 var viewports = [];
-var scene = new THREE.Scene();
 var gridHelper;
 var precision = 3;
 var whiteLineMat = new THREE.LineBasicMaterial({color: 0xffffff});
@@ -19,7 +31,7 @@ var editorWallMat = new THREE.MeshBasicMaterial({color: 0xcccccc, side: THREE.Do
 var gripPlaneGeom = new THREE.PlaneGeometry(10000, 10000, 1, 1);
 var gripPlane = new THREE.Mesh(gripPlaneGeom, planeMat);
 gripPlane.gripPlane = true;
-scene.add(gripPlane);
+pcx.scene.add(gripPlane);
 var AXIS = {x: 0, y: 1, z: 2, none: 3};
 var PLAY = {play: 0, stop: 1};
 var playState = PLAY.stop;
@@ -27,29 +39,8 @@ var CONTROLMODE = {move: 0, rotate: 1};
 var controlMode = CONTROLMODE.move;
 var CAMERA = {free: -1, key: -2};
 var raycaster = new THREE.Raycaster();
-var timerId;
 
 layout.init();
-
-var settings = {
-    length: 1000,
-    framerate: 60,
-    aspectRatio: '16:9',
-    autoplay: false,
-    loop: false,
-    lineColor: 0xffffff,
-    bgColor: 0x000000
-};
-
-var models = [];
-var keyframes = [];
-var sceneTree = {
-    id: 0, 
-    name: 'root', 
-    children:[], 
-    threeObject: new THREE.Object3D()
-};
-scene.add(sceneTree.threeObject);
 
 var grips = new THREE.Object3D();
 var axesGrips = new THREE.Object3D();
@@ -114,7 +105,7 @@ rotationGrips.add(xRotate);
 rotationGrips.add(yRotate);
 rotationGrips.add(zRotate);
 grips.add(rotationGrips)
-scene.add(grips);
+pcx.scene.add(grips);
 
 function addViewport() {
     for (var i = 0; i < viewports.length; i++) {
@@ -139,19 +130,18 @@ function addViewport() {
 }
 
 function loadSettingsEditor(newSettings) {
-    settings = newSettings;
-    loadSettingsPlayer(newSettings);
+    loadSettingsPlayer(pcx, newSettings);
     var options = timeline.options;
-    options.max = new Date(settings.length);
+    options.max = new Date(pcx.settings.length);
     timeline.setOptions(options);
-    $('#length').val(settings.length);
-    $('#framerate').val(settings.framerate);
-    $('#aspect-ratio').val(settings.aspectRatio);
-    $('#autoplay').prop('checked', settings.autoplay);
-    $('#loop').prop('checked', settings.loop);
-    var lineColorFmt = formatColor(settings.lineColor);
+    $('#length').val(pcx.settings.length);
+    $('#framerate').val(pcx.settings.framerate);
+    $('#aspect-ratio').val(pcx.settings.aspectRatio);
+    $('#autoplay').prop('checked', pcx.settings.autoplay);
+    $('#loop').prop('checked', pcx.settings.loop);
+    var lineColorFmt = formatColor(pcx.settings.lineColor);
     $('#line-color').val(lineColorFmt);
-    var bgColorFmt = formatColor(settings.bgColor);
+    var bgColorFmt = formatColor(pcx.settings.bgColor);
     $('#bg-color').val(bgColorFmt);
     for (var i = 0; i < viewports.length; i++) {
         updateViewport(i);
@@ -175,7 +165,7 @@ function selectNode(id) {
 
 function findNodeByName(name, startNode) {
     if (!startNode)
-        startNode = sceneTree;
+        startNode = pcx.sceneTree;
     if (!startNode)
         return null;
     if (startNode.name == name)
@@ -191,7 +181,7 @@ function findNodeByName(name, startNode) {
 
 function getNextNodeId() {
     var nextId = 0;
-    while (findNode(nextId) != null) {
+    while (findNode(pcx, nextId) != null) {
         nextId++;
     }
     return nextId;
@@ -199,7 +189,7 @@ function getNextNodeId() {
 
 function getNextCameraId() {
     var nextId = 0;
-    while (findCamera(nextId) != null) {
+    while (findCamera(pcx, nextId) != null) {
         nextId++;
     }
     return nextId;
@@ -241,7 +231,7 @@ function renameNode() {
         alert('Cannot rename the root node');
         return;
     }
-    var node = findNode(treeNode.id);
+    var node = findNode(pcx, treeNode.id);
     if (node.cameraId == 0) {
         alert('Cannot rename the default camera');
         return;
@@ -272,14 +262,14 @@ function deleteNode() {
         alert('Cannot delete the root node');
         return;
     }
-    var node = findNode(treeNode.id);
+    var node = findNode(pcx, treeNode.id);
     if (node.cameraId == 0) {
         alert('Cannot delete the default camera');
         return;
     }
     var childNames = '';
     var containsDefaultCamera = false;
-    traverseTree(function(child) {
+    traverseTree(pcx, function(child) {
         if (child.cameraId == 0)
             containsDefaultCamera = true;
         if (child.name != node.name)
@@ -308,7 +298,7 @@ function deleteNode() {
 
 function updateCameraLists() {
     var cameras = [];
-    traverseTree(function(node) {
+    traverseTree(pcx, function(node) {
         if (node.cameraId !== undefined)
             cameras.push(node);
     });
@@ -329,7 +319,7 @@ function updateCameraLists() {
 }
 
 function createModelEditor(modelName, nodeName, parent, id) {
-    var model = getModel(modelName);
+    var model = getModel(pcx, modelName);
     if (!model) {
         alert('Select a model from the list of loaded models');
         return;
@@ -337,7 +327,7 @@ function createModelEditor(modelName, nodeName, parent, id) {
     var node = createEmptyNodeEditor(nodeName, parent, id);
     if (node == null)
         return;
-    createModelPlayer(node, modelName);
+    createModelPlayer(pcx, node, modelName);
     log('Added model "' + modelName + '" to node "' + node.name + '"');
     selectNode(node.id);
     return node;
@@ -349,8 +339,8 @@ function createCameraEditor(name, parent, id, cameraId, fov) {
         return;
     cameraId = cameraId || getNextCameraId();
     fov = fov || 45;
-    createCameraPlayer(node, cameraId, fov);
-    var cameraGeometry = createModelGeometry(cameraModel);
+    createCameraPlayer(pcx, node, cameraId, fov);
+    var cameraGeometry = createModelGeometry(pcx, cameraModel);
     cameraGeometry.cameraModel = true;
     node.threeObject.add(cameraGeometry);
     log('Added camera with id ' + node.cameraId + ' to node "' + node.name + '"');
@@ -367,7 +357,7 @@ function createWallEditor(name, parent, id, width, height) {
         width = 100;
     if (!height)
         height = 100;
-    createWallPlayer(node, width, height);
+    createWallPlayer(pcx, node, width, height);
     log('Added wall to node "' + node.name + '"');
     selectNode(node.id);
     return node;
@@ -386,14 +376,14 @@ function update() {
         }
         if (viewport.cameraId != CAMERA.free) {
             // Render camera
-            scene.background = new THREE.Color(settings.bgColor);
+            pcx.scene.background = new THREE.Color(pcx.settings.bgColor);
             gridHelper.visible = false;
             grips.visible = false;
-            traverseTree(function(node) {
+            traverseTree(pcx, function(node) {
                 node.threeObject.children.forEach(function(child) {
                     if (child.model) {
                         if (child.vis || child.vis === undefined) {
-                            child.material = lineMaterial;
+                            child.material = pcx.lineMaterial;
                             child.visible = true;
                         }
                         else {
@@ -401,43 +391,43 @@ function update() {
                         }
                     }
                     if (child.wallObj)
-                        child.material = wallMaterial;
+                        child.material = pcx.wallMaterial;
                     if (child.cameraModel)
                         child.visible = false;
                 });
             });
             var camera;
             if (viewport.cameraId != CAMERA.key) {
-                camera = findCamera(viewport.cameraId);
+                camera = findCamera(pcx, viewport.cameraId);
             }
             else {
                 var time = timeline.getCustomTime('playhead').getTime();
-                var exact = getKeyframe(time);
+                var exact = getKeyframe(pcx, time);
                 if (exact && exact.cameraId !== undefined) {
-                    camera = findCamera(exact.cameraId);
+                    camera = findCamera(pcx, exact.cameraId);
                 }
                 else {
-                    var before = getKeyframeBefore(time, null, '', true);
+                    var before = getKeyframeBefore(pcx, time, null, '', true);
                     if (before.kf != null)
-                        camera = findCamera(before.kf.cameraId);
+                        camera = findCamera(pcx, before.kf.cameraId);
                     else
-                        camera = findCamera(0);
+                        camera = findCamera(pcx, 0);
                 }
             }
-            var ar  = getAspectRatio(settings.aspectRatio);
+            var ar  = getAspectRatio(pcx.settings.aspectRatio);
             if (camera.cameraObject.fov != camera.cameraFov || 
                 camera.cameraObject.aspect != ar) {
                 camera.cameraObject.fov = camera.cameraFov;
                 camera.cameraObject.aspect = ar;
                 camera.cameraObject.updateProjectionMatrix();
             }
-            viewport.renderer.render(scene, camera.cameraObject);
+            viewport.renderer.render(pcx.scene, camera.cameraObject);
         }
         else if (viewport.camera != null) {
             // Meta camera
-            scene.background = new THREE.Color(0x000000);
+            pcx.scene.background = new THREE.Color(0x000000);
             gridHelper.visible = true;
-            traverseTree(function (node) {
+            traverseTree(pcx, function (node) {
                 node.threeObject.visible = true; // TODO: need this?
                 node.threeObject.children.forEach(function(child) {
                     if (child.model) {
@@ -461,11 +451,11 @@ function update() {
             var selectedNode = null;
             var treeNode = $('#scene-tree').tree('getSelectedNode');
             if (treeNode != false) {
-                selectedNode = findNode(treeNode.id);
+                selectedNode = findNode(pcx, treeNode.id);
             }
             if (selectedNode) {
                 updateGrips(selectedNode, metaCamera.zoom);
-                traverseTree(function(subNode) {
+                traverseTree(pcx, function(subNode) {
                     subNode.threeObject.children.forEach(function(child) {
                         if (child.model) {
                             if (child.vis || child.vis === undefined)
@@ -567,14 +557,14 @@ function update() {
                 metaCamera.zoom *= 1 - zoomSpeed;
                 metaCamera.updateProjectionMatrix();
             }
-            viewport.renderer.render(scene, metaCamera);
+            viewport.renderer.render(pcx.scene, metaCamera);
             if (mouse.down && mouse.button == 0) {
                 var div = viewport.div[0];
                 var mouseVec = new THREE.Vector2();
                 mouseVec.x = ((mouse.x - div.parentElement.offsetLeft) / div.clientWidth) * 2 - 1;
                 mouseVec.y = -((mouse.y - div.parentElement.offsetTop) / div.clientHeight) * 2 + 1;
                 raycaster.setFromCamera(mouseVec, metaCamera);
-                var intersects = raycaster.intersectObjects(scene.children, true);
+                var intersects = raycaster.intersectObjects(pcx.scene.children, true);
                 for (var i = 0; i < intersects.length; i++) {
                     if (mouse.pickedObject == null && mouse.down) {
                         if (mouse.moveAxis == AXIS.none) {
@@ -659,7 +649,7 @@ function update() {
                     var lookPt = new THREE.Vector3();
                     lookPt.addVectors(worldPos, normal);
                     gripPlane.lookAt(lookPt);
-                    viewport.renderer.render(scene, metaCamera);
+                    viewport.renderer.render(pcx.scene, metaCamera);
                 }
                 mouse.startPoint = mouse.currentPoint;
                 var planeIntersects = raycaster.intersectObjects([gripPlane], false);
@@ -774,13 +764,13 @@ $(function() {
         openWelcome();
     }
 
-    loadSettingsEditor(settings);
+    loadSettingsEditor(pcx.settings);
     updateTree();
-    var defaultCamera = createCameraEditor('default camera', sceneTree, undefined, 0, 45);
+    var defaultCamera = createCameraEditor('default camera', pcx.sceneTree, undefined, 0, 45);
     defaultCamera.threeObject.position.z = 500;
     loadModel(cubeModel, 'default-cube');
-    createModelEditor('default-cube', 'default cube', sceneTree);
+    createModelEditor('default-cube', 'default cube', pcx.sceneTree);
     gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
-    scene.add(gridHelper);
+    pcx.scene.add(gridHelper);
     update();
 });

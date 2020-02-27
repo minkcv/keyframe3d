@@ -23,25 +23,25 @@ function applySettings() {
     var length = parseInt($('#length').val());
     if (length < 1) {
         alert('Length cannot be less than 1');
-        loadSettingsEditor(settings);
+        loadSettingsEditor(pcx.settings);
         return;
     }
     var framerate = parseInt($('#framerate').val());
     if (framerate < 1) {
         alert('Framerate cannot be less than 1');
-        loadSettingsEditor(settings);
+        loadSettingsEditor(pcx.settings);
         return;
     }
     if (framerate > 60) {
         alert('Framerate cannot be greater than 60');
-        loadSettingsEditor(settings);
+        loadSettingsEditor(pcx.settings);
         return;
     }
     var aspectRatio = $('#aspect-ratio').val();
     var ar = getAspectRatio(aspectRatio);
     if (isNaN(ar)) {
         alert('Aspect ratio must be in the form "width:height", such as "16:9" or "4:3"');
-        loadSettingsEditor(settings);
+        loadSettingsEditor(pcx.settings);
         return;
     }
     var lineColor = parseInt($('#line-color').val());

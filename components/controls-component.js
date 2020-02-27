@@ -46,7 +46,7 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
 function setControlMode(mode) {
     controlMode = mode;
     var treeNode = $('#scene-tree').tree('getSelectedNode');
-    var node = findNode(treeNode.id);
+    var node = findNode(pcx, treeNode.id);
     if (node == false)
         return;
     node.threeObject.children.forEach(function(child) {
@@ -64,18 +64,18 @@ function setKeyframe() {
     var kfWhatNodes = $('#keyframe-what-nodes').val();
     var nodes = [];
     if (kfWhatNodes == 'all-nodes') {
-        traverseTree(function(node) {
+        traverseTree(pcx, function(node) {
             nodes.push(node);
         });
     }
     else if (kfWhatNodes == 'selected-and-children') {
-        selectedNode = findNode(treeNode.id)
-        traverseTree(function(node) {
+        selectedNode = findNode(pcx, treeNode.id)
+        traverseTree(pcx, function(node) {
             nodes.push(node);
         }, selectedNode);
     }
     else if (kfWhatNodes == 'selected-node') {
-        selectedNode = findNode(treeNode.id);
+        selectedNode = findNode(pcx, treeNode.id);
         nodes.push(selectedNode);
     }
     
@@ -83,7 +83,7 @@ function setKeyframe() {
         alert('Select a node to set a keyframe');
         return;
     }
-    var existing = getKeyframe(time);
+    var existing = getKeyframe(pcx, time);
     var nodesData = [];
     var nodeNames = '"';
     var kfPosition = $('#kf-position').prop('checked');
@@ -142,18 +142,18 @@ function shiftKeyframes() {
     var selectedNode = null;
     var nodeNames = '"';
     if (treeNode != false)
-        selectedNode = findNode(treeNode.id);
+        selectedNode = findNode(pcx, treeNode.id);
     var newKeyframes = {};
-    for (var i = 0; i < keyframes.length; i++) {
-        var kf = keyframes[i];
+    for (var i = 0; i < pcx.keyframes.length; i++) {
+        var kf = pcx.keyframes[i];
         var currentTime = kf.time;
         var newTime = currentTime + shiftBy;
         if (newTime < 0) {
             log('The keyframe at time ' + currentTime + ' was moved to a negative time and was removed', 'warning');
-            keyframes.splice(i, 1);
+            pcx.keyframes.splice(i, 1);
             i--;
         }
-        if (newTime >= settings.length) {
+        if (newTime >= pcx.settings.length) {
             log('The keyframe at time ' + currentTime + ' was moved to a time past the animation length', 'warning');
         }
         var newKF = {time: newTime, nodes: []};
@@ -175,8 +175,8 @@ function shiftKeyframes() {
         }
         else {
             if (kfWhatNodes == 'all-nodes')
-                selectedNode = findNode(0);
-            traverseTree(function(node) {
+                selectedNode = findNode(pcx, 0);
+            traverseTree(pcx, function(node) {
                 var data = getKeyframeData(kf, node.id);
                 if (data == null)
                     return;
@@ -198,7 +198,7 @@ function shiftKeyframes() {
     Object.keys(newKeyframes).forEach(function(key) {
         var oldTime = parseInt(key);
         var newKF = newKeyframes[key];
-        var oldKF = getKeyframe(oldTime);
+        var oldKF = getKeyframe(pcx, oldTime);
         newKF.nodes.forEach(function(node) {
             var data = getKeyframeData(oldKF, node.id);
             if (data == null)
@@ -216,10 +216,10 @@ function shiftKeyframes() {
     Object.keys(newKeyframes).forEach(function(key) {
         var oldTime = parseInt(key);
         var newKF = newKeyframes[key];
-        var existingKF = getKeyframe(newKF.time);
+        var existingKF = getKeyframe(pcx, newKF.time);
         if (existingKF == null) {
             existingKF = {time: newKF.time, nodes: []};
-            keyframes.push(existingKF);
+            pcx.keyframes.push(existingKF);
         }
         newKF.nodes.forEach(function(node) {
             var data = getKeyframeData(existingKF, node.id);
@@ -281,7 +281,7 @@ function getNodeData(node, kfPosition, kfRotation, kfScale, kfVisible) {
 
 function copyKeyframe() {
     var time = timeline.getCustomTime('playhead').getTime();
-    var kf = getKeyframe(time);
+    var kf = getKeyframe(pcx, time);
     if (kf == null) {
         alert('No keyframe at current time. Seek to a time with a keyframe to copy');
         return;
@@ -292,7 +292,7 @@ function copyKeyframe() {
     var kfRotation = $('#kf-rotation').prop('checked');
     var kfScale = $('#kf-scale').prop('checked');
     var kfVisible = $('#kf-visible').prop('checked');
-    var kfExisting = getKeyframe(copyTime);
+    var kfExisting = getKeyframe(pcx, copyTime);
     if (kfExisting == null) {
         kfExisting = {
             time: copyTime,
@@ -304,11 +304,11 @@ function copyKeyframe() {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     var selectedNode = null;
     if (treeNode != false)
-        selectedNode = findNode(treeNode.id);
+        selectedNode = findNode(pcx, treeNode.id);
     kf.nodes.forEach(function(node) {
         if (kfWhatNodes == 'selected-and-children') {
             var skip = true;
-            traverseTree(function(other) {
+            traverseTree(pcx, function(other) {
                 if (other.id == node.id)
                     skip = false;
             }, selectedNode);
@@ -358,7 +358,7 @@ function copyKeyframe() {
 
 function removeKeyframe() {
     var time = timeline.getCustomTime('playhead').getTime();
-    var kf = getKeyframe(time);
+    var kf = getKeyframe(pcx, time);
     if (kf == null) {
         alert('No keyframe at current time. Seek to a time with a keyframe to remove it');
         return;
@@ -371,7 +371,7 @@ function removeKeyframe() {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     var selectedNode = null;
     if (treeNode != false)
-        selectedNode = findNode(treeNode.id);
+        selectedNode = findNode(pcx, treeNode.id);
     if (kfWhatNodes != 'all-nodes' && selectedNode == null) {
         alert('Select a node to remove a keyframe');
         return;
@@ -380,7 +380,7 @@ function removeKeyframe() {
     kf.nodes.forEach(function(node) {
         if (kfWhatNodes == 'selected-and-children') {
             var skip = true;
-            traverseTree(function(other) {
+            traverseTree(pcx, function(other) {
                 if (other.id == node.id)
                     skip = false;
             }, selectedNode);
@@ -391,7 +391,7 @@ function removeKeyframe() {
             if (node.id != treeNode.id || node.id == 0)
                 return;
         }
-        var sceneNode = findNode(node.id);
+        var sceneNode = findNode(pcx, node.id);
         nodeNames += + sceneNode.name + '" ';
         if (kfPosition)
             node.pos = undefined;
@@ -409,8 +409,8 @@ function removeKeyframe() {
 }
 
 function cleanKeyframes(nodeNames) {
-    for (var i = 0; i < keyframes.length; i++) {
-        var kf = keyframes[i];
+    for (var i = 0; i < pcx.keyframes.length; i++) {
+        var kf = pcx.keyframes[i];
         for (var n = 0; n < kf.nodes.length; n++) {
             if (kf.nodes[n].pos === undefined && kf.nodes[n].rot === undefined && kf.nodes[n].scale == undefined) {
                 log('Removed data from keyframe at ' + kf.time + ' for nodes ' + nodeNames);
@@ -419,10 +419,10 @@ function cleanKeyframes(nodeNames) {
             }
         }
     }
-    for (var i = 0; i < keyframes.length; i++) {
-        if (keyframes[i].nodes.length == 0) {
-            log('Removed keyframe at ' + keyframes[i].time);
-            keyframes.splice(i, 1);
+    for (var i = 0; i < pcx.keyframes.length; i++) {
+        if (pcx.keyframes[i].nodes.length == 0) {
+            log('Removed keyframe at ' + pcx.keyframes[i].time);
+            pcx.keyframes.splice(i, 1);
             i--;
         }
     }
@@ -439,8 +439,8 @@ function seekNextPrevious(next) {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     var selectedNode = null;
     if (treeNode != false)
-        selectedNode = findNode(treeNode.id);
-    keyframes.forEach(function(kf) {
+        selectedNode = findNode(pcx, treeNode.id);
+    pcx.keyframes.forEach(function(kf) {
         if (!kf.nodes)
             return;
         kf.nodes.forEach(function(nodeData) {
@@ -448,7 +448,7 @@ function seekNextPrevious(next) {
             if (kfWhatNodes == 'all-nodes')
                 skip = false;
             else if (kfWhatNodes == 'selected-and-children') {
-                traverseTree(function(other) {
+                traverseTree(pcx, function(other) {
                     if (other.id == nodeData.id)
                         skip = false;
                 }, selectedNode);
@@ -484,8 +484,8 @@ function seekPrevious() {
 
 function seekTimeInput() {
     var time = parseInt($('#seek-to-time').val());
-    if (time < 0 || time > settings.length - 1) {
-        alert('Seek to time must be between 0 and ' + (settings.length - 1));
+    if (time < 0 || time > pcx.settings.length - 1) {
+        alert('Seek to time must be between 0 and ' + (pcx.settings.length - 1));
         return;
     }
     seekTime(time);
@@ -496,31 +496,31 @@ function play() {
     if (playState == PLAY.play)
         return;
     playState = PLAY.play;
-    timerId = setInterval(function() {
+    pcx.timerId = setInterval(function() {
         var time = timeline.getCustomTime('playhead').getTime();
         seekTime(time, true);
         time = time + 1;
-        if (time > settings.length - 1) {
-            if (settings.loop) {
+        if (time > pcx.settings.length - 1) {
+            if (pcx.settings.loop) {
                 time = 0;
             }
             else {
                 playState = PLAY.stop;
-                clearInterval(timerId);
-                timerId = -1;
+                clearInterval(pcx.timerId);
+                pcx.timerId = -1;
                 return;
             }
         }
         
         timeline.setCustomTime(new Date(time), 'playhead');
-    }, 1000 / settings.framerate);
+    }, 1000 / pcx.settings.framerate);
 }
 
 function pause() {
     playState = PLAY.stop;
-    if (timerId != -1) {
-        clearInterval(timerId);
-        timerId = -1;
+    if (pcx.timerId != -1) {
+        clearInterval(pcx.timerId);
+        pcx.timerId = -1;
     }
 }
 
@@ -534,14 +534,14 @@ function setKeyframeCamera() {
     var time = timeline.getCustomTime('playhead').getTime();
     var cameraName = $('#keyframe-camera').val();
     var cameraNode = findNodeByName(cameraName);
-    var kf = getKeyframe(time);
+    var kf = getKeyframe(pcx, time);
     if (kf == null) {
         var newKF = {
             time: time,
             nodes: [],
             cameraId: cameraNode.cameraId
         }
-        keyframes.push(newKF);
+        pcx.keyframes.push(newKF);
         log('Created new keyframe with camera ' + cameraName + ' at time ' + time);
     }
     else {

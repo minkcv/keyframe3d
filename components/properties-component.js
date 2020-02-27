@@ -53,7 +53,7 @@ function updateProperties() {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     if (treeNode == false)
         return;
-    var node = findNode(treeNode.id);
+    var node = findNode(pcx, treeNode.id);
     if (node == null)
         return;
     $('#x-pos').val(node.threeObject.position.x.toFixed(precision));
@@ -102,7 +102,7 @@ function changeProperties() {
         updateProperties();
         return;
     }
-    var node = findNode(treeNode.id);
+    var node = findNode(pcx, treeNode.id);
     node.threeObject.position.x = parseFloat($('#x-pos').val());
     node.threeObject.position.y = parseFloat($('#y-pos').val());
     node.threeObject.position.z = parseFloat($('#z-pos').val());

@@ -19,7 +19,7 @@ function saveProject() {
         name: 'root', 
         children: []
     };
-    traverseTree(function(node) {
+    traverseTree(pcx, function(node) {
         var copy = {
             id: node.id,
             name: node.name,
@@ -35,18 +35,18 @@ function saveProject() {
             copy.wallWidth = node.wallWidth;
             copy.wallHeight = node.wallHeight;
         }
-        var parent = getParentNode(node);
+        var parent = getParentNode(pcx, node);
         if (parent != null) {
             // Search our copy tree for the parent
-            var copyParent = findNode(parent.id, nodeNoThree);
+            var copyParent = findNode(pcx, parent.id, nodeNoThree);
             if (copyParent != null)
                 copyParent.children.push(copy);
         }
     });
     var project = {
-        settings: settings,
-        keyframes: keyframes,
-        models: models,
+        settings: pcx.settings,
+        keyframes: pcx.keyframes,
+        models: pcx.models,
         sceneTree: nodeNoThree,
     };
     var blob = new Blob([JSON.stringify(project)], {type: 'text/plain' });
@@ -64,23 +64,23 @@ function loadProject(files) {
         var project = JSON.parse(reader.result);
         log('--- Loading project "' + file.name + '" ---');
         loadSettingsEditor(project.settings);
-        models = [];
+        pcx.models = [];
         $('#model-select').html('');
         project.models.forEach(function(model) {
             loadModel(model.data, model.name);
         });
         // Clear the scene tree. Root node stays
-        sceneTree.children = [];
-        while(sceneTree.threeObject.children.length > 0)
-            sceneTree.threeObject.remove(sceneTree.threeObject.children[0]);
+        pcx.sceneTree.children = [];
+        while(pcx.sceneTree.threeObject.children.length > 0)
+        pcx.sceneTree.threeObject.remove(pcx.sceneTree.threeObject.children[0]);
 
-        traverseTree(function (loadNode) {
+        traverseTree(pcx, function (loadNode) {
             if (loadNode.id == 0) {
                 return;
             }
             else {
-                var parentProject = getParentNode(loadNode, project.sceneTree);
-                var parent = findNode(parentProject.id);
+                var parentProject = getParentNode(pcx, loadNode, project.sceneTree);
+                var parent = findNode(pcx, parentProject.id);
                 if (loadNode.model !== undefined) {
                     createModelEditor(loadNode.model, loadNode.name, parent, loadNode.id);
                 }
@@ -95,7 +95,7 @@ function loadProject(files) {
                 }
             }
         }, project.sceneTree);
-        keyframes = project.keyframes;
+        pcx.keyframes = project.keyframes;
         updateTree();
         updateTimeline();
         seekTime(0);
