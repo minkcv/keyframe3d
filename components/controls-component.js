@@ -392,7 +392,7 @@ function removeKeyframe() {
                 return;
         }
         var sceneNode = findNode(pcx, node.id);
-        nodeNames += + sceneNode.name + '" ';
+        nodeNames += sceneNode.name + '" ';
         if (kfPosition)
             node.pos = undefined;
         if (kfRotation)
