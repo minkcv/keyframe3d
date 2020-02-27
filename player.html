@@ -4,51 +4,37 @@
     <meta charset="utf-8" />
     <title>Keyframe3D Player</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="js/three.js"></script>
+
+    <!-- These are the 3 scripts required for the player -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+    <!-- These two you will need to copy from the repo -->
     <script src="js/BufferGeometryUtils.js"></script>
     <script src="player.js"></script>
     <style>
-        html, body {
-            margin: 0px;
-            width: 100%;
-            height: 100%;
-        }
-        .player {
-            width: 100%;
-            height: 500px;
-            position: relative;
-        }
         .controls {
-            position: absolute;
-            bottom: 0px;
+            margin: auto;
+            width: 200px;
         }
     </style>
 </head>
 <body>
-    <div class='player' id='player1'>
-        <div class='controls'>
-            <button onclick='playPlayer("player1")'>Play</button>
-            <button onclick='pausePlayer("player1")'>Pause</button>
-        </div>
+    <!-- This is the div that the player will show in -->
+    <!-- You might want to style it with a width and height -->
+    <!-- The id must match what you use for createContext(), playPlayer(), and pausePlayer() -->
+    <div id='player1' style='width: 100%; height: 500px;'>
     </div>
-    <div class='player' id='player2'>
-        <div class='controls'>
-            <button onclick='playPlayer("player2")'>Play</button>
-            <button onclick='pausePlayer("player2")'>Pause</button>
-        </div>
+    <!-- Optional, add some controls for play and pause -->
+    <!-- Make sure to use the same id that you used for createContext() -->
+    <div class='controls'>
+        <button onclick='playPlayer("player1")'>Play</button>
+        <button onclick='pausePlayer("player1")'>Pause</button>
     </div>
-    
+    <!-- Create a player context and load a project from a URL -->
     <script type='text/javascript'>
-        // 'http://minkcv.github.io/keyframe3d/demos/demo-1.json'
-        // python2: python -m SimpleHTTPServer 8000
-        // python3: python -m http.server
-        
+        // Pass in the id of the div that will have the rendered animation
         var pc1 = createContext('player1');
-        loadProjectPlayer('http://localhost:8000/demos/demo-0.json', pc1);
-
-        var pc2 = createContext('player2');
-        loadProjectPlayer('http://localhost:8000/demos/demo-1.json', pc2);
-        
+        // Use the URL for your animation here
+        loadProjectPlayer('http://localhost:8000/demos/logo.json', pc1);
     </script>
 </body>
 </html>

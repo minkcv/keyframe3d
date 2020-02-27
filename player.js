@@ -447,7 +447,7 @@ function seekTimePlayer(pcx, time) {
     if (kf != null && kf.cameraId !== undefined)
         cameraNode = findCamera(pcx, kf.cameraId);
     else {
-        var before = getKeyframeBefore(pcx, time, null, '', true)
+        var before = getKeyframeBefore(pcx, time, null, '', true);
         if (before.kf != null)
             cameraNode = findCamera(pcx, before.kf.cameraId);
         else
