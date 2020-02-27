@@ -282,7 +282,7 @@ function deleteNode() {
     if (childNames) {
         childNames = childNames.slice(0, childNames.length - 2);
     }
-    var parent = getParentNode(node);
+    var parent = getParentNode(pcx, node);
     for (var i = 0; i < parent.children.length; i++) {
         if (parent.children[i].id == node.id) {
             parent.children.splice(i, 1);
