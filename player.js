@@ -79,7 +79,7 @@ function loadProjectPlayer(url, pcx) {
         aspectHeight = Math.floor(aspectHeight);
         pcx.renderer.setSize(aspectWidth, aspectHeight);
         if (pcx.settings.autoplay)
-            playPlayer();
+            playPlayer(pcx.divName);
     }, function(xhr) {
         // Error
         console.log(xhr);
@@ -457,7 +457,7 @@ function seekTimePlayer(pcx, time) {
 }
 
 function playPlayer(player) {
-    pcx = getContext(player);
+    var pcx = getContext(player);
     if (pcx.time == pcx.settings.length) {
         pcx.time = 0;
         clearInterval(pcx.timerId);
@@ -465,6 +465,7 @@ function playPlayer(player) {
     if (pcx.timerId != -1)
         return;
     pcx.timerId = setInterval(function() {
+        var pcx = getContext(player);
         var camera = seekTimePlayer(pcx, pcx.time);
         pcx.time = pcx.time + 1;
         if (pcx.time > pcx.settings.length - 1) {
@@ -474,6 +475,7 @@ function playPlayer(player) {
             else {
                 clearInterval(pcx.timerId);
                 pcx.timerId = -1;
+                pcx.time = 0;
                 return;
             }
         }
@@ -483,7 +485,7 @@ function playPlayer(player) {
 }
 
 function pausePlayer(player) {
-    pcx = getContext(player);
+    var pcx = getContext(player);
     if (pcx.timerId != -1) {
         clearInterval(pcx.timerId);
         pcx.timerId = -1;
