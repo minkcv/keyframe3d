@@ -102,7 +102,7 @@ function setKeyframe() {
             time: time,
             nodes: nodesData
         };
-        keyframes.push(kf);
+        pcx.keyframes.push(kf);
         log('Created new keyframe at ' + time + ' with data for nodes ' + nodeNames);
     }
     else {
@@ -298,7 +298,7 @@ function copyKeyframe() {
             time: copyTime,
             nodes: []
         };
-        keyframes.push(kfExisting);
+        pcx.keyframes.push(kfExisting);
     }
     var kfNewNodeData = [];
     var treeNode = $('#scene-tree').tree('getSelectedNode');
