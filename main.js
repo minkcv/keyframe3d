@@ -352,6 +352,7 @@ function createModelEditor(modelName, nodeName, parent, id) {
     if (node == null)
         return;
     createModelPlayer(pcx, node, modelName);
+    node.modelObject.vis = true;
     log('Added model "' + modelName + '" to node "' + node.name + '"');
     selectNode(node.id);
     return node;
@@ -435,7 +436,7 @@ function update() {
             traverseTree(pcx, function(node) {
                 node.threeObject.children.forEach(function(child) {
                     if (child.model) {
-                        if (child.vis || child.vis === undefined) {
+                        if (child.vis) {
                             child.material = pcx.lineMaterial;
                             child.visible = true;
                         }
@@ -485,7 +486,7 @@ function update() {
                 node.threeObject.children.forEach(function(child) {
                     if (child.model) {
                         child.visible = true;
-                        if (child.vis || child.vis === undefined) {
+                        if (child.vis) {
                             child.material = whiteLineMat;
                         }
                         else {
