@@ -14,6 +14,8 @@ layout.registerComponent( 'treeControlsComponent', function(container, component
         <br>
         <button type='button' class='btn btn-sm' onclick='addWall()'>Create Wall</button>
         <input type='text' id='wall-node-name' placeholder='name'></input>
+        <br>
+        <button type='button' class='btn btn-sm' onclick='duplicateNode()'>Duplicate Node</button>
     </div>`);
 });
 
@@ -48,4 +50,18 @@ function addWall() {
         parent = findNode(pcx, treeNode.id);
     var name = $('#wall-node-name').val();
     createWallEditor(name, parent);
+}
+
+function duplicateNode() {
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    if (treeNode == null || treeNode == false) {
+        alert('Select a node to duplicate');
+        return;
+    }
+    else if (treeNode.id == 0) {
+        alert('Cannot duplicate the root node');
+        return;
+    }
+    var node = findNode(pcx, treeNode.id);
+    duplicateNodeEditor(node);
 }

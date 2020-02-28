@@ -195,10 +195,33 @@ function getNextCameraId() {
     return nextId;
 }
 
+function getNextNodeName(name) {
+    if (!name)
+        name = 'node'
+    var num = 1;
+    var newName = name;
+    var existing = findNodeByName(name);
+    while (existing != null) {
+        var lastDash = existing.name.lastIndexOf('-');
+        if (lastDash > 0) {
+            var numberStr = existing.name.substring(lastDash + 1);
+            var number = parseInt(numberStr);
+            if (!isNaN(number))
+                newName = existing.name.substring(0, lastDash + 1) + (number + 1);
+            else
+                newName = name + '-' + num;
+        }
+        else
+            newName = name + '-' + num;
+        existing = findNodeByName(newName);
+        num++;
+    }
+    return newName;
+}
+
 function createEmptyNodeEditor(name, parent, id) {
     if (name.length < 1) {
-        alert('Name for node cannot be blank');
-        return null;
+        name = getNextNodeName();
     }
     if (name == 'free camera') {
         alert('Node cannot be named "free camera"');
@@ -210,8 +233,7 @@ function createEmptyNodeEditor(name, parent, id) {
     }
     var existing = findNodeByName(name);
     if (existing) {
-        alert('Node with that name already exists');
-        return null;
+        name = getNextNodeName(name);
     }
     var nodeId = id || getNextNodeId();
     var newNode = createEmptyNodePlayer(name, parent, nodeId);
@@ -324,6 +346,8 @@ function createModelEditor(modelName, nodeName, parent, id) {
         alert('Select a model from the list of loaded models');
         return;
     };
+    if (!nodeName || nodeName.length < 1)
+        nodeName = modelName;
     var node = createEmptyNodeEditor(nodeName, parent, id);
     if (node == null)
         return;
@@ -334,6 +358,8 @@ function createModelEditor(modelName, nodeName, parent, id) {
 }
 
 function createCameraEditor(name, parent, id, cameraId, fov) {
+    if (!name || name.length < 1)
+        name = 'camera';
     var node = createEmptyNodeEditor(name, parent, id);
     if (node == null)
         return;
@@ -350,6 +376,8 @@ function createCameraEditor(name, parent, id, cameraId, fov) {
 }
 
 function createWallEditor(name, parent, id, width, height) {
+    if (!name || name.length < 1)
+        name = 'wall';
     var node = createEmptyNodeEditor(name, parent, id);
     if (node == null)
         return;
@@ -361,6 +389,31 @@ function createWallEditor(name, parent, id, width, height) {
     log('Added wall to node "' + node.name + '"');
     selectNode(node.id);
     return node;
+}
+
+function duplicateNodeEditor(startNode) {
+    var mainParent = getParentNode(pcx, startNode);
+    var parents = {};
+    traverseTree(pcx, function(node) {
+        var originalParent = getParentNode(pcx, node);
+        var parent = mainParent;
+        if (originalParent.id != mainParent.id) {
+            parent = parents[originalParent.id];
+        }
+        var newNode;
+        if (node.model)
+            newNode = createModelEditor(node.model, node.name, parent);
+        else if (node.cameraId)
+            newNode = createCameraEditor(node.name, parent, null, null, node.cameraFov);
+        else if (node.wallObj)
+            newNode = createWallEditor(node.name, parent, null, node.wallWidth, node.wallHeight);
+        else
+            newNode = createEmptyNodeEditor(node.name, parent);
+        newNode.threeObject.position.copy(node.threeObject.position);
+        newNode.threeObject.quaternion.copy(node.threeObject.quaternion);
+        newNode.threeObject.scale.copy(node.threeObject.scale);
+        parents[node.id] = newNode;
+    }, startNode);
 }
 
 function update() {
