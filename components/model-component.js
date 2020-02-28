@@ -12,6 +12,8 @@ layout.registerComponent( 'modelComponent', function(container, componentState){
     </select><br>
     <button type='button' class='btn btn-sm' onclick='addModelToScene($("#model-select option:selected").text())'>Add To Scene</button>
     <input type='text' id='model-node-name' placeholder='name'></input><br>
+    <button type='button' class='btn btn-sm' onclick='applyToSelected($("#model-select option:selected").text())'>Apply To Selected</button>
+    <button type='button' class='btn btn-sm' onclick='removeFromSelected()'>Remove From Selected</button><br>
     <button type='button' class='btn btn-sm' onclick='unloadModel()' id='unload-model'>Unload Model</button><br>
     </div>`);
 });
@@ -95,4 +97,41 @@ function unloadModel() {
     });
     $('#model-select option[id="' + name + '"]').remove();
     log('Unloaded model "' + name + '"');
+}
+
+function applyToSelected(modelName) {
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    if (treeNode == false || treeNode.id == 0) {
+        alert('Select a node to apply the model to. Cannot use root node.');
+        return;
+    }
+    var node = findNode(pcx, treeNode.id);
+    var visibility;
+    if (node.model) {
+        visibility = node.modelObject.vis;
+        node.threeObject.remove(node.modelObject);
+    }
+    var model = getModel(pcx, modelName);
+    node.model = modelName;
+    var linesObject = createModelGeometry(pcx, model.data, modelName);
+    node.threeObject.add(linesObject);
+    node.modelObject = linesObject;
+    node.modelObject.vis = visibility;
+    updateProperties();
+}
+
+function removeFromSelected() {
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    if (treeNode == false || treeNode.id == 0) {
+        alert('Select a node to remove the model from.');
+        return;
+    }
+    var node = findNode(pcx, treeNode.id);
+    if (node.model) {
+        node.threeObject.remove(node.modelObject);
+    }
+    else {
+        alert('The node does not have a model');
+    }
+    updateProperties();
 }
