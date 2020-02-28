@@ -57,6 +57,12 @@
         <button onclick='playPlayer("player3")'>Play</button>
         <button onclick='pausePlayer("player3")'>Pause</button>
     </div>
+    <div class='player' id='player4'>
+    </div>
+    <div class='controls'>
+        <button onclick='playPlayer("player4")'>Play</button>
+        <button onclick='pausePlayer("player4")'>Pause</button>
+    </div>
     
     <script type='text/javascript'>
         // for testing locally
@@ -71,6 +77,9 @@
 
         var pc3 = createContext('player3');
         loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/bee.json', pc3);
+
+        var pc4 = createContext('player4');
+        loadProjectPlayer('http://minkcv.github.io/keyframe3d/demos/stresstest.json', pc4);
         
     </script>
 </body>

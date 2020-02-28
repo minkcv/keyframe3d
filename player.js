@@ -83,7 +83,6 @@ function loadProjectPlayer(url, pcx) {
     }, function(xhr) {
         // Error
         console.log(xhr);
-        alert(xhr.statusText);
     });
 }
 
