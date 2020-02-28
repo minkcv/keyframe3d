@@ -412,7 +412,7 @@ function cleanKeyframes(nodeNames) {
     for (var i = 0; i < pcx.keyframes.length; i++) {
         var kf = pcx.keyframes[i];
         for (var n = 0; n < kf.nodes.length; n++) {
-            if (kf.nodes[n].pos === undefined && kf.nodes[n].rot === undefined && kf.nodes[n].scale == undefined) {
+            if (kf.nodes[n].pos === undefined && kf.nodes[n].rot === undefined && kf.nodes[n].scale == undefined && kf.nodes[n].vis == undefined) {
                 log('Removed data from keyframe at ' + kf.time + ' for nodes ' + nodeNames);
                 kf.nodes.splice(n, 1);
                 n--;
@@ -458,7 +458,7 @@ function seekNextPrevious(next) {
             if (skip)
                 return;
             
-            if ((nodeData.pos && kfPosition) || (nodeData.rot && kfRotation) || (nodeData.scale && kfScale) || nodeData.vis && kfVisible) {
+            if ((nodeData.pos && kfPosition) || (nodeData.rot && kfRotation) || (nodeData.scale && kfScale) || nodeData.vis !== undefined && kfVisible) {
                 if ((next && kf.time > time) || (!next && kf.time < time)) {
                     if (newTime == -1)
                         newTime = kf.time;
