@@ -44,6 +44,42 @@ layout.registerComponent( 'treeComponent', function(container, componentState){
 });
 
 function updateTree() {
-    if (pcx.sceneTree)
-        $('#scene-tree').tree('loadData', [pcx.sceneTree]);
+    if (pcx.sceneTree) {
+        var nodeNoThree = {
+            id: 0, 
+            name: 'root', 
+            children: []
+        };
+        traverseTree(pcx, function(node) {
+            var copy = {
+                id: node.id,
+                name: node.name,
+                children: []
+            };
+            if (node.model !== undefined)
+                copy.model = node.model;
+            if (node.cameraId !== undefined){
+                copy.cameraId = node.cameraId;
+                copy.cameraFov = node.cameraFov;
+            }
+            if (node.wallWidth !== undefined) {
+                copy.wallWidth = node.wallWidth;
+                copy.wallHeight = node.wallHeight;
+            }
+            var parent = getParentNode(pcx, node);
+            if (parent != null) {
+                // Search our copy tree for the parent
+                var copyParent = findNode(pcx, parent.id, nodeNoThree);
+                if (copyParent != null)
+                    copyParent.children.push(copy);
+            }
+        });
+        var oldTree = $('#scene-tree').tree('getNodeById', 0);
+        $('#scene-tree').tree('loadData', [nodeNoThree]);
+        traverseTree(pcx, function(node) {
+            var newNode = $('#scene-tree').tree('getNodeById', node.id);
+            if (newNode && node.is_open == false)
+                $('#scene-tree').tree('closeNode', newNode);
+        }, oldTree);
+    }
 }
