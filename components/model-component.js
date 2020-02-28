@@ -87,6 +87,12 @@ function unloadModel() {
             break;
         }
     }
+    traverseTree(pcx, function(node) {
+        if (node.model == name) {
+            node.threeObject.remove(node.modelObject);
+            node.model = undefined;
+        }
+    });
     $('#model-select option[id="' + name + '"]').remove();
     log('Unloaded model "' + name + '"');
 }
