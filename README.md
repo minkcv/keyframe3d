@@ -1,4 +1,4 @@
-# Keyframe3D
+![video](./k3d.gif)
 
 Create 3D animations in the browser. Requires WebGL
 
