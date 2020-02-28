@@ -2,6 +2,7 @@
 
 This document provides an overview of the components that make up Keyframe3D.
 It is recommended to read this document and then the tutorial documents in this folder.
+[DISTRIBUTING.md](./DISTRIBUTING.md) explains how to embed an animation in a web page.
 The name 'Keyframe3D' is used to refer to the animation editor.
 The name 'Keyframe3D Player' is used to refer to the animation player.
 
@@ -32,7 +33,7 @@ You can close the welcome screen with the 'x' on the 'Welcome to Keyframe3D' tab
 ## File Pane
 
 The 'Load Project' and 'Save Project' buttons in the File pane will prompt to load or save a json file. This file contains the project settings, models, scene tree, and keyframes. This is also the file that will be loaded by the Keyframe3D Player.
-The 'Add Viewport' button opens an additional 3D viewport.
+The 'Open Viewport' button opens an additional 3D viewport.
 
 ## Settings
 
@@ -48,12 +49,14 @@ The 'Apply' button must be clicked after changes are made in the Settings pane.
 
 The Scene Tree Controls pane contains buttons for creating, renaming, and deleting nodes, as well as creating camera nodes.
 All the buttons operate on the currently selected node in the Scene Tree. 
-Buttons that have text fields next to them expect a name for the node that they create or rename.
+Buttons 'Create Node', 'Create Camera', and 'Create Wall' will use the name field for the name of the new node, or an automatic name.
 The names `root`, `default camera`, `key camera`, and `free camera` are reserved.
-The 'Create Node' button creates a new node as a child of the currently selected node.
-The 'Rename Node' button renames the currently selected node.
+The 'Create Node' button creates a new node empty node.
+The 'Rename Node' button renames the currently selected node to the name in the 'name' field.
 The 'Delete Node' button deletes the currently selected node and ALL of its children. 
-The 'Create Camera' button creates a new scene camera as a child of the currently selected node.
+The 'Create Camera' button creates a new scene camera.
+The 'Create Wall' button creates a node with a plane that will have the same color as the background.
+The 'Duplicate Node' button duplicates the selected node and its children at the same level as the selected node.
 
 ## Scene Tree
 
@@ -69,15 +72,16 @@ For example, a child node that has position x: -10, y: 0, z: 0, with a parent wi
 The Models pane contains a list of loaded models and buttons for loading and unloading models from the project, as well as adding models to the scene.
 The model list will contain the 'default-cube' model for a new project.
 Models can be loaded by clicking the 'Load Model' button and browsing for a Line3D JSON model.
-Models can be added to the scene by selecting a model from the list, entering a name in the 'name' field next to the 'Add To Scene' button, and clicking the button.
-The added model will be added as a child of the node selected in the Scene Tree.
-Models can be unloaded from the project by selecting a model from the list and clicking the 'Unload Model' button.
+Models can be added to the scene by selecting a model from the list and clicking the 'Add To Scene' button to create a new node with the model.
+The 'Apply To Selected' button will change the model of the currently selected node to the model selected from the list.
+The 'Remove From Selected' button will remove the model from the currently selected node.
+Models can be unloaded from the project by selecting a model from the list and clicking the 'Unload Model' button. This removes the model from all nodes that used that model.
 
 ## Properties
 
 The Properties pane shows the x, y, and z position, x, y, and z rotation, and x, y, and z scale of the selected node. 
-Changing the fields in the Properties pane will update the values of the selected node live.
-Changes to the position and rotation will not be saved unless a keyframe is set.
+If the node has a model, the properties will show the visibility of the model.
+Changing the fields in the Properties pane will update the values of the selected node live, but will not keyframe the properties.
 The properties pane will show the vertical field of view (FOV) of a scene camera if one is selected.
 A change to the camera field of view is saved to the camera and is independent of keyframes.
 The properties pane will show the width and height of a wall if one is selected.
