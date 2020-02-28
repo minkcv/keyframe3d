@@ -304,6 +304,16 @@ function deleteNode() {
     if (childNames) {
         childNames = childNames.slice(0, childNames.length - 2);
     }
+    traverseTree(pcx, function(child) {
+        pcx.keyframes.forEach(function(kf) {
+            for (var i = 0; i < kf.nodes.length; i++) {
+                if (kf.nodes[i].id == child.id) {
+                    kf.nodes.splice(i, 1);
+                    i--;
+                }
+            }
+        });
+    }, node);
     var parent = getParentNode(pcx, node);
     for (var i = 0; i < parent.children.length; i++) {
         if (parent.children[i].id == node.id) {

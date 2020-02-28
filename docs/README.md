@@ -53,7 +53,7 @@ Buttons 'Create Node', 'Create Camera', and 'Create Wall' will use the name fiel
 The names `root`, `default camera`, `key camera`, and `free camera` are reserved.
 The 'Create Node' button creates a new node empty node.
 The 'Rename Node' button renames the currently selected node to the name in the 'name' field.
-The 'Delete Node' button deletes the currently selected node and ALL of its children. 
+The 'Delete Node' button deletes the currently selected node and ALL of its children and ALL keyframe data for that node and its children.
 The 'Create Camera' button creates a new scene camera.
 The 'Create Wall' button creates a node with a plane that will have the same color as the background.
 The 'Duplicate Node' button duplicates the selected node and its children at the same level as the selected node.
