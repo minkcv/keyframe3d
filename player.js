@@ -78,6 +78,8 @@ function loadProjectPlayer(url, pcx) {
         aspectWidth = Math.floor(aspectWidth);
         aspectHeight = Math.floor(aspectHeight);
         pcx.renderer.setSize(aspectWidth, aspectHeight);
+        var camera = seekTimePlayer(pcx, 0);
+        pcx.renderer.render(pcx.scene, camera.cameraObject);
         if (pcx.settings.autoplay)
             playPlayer(pcx.divName);
     }, function(xhr) {
