@@ -19,6 +19,10 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
             <select id='view-camera-select-` + componentState.viewportId + `' onchange='changeCamera(` + componentState.viewportId + `)'></select>
         </div>
     </div>`);
+    container.on('open', function() {
+        updateViewport(componentState.viewportId);
+        updateCameraLists();
+    });
     container.on('tab', function() {
         updateViewport(componentState.viewportId);
         updateCameraLists();
@@ -115,6 +119,15 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
             pickedObject: null
         }
     });
+});
+
+layout.on('stackCreated', function (stack) {
+    if (stack.config.id == 'viewportStack') {
+        stack.on('activeContentItemChanged', function(contentItem) {
+            if (contentItem.config.componentState.viewportId !== undefined)
+                updateViewport(contentItem.config.componentState.viewportId);
+        });
+    }
 });
 
 function updateViewport(id) {

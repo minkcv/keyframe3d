@@ -76,6 +76,7 @@ var config = {
             type: 'column',
             content:[{
                 type: 'stack',
+                id: 'viewportStack',
                 content:[{
                     type: 'component',
                     componentName: 'viewportComponent',
