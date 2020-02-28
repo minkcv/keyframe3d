@@ -8,7 +8,7 @@ layout.registerComponent( 'fileComponent', function(container, componentState){
             </div>
         </div>
         <button type='button' class='btn btn-sm' onclick='saveProject()'>Save Project</button><br>
-        <button type='button' class='btn btn-sm' onclick='addViewport()'>Add Viewport</button><br>
+        <button type='button' class='btn btn-sm' onclick='openViewport()'>Open Viewport</button>
         <button type='button' class='btn btn-sm' onclick='openWelcome()'>Open Welcome Screen</button>
     </div>`);
 });

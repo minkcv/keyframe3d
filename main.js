@@ -107,7 +107,7 @@ rotationGrips.add(zRotate);
 grips.add(rotationGrips)
 pcx.scene.add(grips);
 
-function addViewport() {
+function openViewport() {
     for (var i = 0; i < viewports.length; i++) {
         var newViewportId = i + 1;
         for (var j = 0; j < viewports.length; j++) {
@@ -258,7 +258,7 @@ function renameNode() {
         alert('Cannot rename the default camera');
         return;
     }
-    var name = $('#rename-node-name').val();
+    var name = $('#node-name').val();
     if (name.length < 1) {
         alert('Name for node cannot be blank');
         return;
@@ -405,7 +405,7 @@ function duplicateNodeEditor(startNode) {
             newNode = createModelEditor(node.model, node.name, parent);
         else if (node.cameraId)
             newNode = createCameraEditor(node.name, parent, null, null, node.cameraFov);
-        else if (node.wallObj)
+        else if (node.wallObject)
             newNode = createWallEditor(node.name, parent, null, node.wallWidth, node.wallHeight);
         else
             newNode = createEmptyNodeEditor(node.name, parent);

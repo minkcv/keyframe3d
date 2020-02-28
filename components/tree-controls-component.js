@@ -2,20 +2,13 @@ layout.registerComponent( 'treeControlsComponent', function(container, component
     container.getElement().html(
     `<div class="tree-controls" id="tree-controls">
         <button type='button' class='btn btn-sm' onclick='addEmptyNode()'>Create Node</button>
-        <input type='text' id='empty-node-name' placeholder='name'></input>
-        <br>
         <button type='button' class='btn btn-sm' onclick='renameNode()'>Rename Node</button>
-        <input type='text' id='rename-node-name' placeholder='name'></input>
-        <br>
         <button type'button' class='btn btn-sm' onclick='deleteNode()'>Delete Node</button>
-        <br>
         <button type='button' class='btn btn-sm' onclick='addCamera()'>Create Camera</button>
-        <input type='text' id='camera-node-name' placeholder='name'></input>
-        <br>
         <button type='button' class='btn btn-sm' onclick='addWall()'>Create Wall</button>
-        <input type='text' id='wall-node-name' placeholder='name'></input>
-        <br>
         <button type='button' class='btn btn-sm' onclick='duplicateNode()'>Duplicate Node</button>
+        <br>
+        <input type='text' id='node-name' placeholder='name'></input>
     </div>`);
 });
 
@@ -26,7 +19,7 @@ function addEmptyNode() {
         parent = pcx.sceneTree;
     else
         parent = findNode(pcx, treeNode.id);
-    var name = $('#empty-node-name').val();
+    var name = $('#node-name').val();
     createEmptyNodeEditor(name, parent)
 }
 
@@ -37,7 +30,7 @@ function addCamera() {
         parent = pcx.sceneTree;
     else
         parent = findNode(pcx, treeNode.id);
-    var name = $('#camera-node-name').val();
+    var name = $('#node-name').val();
     createCameraEditor(name, parent);
 }
 
@@ -48,7 +41,7 @@ function addWall() {
         parent = pcx.sceneTree;
     else
         parent = findNode(pcx, treeNode.id);
-    var name = $('#wall-node-name').val();
+    var name = $('#node-name').val();
     createWallEditor(name, parent);
 }
 

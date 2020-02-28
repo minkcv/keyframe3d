@@ -13,7 +13,7 @@ var config = {
                 type: 'column',
                 content:[{
                     type: 'stack',
-                    height: 24,
+                    height: 15,
                     content:[{
                         type: 'component',
                         componentName: 'fileComponent',
@@ -23,7 +23,7 @@ var config = {
                     }]
                 },{
                     type: 'component',
-                    height: 22,
+                    height: 15,
                     componentName: 'treeControlsComponent',
                     componentState: {},
                     isClosable: false,

@@ -87,7 +87,7 @@ button {
 #properties > div {
     margin: 5px;
 }
-.settings > input, .tree-controls > input, .controls > input {
+.settings > input, .controls > input {
     float: right;
 }
 input[type=checkbox] {
