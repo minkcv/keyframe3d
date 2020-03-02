@@ -57,4 +57,5 @@ function duplicateNode() {
     }
     var node = findNode(pcx, treeNode.id);
     duplicateNodeEditor(node);
+    updateProperties();
 }
