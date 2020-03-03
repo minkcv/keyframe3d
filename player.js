@@ -32,6 +32,7 @@ function loadProjectPlayer(url, pcx) {
         loadSettingsPlayer(pcx, project.settings);
         pcx.models = project.models;
         pcx.keyframes = project.keyframes;
+        pcx.shapes = project.shapes;
         traverseTree(pcx, function (loadNode) {
             if (loadNode.id == 0) {
                 return;

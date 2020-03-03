@@ -80,7 +80,7 @@ Models can be unloaded from the project by selecting a model from the list and c
 
 The Shapes pane is similar to the models pane except that it is for 2D shapes.
 These shapes can be used to cover up model lines and will have the same color as the background.
-Shapes can be saved from Line3D by selecting a loop of connected points and choosing 'Save Selected Shape JSON'.
+Shapes can be saved from Line3D by selecting a loop of connected points in a plane and choosing 'Save Selected Shape JSON'.
 
 ## Properties
 
