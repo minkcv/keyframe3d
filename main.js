@@ -426,6 +426,7 @@ function duplicateNodeEditor(startNode) {
         newNode.threeObject.scale.copy(node.threeObject.scale);
         parents[node.id] = newNode;
     }, startNode);
+    selectNode(parents[mainParent.id]);
 }
 
 function update() {
