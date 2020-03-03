@@ -62,9 +62,8 @@ function updateTree() {
                 copy.cameraId = node.cameraId;
                 copy.cameraFov = node.cameraFov;
             }
-            if (node.wallWidth !== undefined) {
-                copy.wallWidth = node.wallWidth;
-                copy.wallHeight = node.wallHeight;
+            if (node.shape !== undefined) {
+                copy.shape = node.shape;
             }
             var parent = getParentNode(pcx, node);
             if (parent != null) {

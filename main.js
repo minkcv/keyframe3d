@@ -386,18 +386,19 @@ function createCameraEditor(name, parent, id, cameraId, fov) {
     return node;
 }
 
-function createWallEditor(name, parent, id, width, height) {
-    if (!name || name.length < 1)
-        name = 'wall';
-    var node = createEmptyNodeEditor(name, parent, id);
+function createShapeEditor(shapeName, nodeName, parent, id) {
+    var shape = getShape(pcx, shapeName);
+    if (!shape) {
+        alert('Select a shape from the list of loaded shapes');
+        return;
+    };
+    if (!nodeName || nodeName.length < 1)
+        nodeName = shapeName;
+    var node = createEmptyNodeEditor(nodeName, parent, id);
     if (node == null)
         return;
-    if (!width)
-        width = 100;
-    if (!height)
-        height = 100;
-    createWallPlayer(pcx, node, width, height);
-    log('Added wall to node "' + node.name + '"');
+    createShapePlayer(pcx, node, shapeName);
+    log('Added Shape "' + shapeName + '" to node "' + node.name + '"');
     selectNode(node.id);
     return node;
 }
@@ -416,8 +417,8 @@ function duplicateNodeEditor(startNode) {
             newNode = createModelEditor(node.model, node.name, parent);
         else if (node.cameraId)
             newNode = createCameraEditor(node.name, parent, null, null, node.cameraFov);
-        else if (node.wallObject)
-            newNode = createWallEditor(node.name, parent, null, node.wallWidth, node.wallHeight);
+        else if (node.shape)
+            newNode = createShapeEditor(node.shape, node.name, parent);
         else
             newNode = createEmptyNodeEditor(node.name, parent);
         newNode.threeObject.position.copy(node.threeObject.position);
@@ -454,7 +455,7 @@ function update() {
                             child.visible = false;
                         }
                     }
-                    if (child.wallObj)
+                    if (child.shape)
                         child.material = pcx.wallMaterial;
                     if (child.cameraModel)
                         child.visible = false;
@@ -505,7 +506,7 @@ function update() {
                     }
                     if (child.cameraModel)
                         child.visible = true;
-                    if (child.wallObj)
+                    if (child.shape)
                         child.material = editorWallMat;
                 });
             });
@@ -834,6 +835,7 @@ $(function() {
     defaultCamera.threeObject.position.z = 500;
     loadModel(cubeModel, 'default-cube');
     createModelEditor('default-cube', 'default cube', pcx.sceneTree);
+    loadShape(squareShape, 'default-square');
     gridHelper = new THREE.GridHelper(1000, 10, 0x555555, 0x555555);
     pcx.scene.add(gridHelper);
     update();

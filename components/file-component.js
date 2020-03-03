@@ -31,9 +31,8 @@ function saveProject() {
             copy.cameraId = node.cameraId;
             copy.cameraFov = node.cameraFov;
         }
-        if (node.wallWidth !== undefined) {
-            copy.wallWidth = node.wallWidth;
-            copy.wallHeight = node.wallHeight;
+        if (node.shape !== undefined) {
+            copy.shape = node.shape;
         }
         var parent = getParentNode(pcx, node);
         if (parent != null) {
@@ -47,6 +46,7 @@ function saveProject() {
         settings: pcx.settings,
         keyframes: pcx.keyframes,
         models: pcx.models,
+        shapes: pcx.shapes,
         sceneTree: nodeNoThree,
     };
     var blob = new Blob([JSON.stringify(project)], {type: 'text/plain' });
@@ -69,6 +69,11 @@ function loadProject(files) {
         project.models.forEach(function(model) {
             loadModel(model.data, model.name);
         });
+        pcx.shapes = [];
+        $('#shape-select').html('');
+        project.shapes.forEach(function(shape) {
+            loadShape(shape.data, shape.name);
+        });
         // Clear the scene tree. Root node stays
         pcx.sceneTree.children = [];
         while(pcx.sceneTree.threeObject.children.length > 0)
@@ -87,8 +92,8 @@ function loadProject(files) {
                 else if (loadNode.cameraId !== undefined) {
                     createCameraEditor(loadNode.name, parent, loadNode.id, loadNode.cameraId, loadNode.cameraFov);
                 }
-                else if (loadNode.wallWidth !== undefined) {
-                    createWallEditor(loadNode.name, parent, loadNode.id, loadNode.wallWidth, loadNode.wallHeight);
+                else if (loadNode.shape !== undefined) {
+                    createShapeEditor(loadNode.shape, loadNode.name, parent, loadNode.id);
                 }
                 else {
                     createEmptyNodeEditor(loadNode.name, parent, loadNode.id);

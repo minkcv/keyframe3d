@@ -14,6 +14,7 @@ function createContext(name) {
         divName: name,
         settings: {},
         models: [],
+        shapes: [],
         keyframes: [],
         renderer: null
     };
@@ -45,8 +46,8 @@ function loadProjectPlayer(url, pcx) {
                 else if (loadNode.cameraId !== undefined) {
                     createCameraPlayer(pcx, node, loadNode.cameraId, loadNode.cameraFov);
                 }
-                else if (loadNode.wallWidth !== undefined) {
-                    createWallPlayer(pcx, node, loadNode.wallWidth, loadNode.wallHeight);
+                else if (loadNode.shape !== undefined) {
+                    createShapePlayer(pcx, node, loadNode.shape);
                 }
             }
         }, project.sceneTree);
@@ -159,6 +160,14 @@ function getModel(pcx, modelName) {
     return null;
 }
 
+function getShape(pcx, shapeName) {
+    for (var i = 0; i < pcx.shapes.length; i++) {
+        if (pcx.shapes[i].name == shapeName)
+            return pcx.shapes[i];
+    }
+    return null;
+}
+
 function traverseTree(pcx, func, startNode) {
     if (!startNode)
         startNode = pcx.sceneTree;
@@ -251,16 +260,28 @@ function createCameraPlayer(pcx, node, cameraId, fov) {
     return node;
 }
 
-function createWallPlayer(pcx, node, width, height) {
-    var wallGeom = new THREE.PlaneGeometry(1, 1, 1, 1);
-    var wall = new THREE.Mesh(wallGeom, pcx.wallMaterial);
-    wall.wallObj = true;
-    wall.scale.x = width;
-    wall.scale.y = height;
-    node.wallWidth = width;
-    node.wallHeight = height;
-    node.threeObject.add(wall);
-    node.wallObject = wall;
+function createShapePlayer(pcx, node, shapeName) {
+    var shape = getShape(pcx, shapeName);
+    node.shape = shapeName;
+    var shapeObject = createShapeGeometry(pcx, shape.data, shapeName);
+    node.threeObject.add(shapeObject);
+    node.shapeObject = shapeObject;
+    return node;
+}
+
+function createShapeGeometry(pcx, data, shapeName) {
+    var shape = new THREE.Shape();
+    shape.moveTo(data.points[0].x, data.points[0].y);
+    for (var i = 1; i < data.points.length; i++) {
+        shape.lineTo(data.points[i].x, data.points[i].y);
+    }
+    var shapeGeom = new THREE.ShapeBufferGeometry(shape);
+    var mesh = new THREE.Mesh(shapeGeom, pcx.wallMaterial);
+    mesh.shape = shapeName;
+    var quat = new THREE.Quaternion();
+    quat.set(data.rot.x, data.rot.y, data.rot.z, data.rot.w);
+    mesh.applyQuaternion(quat);
+    return mesh;
 }
 
 function findCamera(pcx, cameraId, startNode) {

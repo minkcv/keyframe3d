@@ -5,7 +5,6 @@ layout.registerComponent( 'treeControlsComponent', function(container, component
         <button type='button' class='btn btn-sm' onclick='renameNode()'>Rename Node</button>
         <button type'button' class='btn btn-sm' onclick='deleteNode()'>Delete Node</button>
         <button type='button' class='btn btn-sm' onclick='addCamera()'>Create Camera</button>
-        <button type='button' class='btn btn-sm' onclick='addWall()'>Create Wall</button>
         <button type='button' class='btn btn-sm' onclick='duplicateNode()'>Duplicate Node</button>
         <br>
         <input type='text' id='node-name' placeholder='name'></input>
@@ -32,17 +31,6 @@ function addCamera() {
         parent = findNode(pcx, treeNode.id);
     var name = $('#node-name').val();
     createCameraEditor(name, parent);
-}
-
-function addWall() {
-    var treeNode = $('#scene-tree').tree('getSelectedNode');
-    var parent;
-    if (treeNode == null)
-        parent = pcx.sceneTree;
-    else
-        parent = findNode(pcx, treeNode.id);
-    var name = $('#node-name').val();
-    createWallEditor(name, parent);
 }
 
 function duplicateNode() {

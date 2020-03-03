@@ -12,8 +12,8 @@ layout.registerComponent( 'modelComponent', function(container, componentState){
     </select><br>
     <button type='button' class='btn btn-sm' onclick='addModelToScene($("#model-select option:selected").text())'>Add To Scene</button>
     <input type='text' id='model-node-name' placeholder='name'></input><br>
-    <button type='button' class='btn btn-sm' onclick='applyToSelected($("#model-select option:selected").text())'>Apply To Selected</button>
-    <button type='button' class='btn btn-sm' onclick='removeFromSelected()'>Remove From Selected</button><br>
+    <button type='button' class='btn btn-sm' onclick='applyModelToSelected($("#model-select option:selected").text())'>Apply To Selected</button>
+    <button type='button' class='btn btn-sm' onclick='removeModelFromSelected()'>Remove From Selected</button><br>
     <button type='button' class='btn btn-sm' onclick='unloadModel()' id='unload-model'>Unload Model</button><br>
     </div>`);
 });
@@ -45,8 +45,8 @@ function loadModelFromFiles(files) {
             reader.onloadend = function () {
                 var data = JSON.parse(reader.result);
                 loadModel(data, file.name);
-                if ($('#model-select').attr('size') < models.length)
-                    $('#model-select').attr('size', models.length);
+                if ($('#model-select').attr('size') < pcx.models.length)
+                    $('#model-select').attr('size', pcx.models.length);
             }
             if (files[i])
                 reader.readAsText(files[i]);
@@ -93,13 +93,14 @@ function unloadModel() {
         if (node.model == name) {
             node.threeObject.remove(node.modelObject);
             node.model = undefined;
+            node.modelObject = undefined;
         }
     });
     $('#model-select option[id="' + name + '"]').remove();
     log('Unloaded model "' + name + '"');
 }
 
-function applyToSelected(modelName) {
+function applyModelToSelected(modelName) {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     if (treeNode == false || treeNode.id == 0) {
         alert('Select a node to apply the model to. Cannot use root node.');
@@ -111,6 +112,11 @@ function applyToSelected(modelName) {
         visibility = node.modelObject.vis;
         node.threeObject.remove(node.modelObject);
     }
+    if (node.shape) {
+        node.threeObject.remove(node.shapeObject);
+        node.shape = undefined;
+        node.shapeObject = undefined;
+    }
     var model = getModel(pcx, modelName);
     node.model = modelName;
     var linesObject = createModelGeometry(pcx, model.data, modelName);
@@ -120,7 +126,7 @@ function applyToSelected(modelName) {
     updateProperties();
 }
 
-function removeFromSelected() {
+function removeModelFromSelected() {
     var treeNode = $('#scene-tree').tree('getSelectedNode');
     if (treeNode == false || treeNode.id == 0) {
         alert('Select a node to remove the model from.');
@@ -129,6 +135,8 @@ function removeFromSelected() {
     var node = findNode(pcx, treeNode.id);
     if (node.model) {
         node.threeObject.remove(node.modelObject);
+        node.modelObject = undefined;
+        node.model = undefined;
     }
     else {
         alert('The node does not have a model');

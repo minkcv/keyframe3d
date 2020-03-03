@@ -42,6 +42,12 @@ var config = {
                         componentState: {},
                         isClosable: false,
                         title: 'Models'
+                    },{
+                        type: 'component',
+                        componentName: 'shapeComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Shapes'
                     }]
                 }]
                 

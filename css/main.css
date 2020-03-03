@@ -10,7 +10,7 @@ hr {
     margin-bottom: 5px;
     border-color: #cccccc;
 }
-.model-select {
+.model-select, .shape-select {
     width: 100%;
     height: 220px;
 }
@@ -71,7 +71,7 @@ select, select:focus {
 button {
     margin: 2px;
 }
-.settings, .models, .file-menu, .tree-view, .tree-controls, .controls {
+.settings, .models, .file-menu, .tree-view, .tree-controls, .controls, .shapes {
     margin: 5px;
 }
 :not(.custom-file) > label {
