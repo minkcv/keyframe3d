@@ -75,6 +75,12 @@
         <button onclick='playPlayer("player6")'>Play</button>
         <button onclick='pausePlayer("player6")'>Pause</button>
     </div>
+    <div class='player' id='player7'>
+    </div>
+    <div class='controls'>
+        <button onclick='playPlayer("player7")'>Play</button>
+        <button onclick='pausePlayer("player7")'>Pause</button>
+    </div>
     
     <script type='text/javascript'>
         // for testing locally
@@ -98,6 +104,9 @@
 
         var pc6 = createContext('player6');
         loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/eye.json', pc6);
+
+        var pc7 = createContext('player7');
+        loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/tunnel.json', pc7);
     </script>
 </body>
 </html>
