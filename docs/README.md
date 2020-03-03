@@ -9,7 +9,7 @@ The name 'Keyframe3D Player' is used to refer to the animation player.
 ## Key Concepts
 
 * An animation has a length in frames, and is played at a framerate (frames per second). 
-* A scene contains a tree of nodes. Nodes can be cameras, models, walls, or empty. 
+* A scene contains a tree of nodes. Nodes can be cameras, models, shapes, or empty. 
 * Nodes have a transform in 3D space consisting of a position, rotation, and scale.
 * Nodes can be children of other nodes and inherit the transforms of their parents.
 * Rotated nodes of non-uniformly scaled parents may be deformed.
@@ -49,13 +49,12 @@ The 'Apply' button must be clicked after changes are made in the Settings pane.
 
 The Scene Tree Controls pane contains buttons for creating, renaming, and deleting nodes, as well as creating camera nodes.
 All the buttons operate on the currently selected node in the Scene Tree. 
-Buttons 'Create Node', 'Create Camera', and 'Create Wall' will use the name field for the name of the new node, or an automatic name.
+Buttons 'Create Node', and 'Create Camera' will use the name field for the name of the new node, or an automatic name.
 The names `root`, `default camera`, `key camera`, and `free camera` are reserved.
 The 'Create Node' button creates a new node empty node.
 The 'Rename Node' button renames the currently selected node to the name in the 'name' field.
 The 'Delete Node' button deletes the currently selected node and ALL of its children and ALL keyframe data for that node and its children.
 The 'Create Camera' button creates a new scene camera.
-The 'Create Wall' button creates a node with a plane that will have the same color as the background.
 The 'Duplicate Node' button duplicates the selected node and its children at the same level as the selected node.
 
 ## Scene Tree
@@ -77,6 +76,12 @@ The 'Apply To Selected' button will change the model of the currently selected n
 The 'Remove From Selected' button will remove the model from the currently selected node.
 Models can be unloaded from the project by selecting a model from the list and clicking the 'Unload Model' button. This removes the model from all nodes that used that model.
 
+## Shapes
+
+The Shapes pane is similar to the models pane except that it is for 2D shapes.
+These shapes can be used to cover up model lines and will have the same color as the background.
+Shapes can be saved from Line3D by selecting a loop of connected points and choosing 'Save Selected Shape JSON'.
+
 ## Properties
 
 The Properties pane shows the x, y, and z position, x, y, and z rotation, and x, y, and z scale of the selected node. 
@@ -84,8 +89,6 @@ If the node has a model, the properties will show the visibility of the model.
 Changing the fields in the Properties pane will update the values of the selected node live, but will not keyframe the properties.
 The properties pane will show the vertical field of view (FOV) of a scene camera if one is selected.
 A change to the camera field of view is saved to the camera and is independent of keyframes.
-The properties pane will show the width and height of a wall if one is selected.
-A change to the wall dimensions is saved to the wall and is independent of keyframes.
 
 ## Controls
 
