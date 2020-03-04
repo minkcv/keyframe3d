@@ -110,7 +110,11 @@ function loadJSON(path, pcx, success, error) {
 
 function loadSettingsPlayer(pcx, newSettings) {
     pcx.lineMaterial = new THREE.LineBasicMaterial({color: newSettings.lineColor});
-    pcx.wallMaterial = new THREE.MeshBasicMaterial({color: newSettings.bgColor, side: THREE.DoubleSide});
+    pcx.wallMaterial = new THREE.MeshBasicMaterial({color: newSettings.bgColor, side: THREE.DoubleSide, 
+        polygonOffset: true, // Fix z fighting with lines
+        polygonOffsetFactor: 1, // positive value pushes polygon further away
+        polygonOffsetUnits: 5 // How far to move back/forward
+    });
     pcx.scene.background = new THREE.Color(newSettings.bgColor);
     pcx.settings = newSettings;
 }
