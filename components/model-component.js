@@ -106,8 +106,13 @@ function applyModelToSelected(modelName) {
         alert('Select a node to apply the model to. Cannot use root node.');
         return;
     }
+    var model = getModel(pcx, modelName);
+    if (!model) {
+        alert('Select a model from the list of loaded models');
+        return;
+    };
     var node = findNode(pcx, treeNode.id);
-    var visibility;
+    var visibility = undefined;
     if (node.model) {
         visibility = node.modelObject.vis;
         node.threeObject.remove(node.modelObject);
@@ -117,12 +122,15 @@ function applyModelToSelected(modelName) {
         node.shape = undefined;
         node.shapeObject = undefined;
     }
-    var model = getModel(pcx, modelName);
+    
     node.model = modelName;
     var linesObject = createModelGeometry(pcx, model.data, modelName);
     node.threeObject.add(linesObject);
     node.modelObject = linesObject;
-    node.modelObject.vis = visibility;
+    if (visibility !== undefined)
+        node.modelObject.vis = visibility;
+    else
+        node.modelObject.vis = true;
     updateProperties();
 }
 
