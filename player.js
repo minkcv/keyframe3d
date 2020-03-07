@@ -16,7 +16,7 @@ function createContext(name) {
         models: [],
         shapes: [],
         keyframes: [],
-        renderer: null
+        renderer: new THREE.WebGLRenderer({antialias: true})
     };
     context.scene.add(context.sceneTree.threeObject);
     playerContexts[name] = context;
@@ -27,7 +27,7 @@ function getContext(name) {
     return playerContexts[name];
 }
 
-function loadProjectPlayer(url, pcx) {
+function loadProjectPlayer(url, pcx, doneLoading) {
     loadJSON(url, pcx, function(project) {
         loadSettingsPlayer(pcx, project.settings);
         pcx.models = project.models;
@@ -52,36 +52,45 @@ function loadProjectPlayer(url, pcx) {
                 }
             }
         }, project.sceneTree);
-        pcx.renderer = new THREE.WebGLRenderer({antialias: true});
         var div = document.getElementById(pcx.divName);
         div.appendChild(pcx.renderer.domElement);
-        var width = div.clientWidth;
-        var height = div.clientHeight;
-        var ar = getAspectRatio(pcx.settings.aspectRatio);
-        var aspectWidth = width;
-        var aspectHeight = height;
-        if (width > height)
-            aspectHeight = width / ar;
-        else if (height > width)
-            aspectWidth = height * ar;
-        if (aspectHeight > height) {
-            aspectHeight = height;
-            aspectWidth = height * ar;
+        var updateSize = function(event, div) {
+            div = div || event.srcElement;
+            var pcx = getContext(div.id);
+            var width = div.clientWidth;
+            var height = div.clientHeight;
+            var ar = getAspectRatio(pcx.settings.aspectRatio);
+            var aspectWidth = width;
+            var aspectHeight = height;
+            if (width > height)
+                aspectHeight = width / ar;
+            else if (height > width)
+                aspectWidth = height * ar;
+            if (aspectHeight > height) {
+                aspectHeight = height;
+                aspectWidth = height * ar;
+            }
+            if (aspectWidth > width) {
+                aspectWidth = width;
+                aspectHeight = width / ar;
+            }
+            var remainderWidth = width - aspectWidth;
+            if (remainderWidth > 0)
+                pcx.renderer.domElement.style.marginLeft = remainderWidth / 2 + 'px';
+            else
+                pcx.renderer.domElement.style.marginLeft = '0px';
+            aspectWidth = Math.floor(aspectWidth);
+            aspectHeight = Math.floor(aspectHeight);
+            pcx.renderer.setSize(aspectWidth, aspectHeight);
+            var camera = seekTimePlayer(pcx, pcx.time);
+            pcx.renderer.render(pcx.scene, camera.cameraObject);
         }
-        if (aspectWidth > width) {
-            aspectWidth = width;
-            aspectHeight = width / ar;
-        }
-        var remainderWidth = width - aspectWidth;
-        if (remainderWidth > 0)
-            pcx.renderer.domElement.style.marginLeft = remainderWidth / 2 + 'px';
-        else
-            pcx.renderer.domElement.style.marginLeft = '0px';
-        aspectWidth = Math.floor(aspectWidth);
-        aspectHeight = Math.floor(aspectHeight);
-        pcx.renderer.setSize(aspectWidth, aspectHeight);
+        updateSize(null, div);
+        div.onfullscreenchange = updateSize;
         var camera = seekTimePlayer(pcx, 0);
         pcx.renderer.render(pcx.scene, camera.cameraObject);
+        if (doneLoading)
+            doneLoading(pcx);
         if (pcx.settings.autoplay)
             playPlayer(pcx.divName);
     }, function(xhr) {
@@ -517,4 +526,12 @@ function pausePlayer(player) {
         clearInterval(pcx.timerId);
         pcx.timerId = -1;
     }
+}
+
+function togglePlayPausePlayer(player) {
+    var pcx = getContext(player);
+    if (pcx.timerId == -1)
+        playPlayer(player);
+    else
+        pausePlayer(player);
 }

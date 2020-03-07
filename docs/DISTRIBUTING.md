@@ -25,6 +25,8 @@ Optionally create some controls. Pass the id of the div to the playPlayer and pa
 ```
 <button onclick='playPlayer("player1")'>Play</button>
 <button onclick='pausePlayer("player1")'>Pause</button>
+<button onclick='togglePlayPausePlayer("player1")'>Play/Pause</button>
+<button onclick='document.getElementById("player1").requestFullscreen()'>Fullscreen</button>
 ```
 
 ### Script to load the animation
@@ -38,3 +40,19 @@ loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/logo.json', pc1);
 ```
 
 To create multiple players in one page, make sure to use different ids for the divs, and create a separate context for each of them.
+
+Run code when the player has loaded by passing a function after the context. The pcx argument is the context.
+
+```
+loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/logo.json', pc1, function(pcx) {
+    // Want to do something once the player has loaded? Pass a callback.
+    // The pcx argument is the context.
+});
+```
+
+Run code when the player is clicked.
+
+```
+// Play/pause when clicking on the animation
+pc1.renderer.domElement.onclick = function(){togglePlayPausePlayer("player1")};
+```

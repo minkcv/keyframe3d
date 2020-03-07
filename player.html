@@ -34,7 +34,12 @@
         // Pass in the id of the div that will have the rendered animation
         var pc1 = createContext('player1');
         // Use the URL for your animation here
-        loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/logo.json', pc1);
+        loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/logo.json', pc1, function(pcx) {
+            // Want to do something once the player has loaded? Pass a callback function.
+            // The pcx argument is the context.
+        });
+        // Play/pause when clicking on the animation
+        pc8.renderer.domElement.onclick = function(){togglePlayPausePlayer("player8")};
     </script>
 </body>
 </html>

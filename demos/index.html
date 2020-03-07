@@ -86,6 +86,7 @@
     <div class='controls'>
         <button onclick='playPlayer("player8")'>Play</button>
         <button onclick='pausePlayer("player8")'>Pause</button>
+        <button onclick='document.getElementById("player8").requestFullscreen()'>Fullscreen</button>
     </div>
     
     <script type='text/javascript'>
@@ -116,6 +117,7 @@
 
         var pc8 = createContext('player8');
         loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/floppydisk.json', pc8);
+        pc8.renderer.domElement.onclick = function(){togglePlayPausePlayer("player8")};
     </script>
 </body>
 </html>
