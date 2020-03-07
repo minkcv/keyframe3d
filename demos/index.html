@@ -116,8 +116,9 @@
         loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/tunnel.json', pc7);
 
         var pc8 = createContext('player8');
-        loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/floppydisk.json', pc8);
-        pc8.renderer.domElement.onclick = function(){togglePlayPausePlayer("player8")};
+        loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/floppydisk.json', pc8, function(pcx) {
+            pcx.renderer.domElement.onclick = function(){togglePlayPausePlayer("player8")};
+        });
     </script>
 </body>
 </html>
