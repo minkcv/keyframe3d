@@ -47,7 +47,12 @@ Run code when the player has loaded by passing a function after the context. The
 loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/logo.json', pc1, function(pcx) {
     // Want to do something once the player has loaded? Pass a callback.
     // The pcx argument is the context.
-    // Play/pause when clicking on the animation
-    pcx.renderer.domElement.onclick = function(){togglePlayPausePlayer("player1")};
 });
+```
+
+Run code when the animation is clicked.
+
+```
+// Play/pause when clicking on the animation
+pc1.renderer.domElement.onclick = function(){togglePlayPausePlayer("player1")};
 ```
