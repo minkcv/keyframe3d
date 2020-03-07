@@ -124,7 +124,9 @@ function seekTime(time, noLog) {
     var cameraNode = seekTimePlayer(pcx, time);
     $('#key-camera').text(cameraNode.name);
     previousTime = time;
+    pcx.time = time;
     updateProperties();
+    updateKFInfo();
 }
 
 function updateTimeline() {
@@ -139,4 +141,5 @@ function updateTimeline() {
         });
     });
     timeline.setItems(data);
+    updateKFInfo();
 }

@@ -94,7 +94,7 @@ input[type=checkbox] {
     margin: 4px;
 }
 input {
-    font-family: droid_sans_mono_regular
+    font-family: droid_sans_mono_regular;
 }
 #current-camera {
     font-family: droid_sans_mono_regular;
@@ -103,6 +103,36 @@ input {
 pre, .controls > div, .controls > div > span {
     font-size: 12pt;
     color: #cccccc;
+}
+#keyframe-info {
+    overflow: auto;
+    height: 93%;
+}
+#keyframe-info > div {
+    margin-left: 20px;
+}
+#keyframe-info > pre {
+    margin: 2px;
+    color: #cccccc;
+    font-family: droid_sans_mono_regular;
+}
+.node-info {
+    /* I tried so many other styles */
+    margin-top: -8px;
+    margin-bottom: -4px;
+}
+.node-info-enabled, .node-info-disabled {
+    margin: 0px 1px 0px 1px;
+    padding: 0px 2px 0px 2px;
+    font-size: 10pt;
+}
+.node-info-enabled {
+    color: #cccccc;
+    background-color: #b049b9;
+}
+.node-info-disabled {
+    color: #cccccc;
+    background-color: #444444;
 }
 h1, h2, h3 {
     font-family: Arial, Helvetica, sans-serif;

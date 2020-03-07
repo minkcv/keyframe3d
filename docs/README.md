@@ -128,6 +128,10 @@ Click and drag the playhead left or right to seek to a time while updating the s
 Scroll the mouse wheel to zoom in or out on the timeline.
 Click and drag the timeline to pan around when zoomed in.
 
+## Keyframe Info
+
+Shows which nodes and which properties of theirs are keyframed at the current time. 
+
 ## Log
 
 The Log pane shows a list of previous actions. 

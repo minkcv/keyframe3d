@@ -23,7 +23,7 @@ var config = {
                     }]
                 },{
                     type: 'component',
-                    height: 15,
+                    height: 18,
                     componentName: 'treeControlsComponent',
                     componentState: {},
                     isClosable: false,
@@ -75,6 +75,12 @@ var config = {
                         componentState: {},
                         isClosable: false,
                         title: 'Settings'
+                    },{
+                        type: 'component',
+                        componentName: 'keyframeComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Keyframe Info'
                     }]
                 }]
             }]
