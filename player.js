@@ -246,7 +246,7 @@ function createModelGeometry(pcx, data, modelName) {
                         pt1.position.x, pt1.position.y, pt1.position.z,
                         pt2.position.x, pt2.position.y, pt2.position.z
                     ]);
-                    geom.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+                    geom.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
                     geometries.push(geom);
                     var lineData = {
                         id1: pt1.pointId,

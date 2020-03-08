@@ -4,12 +4,12 @@ The file [player.html](../player.html) contains the example HTML and JavaScript 
 
 ### Scripts to include
 
-Include three.js, BufferGeometryUtils.js, and player.js. The latter two are available in this repo. Change the paths to the scripts to match your folder structure.
+Include three.js, BufferGeometryUtils.js, and player.js. 
 
 ```
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
-<script src="js/BufferGeometryUtils.js"></script>
-<script src="player.js"></script>
+<script src="https://minkcv.github.io/keyframe3d/js/BufferGeometryUtils.js"></script>
+<script src="https://minkcv.github.io/keyframe3d/player.js"></script>
 ```
 
 ### Elements in the page
