@@ -407,6 +407,7 @@ function createShapeEditor(shapeName, nodeName, parent, id) {
 function duplicateNodeEditor(startNode) {
     var mainParent = getParentNode(pcx, startNode);
     var parents = {};
+    var newStartNode = null;
     traverseTree(pcx, function(node) {
         var originalParent = getParentNode(pcx, node);
         var parent = mainParent;
@@ -425,9 +426,11 @@ function duplicateNodeEditor(startNode) {
         newNode.threeObject.position.copy(node.threeObject.position);
         newNode.threeObject.quaternion.copy(node.threeObject.quaternion);
         newNode.threeObject.scale.copy(node.threeObject.scale);
+        if (newStartNode == null)
+            newStartNode = newNode;
         parents[node.id] = newNode;
     }, startNode);
-    selectNode(parents[mainParent.id]);
+    selectNode(newStartNode.id);
 }
 
 function viewportsNeedRender() {
