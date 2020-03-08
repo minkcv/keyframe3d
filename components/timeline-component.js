@@ -127,6 +127,7 @@ function seekTime(time, noLog) {
     pcx.time = time;
     updateProperties();
     updateKFInfo();
+    viewportsNeedRender();
 }
 
 function updateTimeline() {

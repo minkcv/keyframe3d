@@ -111,4 +111,5 @@ function changeProperties() {
         node.cameraObject.fov = node.cameraFov;
         node.cameraObject.updateProjectionMatrix();
     }
+    viewportsNeedRender();
 }

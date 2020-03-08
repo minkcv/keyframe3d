@@ -55,6 +55,7 @@ function setControlMode(mode) {
         if (child.rotGrips)
             child.visible = mode == CONTROLMODE.rotate;
     });
+    viewportsNeedRender();
 }
 
 function setKeyframe() {
@@ -237,6 +238,7 @@ function shiftKeyframes() {
     });
     log('Shifted time for data for nodes ' + nodeNames);
     cleanKeyframes(nodeNames);
+    seekTime(pcx.time);
     updateTimeline();
 }
 
@@ -354,6 +356,7 @@ function copyKeyframe() {
     });
     
     updateTimeline();
+    viewportsNeedRender();
 }
 
 function removeKeyframe() {
@@ -550,4 +553,5 @@ function setKeyframeCamera() {
     }
     $('#key-camera').text(cameraName);
     updateTimeline();
+    viewportsNeedRender();
 }

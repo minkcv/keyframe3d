@@ -98,6 +98,7 @@ function unloadShape() {
     });
     $('#shape-select option[id="' + name + '"]').remove();
     log('Unloaded shape "' + name + '"');
+    viewportsNeedRender();
 }
 
 function applyShapeToSelected(shapeName) {
@@ -121,6 +122,7 @@ function applyShapeToSelected(shapeName) {
     node.threeObject.add(linesObject);
     node.shapeObject = linesObject;
     updateProperties();
+    viewportsNeedRender();
 }
 
 function removeShapeFromSelected() {
@@ -139,4 +141,5 @@ function removeShapeFromSelected() {
         alert('The node does not have a shape');
     }
     updateProperties();
+    viewportsNeedRender();
 }

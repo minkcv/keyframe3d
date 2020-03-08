@@ -55,12 +55,22 @@ var config = {
                 type: 'column',
                 width: 50,
                 content:[{
-                    type: 'component',
+                    type: 'stack',
                     height: 35,
-                    componentName: 'propertiesComponent',
-                    componentState: {},
-                    isClosable: false,
-                    title: 'Properties'
+                    content: [{
+                    type: 'component',
+                        height: 35,
+                        componentName: 'propertiesComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Properties'
+                    },{
+                        type: 'component',
+                        componentName: 'keyframeComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Keyframe Info'
+                    }]
                 },{
                     type: 'stack',
                     content:[{
@@ -75,12 +85,6 @@ var config = {
                         componentState: {},
                         isClosable: false,
                         title: 'Settings'
-                    },{
-                        type: 'component',
-                        componentName: 'keyframeComponent',
-                        componentState: {},
-                        isClosable: false,
-                        title: 'Keyframe Info'
                     }]
                 }]
             }]

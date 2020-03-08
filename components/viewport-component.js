@@ -52,6 +52,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         viewport.mouse.y = event.clientY;
         viewport.mouse.startX = event.clientX;
         viewport.mouse.startY = event.clientY;
+        viewport.needsRender = true;
     });
     div.mouseup(function(event) {
         event.preventDefault();
@@ -67,6 +68,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         viewport.mouse.startPoint = null;
         viewport.mouse.currentPoint = null;
         viewport.mouse.pickedObject = null;
+        viewport.needsRender = true;
     });
     div.mousemove(function(event) {
         event.preventDefault();
@@ -75,6 +77,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         if (viewport.mouse.down) {
             viewport.mouse.dx = viewport.mouse.x - event.clientX;
             viewport.mouse.dy = viewport.mouse.y - event.clientY;
+            viewport.needsRender = true;
         }
         viewport.mouse.x = event.clientX;
         viewport.mouse.y = event.clientY;
@@ -83,6 +86,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
         var id = parseInt(event.currentTarget.getAttribute('viewportId'));
         var viewport = viewports[id];
         viewport.mouse.dz = event.originalEvent.deltaY || -event.originalEvent.wheelDelta;
+        viewport.needsRender = true;
     });
     var cameraX = new THREE.Object3D(); // Parent for camera
     var cameraY = new THREE.Object3D(); // Parent for realCamera
@@ -105,6 +109,7 @@ layout.registerComponent( 'viewportComponent', function(container, componentStat
     container.getElement().append(div);
     viewports.push({
         renderer: renderer,
+        needsRender: true,
         viewportId: componentState.viewportId,
         camera: cameraX,
         cameraId: -1,
@@ -142,6 +147,7 @@ function updateViewport(id) {
     if (width < 0 || height < 0)
         return;
     
+    viewport.needsRender = true;
     if (viewport.cameraId != CAMERA.free) {
         var ar = getAspectRatio(pcx.settings.aspectRatio);
         var aspectWidth = width;
@@ -208,6 +214,7 @@ function viewSide(viewportId) {
     viewport.camera.rotation.y = Math.PI / 2;
     viewport.camera.children[0].rotation.x = 0;
     viewport.camera.children[1].rotation.y = -Math.PI / 2;
+    viewport.needsRender = true;
 }
 
 function viewTop(viewportId) {
@@ -215,6 +222,7 @@ function viewTop(viewportId) {
     viewport.camera.rotation.y = 0;
     viewport.camera.children[0].rotation.x = -Math.PI / 2;
     viewport.camera.children[1].rotation.y = 0;
+    viewport.needsRender = true;
 }
 
 function viewFront(viewportId) {
@@ -222,6 +230,7 @@ function viewFront(viewportId) {
     viewport.camera.rotation.y = 0;
     viewport.camera.children[0].rotation.x = 0;
     viewport.camera.children[1].rotation.y = 0;
+    viewport.needsRender = true;
 }
 
 function viewIso(viewportId) {
@@ -229,11 +238,13 @@ function viewIso(viewportId) {
     viewport.camera.rotation.y = Math.PI / 4;
     viewport.camera.children[0].rotation.x = -Math.PI / 4;
     viewport.camera.children[1].rotation.y = -Math.PI / 4;
+    viewport.needsRender = true;
 }
 
 function viewRecenter(viewportId) {
     var viewport = viewports[viewportId];
     viewport.camera.position.set(0, 0, 0);
+    viewport.needsRender = true;
 }
 
 function viewRecenterSelected(viewportId) {
@@ -248,4 +259,5 @@ function viewRecenterSelected(viewportId) {
         if (found != null)
             viewport.camera.position.add(other.threeObject.position);
     });
+    viewport.needsRender = true;
 }

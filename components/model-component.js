@@ -98,6 +98,7 @@ function unloadModel() {
     });
     $('#model-select option[id="' + name + '"]').remove();
     log('Unloaded model "' + name + '"');
+    viewportsNeedRender();
 }
 
 function applyModelToSelected(modelName) {
@@ -132,6 +133,7 @@ function applyModelToSelected(modelName) {
     else
         node.modelObject.vis = true;
     updateProperties();
+    viewportsNeedRender();
 }
 
 function removeModelFromSelected() {
@@ -150,4 +152,5 @@ function removeModelFromSelected() {
         alert('The node does not have a model');
     }
     updateProperties();
+    viewportsNeedRender();
 }

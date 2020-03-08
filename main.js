@@ -161,6 +161,7 @@ function selectNode(id) {
     var treeNode = $('#scene-tree').tree('getNodeById', id);
     $('#scene-tree').tree('selectNode', treeNode);
     updateProperties();
+    viewportsNeedRender();
 }
 
 function findNodeByName(name, startNode) {
@@ -429,12 +430,21 @@ function duplicateNodeEditor(startNode) {
     selectNode(parents[mainParent.id]);
 }
 
+function viewportsNeedRender() {
+    viewports.forEach(function(viewport) {
+        viewport.needsRender = true;
+    });
+}
+
 function update() {
     requestAnimationFrame(update);
 
     var rotateFactor = 200;
     var zoomSpeed = 0.2;
     viewports.forEach(function(viewport) {
+        if (!viewport.needsRender)
+            return;
+        viewport.needsRender = false;
         for (var v = 0; v < viewports.length; v++) {
             // Hide camera center axes
             if (viewports[v].camera != null)
@@ -520,6 +530,7 @@ function update() {
                 selectedNode = findNode(pcx, treeNode.id);
             }
             if (selectedNode) {
+                viewport.renderer.render(pcx.scene, metaCamera);
                 updateGrips(selectedNode, metaCamera.zoom);
                 traverseTree(pcx, function(subNode) {
                     subNode.threeObject.children.forEach(function(child) {
@@ -722,6 +733,7 @@ function update() {
                 for (var i = 0; i < planeIntersects.length; i++) {
                     if (mouse.moveAxis != AXIS.none || mouse.rotateAxis != AXIS.none) {
                         mouse.currentPoint = planeIntersects[i].point;
+                        viewportsNeedRender();
                     }
                 }
                 updateProperties();

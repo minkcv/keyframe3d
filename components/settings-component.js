@@ -56,4 +56,5 @@ function applySettings() {
         bgColor: bgColor
     };
     loadSettingsEditor(newSettings);
+    viewportsNeedRender();
 }
