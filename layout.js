@@ -56,7 +56,7 @@ var config = {
                 width: 50,
                 content:[{
                     type: 'stack',
-                    height: 35,
+                    height: 30,
                     content: [{
                     type: 'component',
                         height: 35,
