@@ -580,52 +580,56 @@ function update() {
                     var translate = getScreenTranslation(mouse);
                     var worldQ = new THREE.Quaternion();
                     selectedNode.threeObject.getWorldQuaternion(worldQ);
-                    if (mouse.moveAxis == AXIS.x) {
-                        var xDir = new THREE.Vector3(1, 0, 0);
-                        var worldX = new THREE.Vector3(1, 0, 0);
-                        worldX.applyQuaternion(worldQ);
-                        xDir.applyQuaternion(selectedNode.threeObject.quaternion);
-                        var angle = translate.angleTo(worldX);
-                        if (Math.abs(angle) > Math.PI / 2)
-                            xDir.negate();
-                        translate.projectOnVector(worldX);
-                        xDir.multiplyScalar(translate.length());
-                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, xDir);
+                    if (controlMode == CONTROLMODE.move) {
+                        if (mouse.moveAxis == AXIS.x) {
+                            var xDir = new THREE.Vector3(1, 0, 0);
+                            var worldX = new THREE.Vector3(1, 0, 0);
+                            worldX.applyQuaternion(worldQ);
+                            xDir.applyQuaternion(selectedNode.threeObject.quaternion);
+                            var angle = translate.angleTo(worldX);
+                            if (Math.abs(angle) > Math.PI / 2)
+                                xDir.negate();
+                            translate.projectOnVector(worldX);
+                            xDir.multiplyScalar(translate.length());
+                            selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, xDir);
+                        }
+                        if (mouse.moveAxis == AXIS.y) {
+                            var yDir = new THREE.Vector3(0, 1, 0);
+                            var worldY = new THREE.Vector3(0, 1, 0);
+                            worldY.applyQuaternion(worldQ);
+                            yDir.applyQuaternion(selectedNode.threeObject.quaternion);
+                            var angle = translate.angleTo(worldY);
+                            if (Math.abs(angle) > Math.PI / 2)
+                                yDir.negate();
+                            translate.projectOnVector(worldY);
+                            yDir.multiplyScalar(translate.length());
+                            selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, yDir);
+                        }
+                        if (mouse.moveAxis == AXIS.z) {
+                            var zDir = new THREE.Vector3(0, 0, 1);
+                            var worldZ = new THREE.Vector3(0, 0, 1);
+                            worldZ.applyQuaternion(worldQ);
+                            zDir.applyQuaternion(selectedNode.threeObject.quaternion);
+                            var angle = translate.angleTo(worldZ);
+                            if (Math.abs(angle) > Math.PI / 2)
+                                zDir.negate();
+                            translate.projectOnVector(worldZ);
+                            zDir.multiplyScalar(translate.length());
+                            selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, zDir);
+                        }
                     }
-                    if (mouse.moveAxis == AXIS.y) {
-                        var yDir = new THREE.Vector3(0, 1, 0);
-                        var worldY = new THREE.Vector3(0, 1, 0);
-                        worldY.applyQuaternion(worldQ);
-                        yDir.applyQuaternion(selectedNode.threeObject.quaternion);
-                        var angle = translate.angleTo(worldY);
-                        if (Math.abs(angle) > Math.PI / 2)
-                            yDir.negate();
-                        translate.projectOnVector(worldY);
-                        yDir.multiplyScalar(translate.length());
-                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, yDir);
-                    }
-                    if (mouse.moveAxis == AXIS.z) {
-                        var zDir = new THREE.Vector3(0, 0, 1);
-                        var worldZ = new THREE.Vector3(0, 0, 1);
-                        worldZ.applyQuaternion(worldQ);
-                        zDir.applyQuaternion(selectedNode.threeObject.quaternion);
-                        var angle = translate.angleTo(worldZ);
-                        if (Math.abs(angle) > Math.PI / 2)
-                            zDir.negate();
-                        translate.projectOnVector(worldZ);
-                        zDir.multiplyScalar(translate.length());
-                        selectedNode.threeObject.position.addVectors(selectedNode.threeObject.position, zDir);
-                    }
-                    var rotation = getScreenRotation(selectedNode, mouse, worldQ, mouse.rotateAxis);
-                    if (mouse.rotateAxis == AXIS.x) {
-                        selectedNode.threeObject.rotateX(rotation);
-                    }
-                    if (mouse.rotateAxis == AXIS.y) {
-                        selectedNode.threeObject.rotateY(rotation);
+                    if (controlMode == CONTROLMODE.rotate) {
+                        var rotation = getScreenRotation(selectedNode, mouse, worldQ, mouse.rotateAxis);
+                        if (mouse.rotateAxis == AXIS.x) {
+                            selectedNode.threeObject.rotateX(rotation);
+                        }
+                        if (mouse.rotateAxis == AXIS.y) {
+                            selectedNode.threeObject.rotateY(rotation);
 
-                    }
-                    if (mouse.rotateAxis == AXIS.z) {
-                        selectedNode.threeObject.rotateZ(rotation);
+                        }
+                        if (mouse.rotateAxis == AXIS.z) {
+                            selectedNode.threeObject.rotateZ(rotation);
+                        }
                     }
                 }
             }
