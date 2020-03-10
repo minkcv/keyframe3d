@@ -122,7 +122,7 @@ function loadSettingsPlayer(pcx, newSettings) {
     pcx.wallMaterial = new THREE.MeshBasicMaterial({color: newSettings.bgColor, side: THREE.DoubleSide, 
         polygonOffset: true, // Fix z fighting with lines
         polygonOffsetFactor: 1, // positive value pushes polygon further away
-        polygonOffsetUnits: 5 // How far to move back/forward
+        polygonOffsetUnits: 2 // How far to move back/forward
     });
     pcx.scene.background = new THREE.Color(newSettings.bgColor);
     pcx.settings = newSettings;
@@ -268,7 +268,7 @@ function createModelGeometry(pcx, data, modelName) {
 function createCameraPlayer(pcx, node, cameraId, fov) {
     node.cameraId = cameraId;
     node.cameraFov = fov;
-    var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(pcx.settings.aspectRatio), 0.1, 160000);
+    var camera = new THREE.PerspectiveCamera(node.cameraFov, getAspectRatio(pcx.settings.aspectRatio), 1, 160000);
     node.threeObject.add(camera);
     node.cameraObject = camera;
     return node;
