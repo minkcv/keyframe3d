@@ -88,6 +88,12 @@
         <button onclick='pausePlayer("player8")'>Pause</button>
         <button onclick='document.getElementById("player8").requestFullscreen()'>Fullscreen</button>
     </div>
+    <div class='player' id='player9'>
+    </div>
+    <div class='controls'>
+        <button onclick='playPlayer("player9")'>Play</button>
+        <button onclick='pausePlayer("player9")'>Pause</button>
+    </div>
     
     <script type='text/javascript'>
         // for testing locally
@@ -118,6 +124,9 @@
         var pc8 = createContext('player8');
         loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/floppydisk.json', pc8);
         pc8.renderer.domElement.onclick = function(){togglePlayPausePlayer("player8")};
+
+        var pc9 = createContext('player9');
+        loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/vacuum.json', pc9);
     </script>
 </body>
 </html>
