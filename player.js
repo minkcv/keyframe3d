@@ -291,6 +291,8 @@ function createShapeGeometry(pcx, data, shapeName) {
     }
     var shapeGeom = new THREE.ShapeBufferGeometry(shape);
     var mesh = new THREE.Mesh(shapeGeom, pcx.wallMaterial);
+    if (data.pos)
+        mesh.position.set(data.pos.x, data.pos.y, data.pos.z);
     mesh.shape = shapeName;
     var quat = new THREE.Quaternion();
     quat.set(data.rot.x, data.rot.y, data.rot.z, data.rot.w);
