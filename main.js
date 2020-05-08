@@ -161,6 +161,7 @@ function selectNode(id) {
     var treeNode = $('#scene-tree').tree('getNodeById', id);
     $('#scene-tree').tree('selectNode', treeNode);
     updateProperties();
+    updateModifiers();
     viewportsNeedRender();
 }
 
@@ -275,17 +276,7 @@ function renameNode() {
     selectNode(node.id);
 }
 
-function deleteNode() {
-    var treeNode = $('#scene-tree').tree('getSelectedNode');
-    if (treeNode == false) {
-        alert('Select a node to delete');
-        return;
-    }
-    if (selectNode.id == 0) {
-        alert('Cannot delete the root node');
-        return;
-    }
-    var node = findNode(pcx, treeNode.id);
+function deleteNode(node) {
     if (node.cameraId == 0) {
         alert('Cannot delete the default camera');
         return;
@@ -325,7 +316,6 @@ function deleteNode() {
     }
     updateTree();
     updateCameraLists();
-    selectNode(parent.id);
     log('Deleted node "' + node.name + '" with children ' + childNames);
 }
 

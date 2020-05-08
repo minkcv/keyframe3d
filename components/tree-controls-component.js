@@ -3,7 +3,7 @@ layout.registerComponent( 'treeControlsComponent', function(container, component
     `<div class="tree-controls" id="tree-controls">
         <button type='button' class='btn btn-sm' onclick='addEmptyNode()'>Create Node</button>
         <button type='button' class='btn btn-sm' onclick='renameNode()'>Rename Node</button>
-        <button type'button' class='btn btn-sm' onclick='deleteNode()'>Delete Node</button>
+        <button type'button' class='btn btn-sm' onclick='deleteSelectedNode()'>Delete Node</button>
         <button type='button' class='btn btn-sm' onclick='addCamera()'>Create Camera</button>
         <button type='button' class='btn btn-sm' onclick='duplicateNode()'>Duplicate Node</button>
         <br>
@@ -46,4 +46,20 @@ function duplicateNode() {
     var node = findNode(pcx, treeNode.id);
     duplicateNodeEditor(node);
     updateProperties();
+}
+
+function deleteSelectedNode() {
+    var treeNode = $('#scene-tree').tree('getSelectedNode');
+    if (treeNode == false) {
+        alert('Select a node to delete');
+        return;
+    }
+    if (treeNode.id == 0) {
+        alert('Cannot delete the root node');
+        return;
+    }
+    var node = findNode(pcx, treeNode.id);
+    var parent = getParentNode(pcx, node);
+    deleteNode(node);
+    selectNode(parent.id);
 }

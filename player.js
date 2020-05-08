@@ -191,6 +191,56 @@ function traverseTree(pcx, func, startNode) {
     });
 }
 
+function createModNodesPlayer(pcx, startNode) {
+    var mainParent = getParentNode(pcx, startNode);
+    var parents = {};
+    var modId = 1;
+    var repeats = 0;
+    if (startNode.modifier.type == 1) {
+        var mod = startNode.modifier;
+        repeats = mod.xn * mod.yn * mod.zn;
+    }
+    traverseTree(pcx, function(node) {
+        var originalParent = getParentNode(pcx, node);
+        var parent = mainParent;
+        if (originalParent.id != mainParent.id) {
+            parent = parents[originalParent.id];
+        }
+        for (var i = 0; i < repeats - 1; i++) {
+            var newNode;
+            if (node.source)
+                newNode = createModNodePlayer(node.source, parent, modId);
+            else
+                newNode = createModNodePlayer(node, parent, modId);
+            modId++;
+            if (node.model)
+                createModelPlayer(pcx, newNode, node.model);
+            else if (node.shape)
+                createShapePlayer(pcx, newNode, node.shape);
+
+            newNode.threeObject.position.copy(node.threeObject.position);
+            newNode.threeObject.quaternion.copy(node.threeObject.quaternion);
+            newNode.threeObject.scale.copy(node.threeObject.scale);
+            parents[node.id] = newNode;
+        }
+    }, startNode);
+}
+
+function createModNodePlayer(source, parent, modId) {
+    var obj = new THREE.Object3D();
+    var newNode = {
+        source: source,
+        modId: modId,
+        children: [],
+        threeObject: obj
+    };
+    if (parent != null) {
+        parent.children.push(newNode);
+        parent.threeObject.add(obj);
+    }
+    return newNode;
+}
+
 function createEmptyNodePlayer(name, parent, id) {
     var obj = new THREE.Object3D();
     var newNode = {
@@ -381,7 +431,14 @@ function getKeyframeData(kf, nodeId) {
 function seekTimePlayer(pcx, time) {
     var kf = getKeyframe(pcx, time);
     traverseTree(pcx, function(node) {
-        var current = getKeyframeData(kf, node.id);
+        var current;
+        var nodeId;
+        if (node.source !== undefined)
+            nodeId = node.source.id;
+        else 
+            nodeId = node.id;
+        current = getKeyframeData(kf, nodeId);
+        
         var currentPos = null;
         var currentRot = null;
         var currentScale = null;
@@ -414,17 +471,17 @@ function seekTimePlayer(pcx, time) {
                 }
             });
         }
-        if (currentPos && currentRot && currentScale && currentVis != null) {
+        if (currentPos && currentRot && currentScale && currentVis != null && node.source === undefined) {
             node.threeObject.quaternion.normalize();
             return;
         }
-        var beforePos = getKeyframeBefore(pcx, time, node.id, 'pos');
-        var beforeRot = getKeyframeBefore(pcx, time, node.id, 'rot');
-        var beforeScale = getKeyframeBefore(pcx, time, node.id, 'scale');
-        var beforeVis = getKeyframeBefore(pcx, time, node.id, 'vis');
-        var afterPos = getKeyframeAfter(pcx, time, node.id, 'pos');
-        var afterRot = getKeyframeAfter(pcx, time, node.id, 'rot');
-        var afterScale = getKeyframeAfter(pcx, time, node.id, 'scale');
+        var beforePos = getKeyframeBefore(pcx, time, nodeId, 'pos');
+        var beforeRot = getKeyframeBefore(pcx, time, nodeId, 'rot');
+        var beforeScale = getKeyframeBefore(pcx, time, nodeId, 'scale');
+        var beforeVis = getKeyframeBefore(pcx, time, nodeId, 'vis');
+        var afterPos = getKeyframeAfter(pcx, time, nodeId, 'pos');
+        var afterRot = getKeyframeAfter(pcx, time, nodeId, 'rot');
+        var afterScale = getKeyframeAfter(pcx, time, nodeId, 'scale');
         if (beforeVis.data && beforeVis.data.vis == false && currentVis == null) {
             node.threeObject.children.forEach(function(child) {
                 if (child.model) {
@@ -480,7 +537,9 @@ function seekTimePlayer(pcx, time) {
             node.threeObject.scale.set(xs, ys, zs);
         }
         node.threeObject.quaternion.normalize();
+        
     });
+    updateModifierNodes(pcx);
     var cameraNode = null;
     if (kf != null && kf.cameraId !== undefined)
         cameraNode = findCamera(pcx, kf.cameraId);
@@ -492,6 +551,47 @@ function seekTimePlayer(pcx, time) {
             cameraNode = findCamera(pcx, 0);
     }
     return cameraNode;
+}
+
+function updateModifierNodes(pcx) {
+    traverseTree(pcx, function(node) {
+        if (node.source !== undefined) {
+            node.threeObject.position.copy(node.source.threeObject.position);
+            node.threeObject.quaternion.copy(node.source.threeObject.quaternion);
+            node.threeObject.scale.copy(node.source.threeObject.scale);
+            node.threeObject.children.forEach(function(child) {
+                if (child.model) {
+                    child.visible = node.source.threeObject.visible;
+                    child.vis = node.source.threeObject.visible;
+                }
+            });
+            if (node.source.modifier.type == 1) {
+                var offset = getModArrayOffset(node);
+                node.threeObject.translateX(offset.x);
+                node.threeObject.translateY(offset.y);
+                node.threeObject.translateZ(offset.z);
+                //node.threeObject.position.add(offset);
+            }
+        }
+    });
+}
+
+function getModArrayOffset(node) {
+    // Diagram this one out. For example 4x2x2
+    // 12 13 14 15
+    //  8  9 10 11
+    //
+    //  4  5  6  7
+    //  0  1  2  3
+    var mod = node.source.modifier;
+    var xi = node.modId % mod.xn;
+    var yi = Math.floor((node.modId % (mod.xn * mod.yn)) / mod.xn);
+    var zi = Math.floor(node.modId / (mod.xn * mod.yn));
+    var offset = new THREE.Vector3();
+    offset.setX(xi * mod.xo);
+    offset.setY(yi * mod.yo);
+    offset.setZ(zi * mod.zo);
+    return offset;
 }
 
 function playPlayer(player) {

@@ -75,6 +75,8 @@ function updateProperties() {
     }
     else
         $('#camera-properties').hide();
+
+    updateModifierNodes(pcx);
 }
 
 function changeProperties() {
@@ -111,5 +113,6 @@ function changeProperties() {
         node.cameraObject.fov = node.cameraFov;
         node.cameraObject.updateProjectionMatrix();
     }
+    updateModifierNodes(pcx);
     viewportsNeedRender();
 }

@@ -85,6 +85,12 @@ var config = {
                         componentState: {},
                         isClosable: false,
                         title: 'Settings'
+                    },{
+                        type: 'component',
+                        componentName: 'modifierComponent',
+                        componentState: {},
+                        isClosable: false,
+                        title: 'Modifier'
                     }]
                 }]
             }]

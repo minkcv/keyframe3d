@@ -71,7 +71,7 @@ select, select:focus {
 button {
     margin: 2px;
 }
-.settings, .models, .file-menu, .tree-view, .tree-controls, .controls, .shapes {
+.settings, .models, .file-menu, .tree-view, .tree-controls, .controls, .shapes, .modifier {
     margin: 5px;
 }
 :not(.custom-file) > label {
@@ -87,7 +87,7 @@ button {
 #properties > div {
     margin: 5px;
 }
-.settings > input, .controls > input {
+.settings > input, .controls > input, .modifier > div > div > input {
     float: right;
 }
 input[type=checkbox] {
@@ -100,7 +100,7 @@ input {
     font-family: droid_sans_mono_regular;
     font-size: 11pt;
 }
-pre, .controls > div, .controls > div > span {
+pre, .controls > div, .controls > div > span, .modifier > label {
     font-size: 12pt;
     color: #cccccc;
 }

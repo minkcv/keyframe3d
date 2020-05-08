@@ -52,6 +52,8 @@ function updateTree() {
             children: []
         };
         traverseTree(pcx, function(node) {
+            if (node.modId !== undefined)
+                return;
             var copy = {
                 id: node.id,
                 name: node.name,
