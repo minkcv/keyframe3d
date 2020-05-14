@@ -556,21 +556,30 @@ function seekTimePlayer(pcx, time) {
 function updateModifierNodes(pcx) {
     traverseTree(pcx, function(node) {
         if (node.source !== undefined) {
-            node.threeObject.position.copy(node.source.threeObject.position);
-            node.threeObject.quaternion.copy(node.source.threeObject.quaternion);
+            var worldPos = new THREE.Vector3();
+            node.source.threeObject.getWorldPosition(worldPos);
+            node.threeObject.position.copy(worldPos);
+            var worldQ = new THREE.Quaternion();
+            node.source.threeObject.getWorldQuaternion(worldQ);
+            node.threeObject.setRotationFromQuaternion(worldQ);
             node.threeObject.scale.copy(node.source.threeObject.scale);
+            var vis = undefined;
+            node.source.threeObject.children.forEach(function(child) {
+                if (child.vis)
+                    vis = child.vis;
+            });
             node.threeObject.children.forEach(function(child) {
                 if (child.model) {
-                    child.visible = node.source.threeObject.visible;
-                    child.vis = node.source.threeObject.visible;
+                    child.visible = vis;
+                    child.vis = vis;
                 }
             });
             if (node.source.modifier.type == 1) {
                 var offset = getModArrayOffset(node);
-                node.threeObject.translateX(offset.x);
-                node.threeObject.translateY(offset.y);
-                node.threeObject.translateZ(offset.z);
-                //node.threeObject.position.add(offset);
+                var parentQ = new THREE.Quaternion();
+                getParentNode(pcx, node.source).threeObject.getWorldQuaternion(parentQ);
+                offset.applyQuaternion(parentQ);
+                node.threeObject.position.add(offset);
             }
         }
     });
