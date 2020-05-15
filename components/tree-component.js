@@ -57,6 +57,7 @@ function updateTree() {
             var copy = {
                 id: node.id,
                 name: node.name,
+                modifier: node.modifier,
                 children: []
             };
             if (node.model !== undefined)

@@ -31,8 +31,10 @@ function updateModifiers() {
         return;
     if (treeNode.id == 0 ) {
         $('#modifier-select').hide();
+        $('#modifier-options').hide();
         return;
     }
+    $('#modifier-options').show();
     $('#modifier-select').show();
     var node = findNode(pcx, treeNode.id);
     if (node.modifier === undefined) {
@@ -45,12 +47,12 @@ function updateModifiers() {
     $('#modifier-select').val(node.modifier.type);
     if (node.modifier.type == 1) {
         $('#array-options').show();
-         $('#array-num-x').val(node.modifier.xn);
-         $('#array-num-y').val(node.modifier.yn);
-         $('#array-num-z').val(node.modifier.zn);
-         $('#array-offset-x').val(node.modifier.xo);
-         $('#array-offset-y').val(node.modifier.yo);
-         $('#array-offset-z').val(node.modifier.zo);
+        $('#array-num-x').val(node.modifier.xn);
+        $('#array-num-y').val(node.modifier.yn);
+        $('#array-num-z').val(node.modifier.zn);
+        $('#array-offset-x').val(node.modifier.xo);
+        $('#array-offset-y').val(node.modifier.yo);
+        $('#array-offset-z').val(node.modifier.zo);
     }
     else if (node.modifier.type == 2) {
         $('#revolve-options').show();
@@ -98,7 +100,8 @@ function changeModifier() {
         node.modifier.yo = 100;
         node.modifier.zo = 100;
     }
-    cleanupOldModifierNodes(node);
+    cleanupOldModifierNodes();
+    createModNodesPlayer(pcx);
     updateModifiers();
     updateModifierNodes(pcx);
     selectNode(node.id);
@@ -117,21 +120,22 @@ function changeModifierDetail() {
         node.modifier.yo = parseInt($('#array-offset-y').val());
         node.modifier.zo = parseInt($('#array-offset-z').val());
     }
-    cleanupOldModifierNodes(node);
-    createModNodesPlayer(pcx, node);
+    cleanupOldModifierNodes();
+    createModNodesPlayer(pcx);
     updateModifierNodes(pcx);
     selectNode(node.id);
 }
 
-function cleanupOldModifierNodes(node) {
-    var parent = getParentNode(pcx, node);
+function cleanupOldModifierNodes() {
     var toDelete = [];
     traverseTree(pcx, function (modNode) {
         if (modNode.modId !== undefined)
             toDelete.push(modNode);
-    }, parent);
+    });
 
     toDelete.forEach(function(modNode) {
+        var parent = getParentNode(pcx, findNode(pcx, modNode.source.id));
+        parent.threeObject.remove(modNode);
         deleteNode(modNode);
     });
 }

@@ -191,39 +191,35 @@ function traverseTree(pcx, func, startNode) {
     });
 }
 
-function createModNodesPlayer(pcx, startNode) {
-    var mainParent = getParentNode(pcx, startNode);
-    var parents = {};
-    var modId = 1;
-    var repeats = 0;
-    if (startNode.modifier.type == 1) {
-        var mod = startNode.modifier;
-        repeats = mod.xn * mod.yn * mod.zn;
-    }
-    traverseTree(pcx, function(node) {
-        var originalParent = getParentNode(pcx, node);
-        var parent = mainParent;
-        if (originalParent.id != mainParent.id) {
-            parent = parents[originalParent.id];
+function createModNodesPlayer(pcx) {
+    traverseTree(pcx, function(potentialSource) {
+        if (potentialSource.modifier === undefined)
+            return;
+        var mainParent = getParentNode(pcx, potentialSource);
+        var parents = {};
+        var modId = 1;
+        var repeats = 0;
+        if (potentialSource.modifier.type == 1) {
+            var mod = potentialSource.modifier;
+            repeats = mod.xn * mod.yn * mod.zn;
         }
-        for (var i = 0; i < repeats - 1; i++) {
-            var newNode;
-            if (node.source)
-                newNode = createModNodePlayer(node.source, parent, modId);
-            else
-                newNode = createModNodePlayer(node, parent, modId);
-            modId++;
-            if (node.model)
-                createModelPlayer(pcx, newNode, node.model);
-            else if (node.shape)
-                createShapePlayer(pcx, newNode, node.shape);
-
-            newNode.threeObject.position.copy(node.threeObject.position);
-            newNode.threeObject.quaternion.copy(node.threeObject.quaternion);
-            newNode.threeObject.scale.copy(node.threeObject.scale);
-            parents[node.id] = newNode;
-        }
-    }, startNode);
+        traverseTree(pcx, function(node) {
+            var originalParent = getParentNode(pcx, potentialSource);
+            var parent = mainParent;
+            if (originalParent.id != mainParent.id) {
+                parent = parents[originalParent.id];
+            }
+            for (var i = 0; i < repeats - 1; i++) {
+                var newNode = createModNodePlayer(node, parent, modId);
+                modId++;
+                if (node.model)
+                    createModelPlayer(pcx, newNode, node.model);
+                else if (node.shape)
+                    createShapePlayer(pcx, newNode, node.shape);
+                parents[node.id] = newNode;
+            }
+        }, potentialSource);
+    });
 }
 
 function createModNodePlayer(source, parent, modId) {
