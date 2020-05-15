@@ -81,6 +81,8 @@ function changeModifier() {
         $('#mirror-options').hide();
         cleanupOldModifierNodes(node);
         node.modifier = undefined;
+        cleanupOldModifierNodes();
+        createModNodesPlayer(pcx);
         selectNode(node.id);
         return;
     }

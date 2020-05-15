@@ -204,25 +204,21 @@ function createModNodesPlayer(pcx) {
             repeats = mod.xn * mod.yn * mod.zn;
         }
         traverseTree(pcx, function(node) {
-            var originalParent = getParentNode(pcx, potentialSource);
-            var parent = mainParent;
-            if (originalParent.id != mainParent.id) {
-                parent = parents[originalParent.id];
-            }
+            if (node.modId)
+                return;
             for (var i = 0; i < repeats - 1; i++) {
-                var newNode = createModNodePlayer(node, parent, modId);
+                var newNode = createModNodePlayer(potentialSource, modId);
                 modId++;
-                if (node.model)
-                    createModelPlayer(pcx, newNode, node.model);
-                else if (node.shape)
-                    createShapePlayer(pcx, newNode, node.shape);
-                parents[node.id] = newNode;
+                //if (node.model)
+                //    createModelPlayer(pcx, newNode, node.model);
+                //else if (node.shape)
+                //    createShapePlayer(pcx, newNode, node.shape);
             }
         }, potentialSource);
     });
 }
 
-function createModNodePlayer(source, parent, modId) {
+function createModNodePlayer(source, modId) {
     var obj = new THREE.Object3D();
     var newNode = {
         source: source,
@@ -230,10 +226,8 @@ function createModNodePlayer(source, parent, modId) {
         children: [],
         threeObject: obj
     };
-    if (parent != null) {
-        parent.children.push(newNode);
-        parent.threeObject.add(obj);
-    }
+    source.children.push(newNode);
+    source.threeObject.add(obj);
     return newNode;
 }
 
