@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-    <div class='player' id='player1' onclick='document.getElementById("player1").requestFullscreen()'>
+    <div class='player' id='player1'>
     </div>
     
     <script type='text/javascript'>
@@ -27,6 +27,11 @@
         
         var pc1 = createContext('player1');
         loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/ipadpro.json', pc1);
+        function fullscreen() {
+            document.getElementById("player1").requestFullscreen();
+        }
+        document.getElementById('player1').addEventListener('click', fullscreen);
+        document.getElementById('player1').addEventListener('touchend', fullscreen);
     </script>
 </body>
 </html>
