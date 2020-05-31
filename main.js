@@ -292,11 +292,14 @@ function deleteNode() {
     }
     var childNames = '';
     var containsDefaultCamera = false;
+    var cameras = [];
     traverseTree(pcx, function(child) {
         if (child.cameraId == 0)
             containsDefaultCamera = true;
         if (child.name != node.name)
             childNames += '"' + child.name + '", ';
+        if (child.cameraId !== undefined)
+            cameras.push(child.cameraId);
     }, node);
     if (containsDefaultCamera) {
         alert('Cannot delete a node that has the default camera as a child');
@@ -307,6 +310,8 @@ function deleteNode() {
     }
     traverseTree(pcx, function(child) {
         pcx.keyframes.forEach(function(kf) {
+            if (cameras.includes(kf.cameraId))
+                kf.cameraId = 0;
             for (var i = 0; i < kf.nodes.length; i++) {
                 if (kf.nodes[i].id == child.id) {
                     kf.nodes.splice(i, 1);

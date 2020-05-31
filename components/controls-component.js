@@ -39,7 +39,9 @@ layout.registerComponent( 'controlsComponent', function(container, componentStat
             <hr>
             <div>Key Camera: <span id='key-camera'>default camera</span></div>
             <button type='button' class='btn btn-sm' onclick='setKeyframeCamera()'>Set Camera</button>
-            <select id='keyframe-camera'></select>
+            <select id='keyframe-camera'></select><br>
+            <button type='button' class='btn btn-sm' onclick='seekNextKC()'>Seek Next Key Camera</button><br>
+            <button type='button' class='btn btn-sm' onclick='seekPreviousKC()'>Seek Previous Key Camera</button><br>
         </div>`);
 });
 
@@ -431,6 +433,25 @@ function cleanKeyframes(nodeNames) {
     }
 }
 
+function seekNextPreviousKC(next) {
+    var time = timeline.getCustomTime('playhead').getTime();
+    var newTime = -1;
+    pcx.keyframes.forEach(function(kf) {
+        if (kf.cameraId !== undefined) {
+            if ((next && kf.time > time) || (!next && kf.time < time)) {
+                if (newTime == -1)
+                    newTime = kf.time;
+                else if ((next && kf.time < newTime) || (!next && kf.time > newTime))
+                    newTime = kf.time;
+            }
+        }
+    });
+    if (newTime != -1) {
+        seekTime(newTime);
+        updateProperties();
+    }
+}
+
 function seekNextPrevious(next) {
     var time = timeline.getCustomTime('playhead').getTime();
     var newTime = -1;
@@ -483,6 +504,14 @@ function seekNext() {
 
 function seekPrevious() {
     seekNextPrevious(false);
+}
+
+function seekNextKC() {
+    seekNextPreviousKC(true);
+}
+
+function seekPreviousKC() {
+    seekNextPreviousKC(false);
 }
 
 function seekTimeInput() {
