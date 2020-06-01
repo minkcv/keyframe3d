@@ -162,7 +162,7 @@ input {
 }
 button {
     color: #212529;
-    background-color: #EFEFEF;
+    background-color: #EFEFEF !important;
 }
 button > label {
     padding: 0px !important;
