@@ -246,7 +246,6 @@ a:not([href]):not([tabindex]) {
 }
 /* Style the buttons that are used to open and close the accordion panel */
 .accordion {
-    -webkit-appearance: none;
     background-color: #444 !important;
     color: #ccc !important;
     cursor: pointer;
