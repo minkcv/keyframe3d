@@ -293,6 +293,7 @@ function deleteNode() {
     var childNames = '';
     var containsDefaultCamera = false;
     var cameras = [];
+    var deletedNodes = [];
     traverseTree(pcx, function(child) {
         if (child.cameraId == 0)
             containsDefaultCamera = true;
@@ -300,6 +301,7 @@ function deleteNode() {
             childNames += '"' + child.name + '", ';
         if (child.cameraId !== undefined)
             cameras.push(child.cameraId);
+        deletedNodes.push(child.id);
     }, node);
     if (containsDefaultCamera) {
         alert('Cannot delete a node that has the default camera as a child');
@@ -308,18 +310,16 @@ function deleteNode() {
     if (childNames) {
         childNames = childNames.slice(0, childNames.length - 2);
     }
-    traverseTree(pcx, function(child) {
-        pcx.keyframes.forEach(function(kf) {
-            if (cameras.includes(kf.cameraId))
-                kf.cameraId = 0;
-            for (var i = 0; i < kf.nodes.length; i++) {
-                if (kf.nodes[i].id == child.id) {
-                    kf.nodes.splice(i, 1);
-                    i--;
-                }
+    pcx.keyframes.forEach(function(kf) {
+        if (cameras.includes(kf.cameraId))
+            kf.cameraId = 0;
+        for (var i = 0; i < kf.nodes.length; i++) {
+            if (deletedNodes.includes(kf.nodes[i].id)) {
+                kf.nodes.splice(i, 1);
+                i--;
             }
-        });
-    }, node);
+        }
+    });
     var parent = getParentNode(pcx, node);
     for (var i = 0; i < parent.children.length; i++) {
         if (parent.children[i].id == node.id) {
@@ -331,6 +331,8 @@ function deleteNode() {
     updateTree();
     updateCameraLists();
     selectNode(parent.id);
+    var time = timeline.getCustomTime('playhead').getTime();
+    seekTime(time);
     log('Deleted node "' + node.name + '" with children ' + childNames);
 }
 
