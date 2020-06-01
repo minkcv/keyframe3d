@@ -28,6 +28,8 @@ option:checked, option:active {
     margin: 5px;
 }
 .view-angle-controls > button {
+    color: #EFEFEF;
+    background-color: #212529;
     width: 40px;
 }
 .view-position-controls {
@@ -162,7 +164,8 @@ input {
 }
 button {
     color: #212529;
-    background-color: #EFEFEF !important;
+    background-color: #EFEFEF;
+    -webkit-appearance: none;
 }
 button > label {
     padding: 0px !important;
