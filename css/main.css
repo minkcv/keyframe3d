@@ -160,6 +160,10 @@ input {
     border-style: solid;
     border-width: 1px;
 }
+button {
+    color: #212529;
+    background-color: #EFEFEF;
+}
 button > label {
     padding: 0px !important;
     margin: -4px 0px -1px 0px !important;
