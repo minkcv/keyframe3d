@@ -94,6 +94,12 @@
         <button onclick='playPlayer("player9")'>Play</button>
         <button onclick='pausePlayer("player9")'>Pause</button>
     </div>
+    <div class='player' id='player10'>
+    </div>
+    <div class='controls'>
+        <button onclick='playPlayer("player10")'>Play</button>
+        <button onclick='pausePlayer("player10")'>Pause</button>
+    </div>
     
     <script type='text/javascript'>
         // for testing locally
@@ -127,6 +133,9 @@
 
         var pc9 = createContext('player9');
         loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/vacuum.json', pc9);
+
+        var pc10 = createContext('player10');
+        loadProjectPlayer('https://minkcv.github.io/keyframe3d/demos/lines.json', pc10);
     </script>
 </body>
 </html>
